@@ -54,16 +54,31 @@ void
 init(Input& input);
 
 
+template <Key key>
 bool
-is_pressed(KeyState& key);
+is_pressed(Input& input)
+{
+  bool result = (input.keys[key].up_at < input.keys[key].down_at);
+  return result;
+}
 
 
+template <Key key>
 bool
-up(Input& input, Key key, FrameID::FrameID frame_id);
+up(Input& input, FrameID::FrameID frame_id)
+{
+  bool result = (input.keys[key].up_at == frame_id);
+  return result;
+}
 
 
+template <Key key>
 bool
-down(Input& input, Key key, FrameID::FrameID frame_id);
+down(Input& input, FrameID::FrameID frame_id)
+{
+  bool result = (input.keys[key].down_at == frame_id);
+  return result;
+}
 
 
 void

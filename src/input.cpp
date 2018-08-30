@@ -102,30 +102,6 @@ init(Input& input)
 }
 
 
-bool
-is_pressed(KeyState& key)
-{
-  bool result = (key.up_at < key.down_at);
-  return result;
-}
-
-
-bool
-up(Input& input, Key key, FrameID::FrameID frame_id)
-{
-  bool result = (input.keys[key].up_at == frame_id);
-  return result;
-}
-
-
-bool
-down(Input& input, Key key, FrameID::FrameID frame_id)
-{
-  bool result = (input.keys[key].down_at == frame_id);
-  return result;
-}
-
-
 void
 update(KeyState& key, SDL_Event& key_event, FrameID::FrameID frame_id)
 {
