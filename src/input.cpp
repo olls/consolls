@@ -159,7 +159,7 @@ update(Input& input, FrameID::FrameID frame_id)
       case (SDL_KEYUP):
       {
         for (u32 key_index = 0;
-             key_index < Input::N_KEYS;
+             key_index < Key::N_KEYS;
              ++key_index)
         {
           update(input.keys[key_index], event, frame_id);

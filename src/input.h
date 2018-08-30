@@ -6,6 +6,31 @@
 #include <SDL2/SDL.h>
 
 
+namespace Key_Hidden
+{
+// Need Key enum to be anonymous for it to be used as array indices.
+// Typedef needed so that we can reference its type for function args...
+// Namespace needed so all the Keys are not polluting the global scope!
+// using K::Key needed to hide the namespace
+
+typedef enum
+{
+  A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+  _0, _1, _2, _3, _4, _5, _6, _7, _8, _9,
+  Tick, Minus, Plus, Tab, BraceOpen, BraceClose, Colon, Apostrophe, Hash, Comma, FullStop, BackSlash, ForwardSlash,
+  Escape, Backspace, Enter, Space,
+  Insert, Delete, Home, End, PageUp, PageDown,
+  CtrlLeft, CtrlRight, ShiftLeft, ShiftRight, AltLeft, AltRight,
+  F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+
+  N_KEYS
+} Key;
+
+} // namespace Key_Hidden
+
+using Key_Hidden::Key;
+
+
 namespace Input
 {
 
@@ -21,26 +46,8 @@ struct Input
 {
   bool quit;
 
-  enum Key
-  {
-    A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-    _0, _1, _2, _3, _4, _5, _6, _7, _8, _9,
-    Tick, Minus, Plus, Tab, BraceOpen, BraceClose, Colon, Apostrophe, Hash, Comma, FullStop, BackSlash, ForwardSlash,
-    Escape, Backspace, Enter, Space,
-    Insert, Delete, Home, End, PageUp, PageDown,
-    CtrlLeft, CtrlRight, ShiftLeft, ShiftRight, AltLeft, AltRight,
-    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-
-    N_KEYS
-  };
-
-  KeyState keys[N_KEYS];
+  KeyState keys[Key::N_KEYS];
 };
-
-
-// Have to leave the anonymous enum in Input struct so that it can be used for indexing the keys array without casting.
-//   But want the definitions at the top level Input namespace so we can use Input::Key_X instead of Input::Input::Key_X.
-using Key = Input::Key;
 
 
 void

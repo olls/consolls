@@ -35,7 +35,7 @@ game_loop(SDL_State::SDL_State& sdl_state)
     {
       running = false;
     }
-    if (Input::up(input, Input::Key::F11, frame_id))
+    if (Input::up(input, Key::F11, frame_id))
     {
       SDL_State::set_fullscreen(sdl_state, !SDL_State::is_fullscreen(sdl_state));
     }
@@ -43,7 +43,6 @@ game_loop(SDL_State::SDL_State& sdl_state)
     static int n = 0;
     n += 67;
     Texture::set_pixel(texture, (n/texture.height)%texture.width, n%texture.height, (0xffd0043+n*437347%57342)*9);
-
 
     assert(SDL_State::render(sdl_state, texture));
   }
