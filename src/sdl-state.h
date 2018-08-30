@@ -36,6 +36,10 @@ bool
 is_fullscreen(SDL_State& sdl_state);
 
 
+inline void
+toggle_fullscreen(SDL_State& sdl_state) { set_fullscreen(sdl_state, !is_fullscreen(sdl_state)); }
+
+
 void
 destroy(SDL_State& sdl_state);
 

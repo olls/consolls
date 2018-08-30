@@ -37,7 +37,7 @@ game_loop(SDL_State::SDL_State& sdl_state)
     }
     if (Input::up<Key::F11>(input, frame_id))
     {
-      SDL_State::set_fullscreen(sdl_state, !SDL_State::is_fullscreen(sdl_state));
+      SDL_State::toggle_fullscreen(sdl_state);
     }
 
     static int n = 0;
