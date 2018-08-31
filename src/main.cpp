@@ -1,6 +1,5 @@
-#include "sdl-state.h"
-#include "game-loop.h"
-#include "types.h"
+#include "game.h"
+#include "assert.h"
 
 
 s32
@@ -8,14 +7,16 @@ main(s32 argc, char const *argv[])
 {
   bool success = true;
 
-  SDL_State::SDL_State sdl_state = {};
-  success &= SDL_State::init(sdl_state, APP_NAME, 640, 480);
+  bool (*game_run)() = NULL;
 
-  if (success)
-  {
-    success &= GameLoop::game_loop(sdl_state);
-  }
+#if LIVE_RELOAD
 
-  SDL_State::destroy(sdl_state);
+#else
+  game_run = &(Game::run);
+#endif
+
+  assert(game_run);
+  success &= game_run();
+
   return success ? 0 : 1;
 }
