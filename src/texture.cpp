@@ -28,8 +28,7 @@ set_pixel(Texture& texture, u32 x, u32 y, u32 colour)
 {
   bool success = true;
 
-  if (x >= 0 && y >= 0 &&
-      x < texture.width &&
+  if (x < texture.width &&
       y < texture.height)
   {
     texture.pixels[texture.width*y + x] = colour;

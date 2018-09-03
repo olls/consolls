@@ -1,7 +1,7 @@
 APPNAME = 'consolls'
 VERSION = '0.0.1'
 
-LIVE_RELOAD = True
+LIVE_RELOAD = False
 
 top = '.'
 out = 'build'
