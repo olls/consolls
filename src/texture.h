@@ -7,16 +7,20 @@
 namespace Texture
 {
 
+using Pixel = u32;
+
+
 struct Texture
 {
   u32 width;
   u32 height;
-  u32 *pixels;
+
+  Pixel *pixels;
 };
 
 
 bool
-init(Texture& texture, s32 width, s32 height);
+allocate(Texture& texture, s32 width, s32 height);
 
 
 bool

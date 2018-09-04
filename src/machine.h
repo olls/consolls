@@ -53,20 +53,6 @@ struct Memory
 };
 
 
-inline u8
-get_byte(Memory& memory, MemoryAddress addr)
-{
-  return memory.bytes[(u16)addr];
-}
-
-
-inline void
-set_byte(Memory& memory, MemoryAddress addr, u8 byte_value)
-{
-  memory.bytes[(u16)addr] = byte_value;
-}
-
-
 enum class InstructionCodes : u8
 {
   NOP     = 0x0,
@@ -94,13 +80,14 @@ enum class InstructionWidths
 };
 
 
-namespace Registers
+namespace Reserved
 {
 enum : MemoryAddress
 {
-  NI = 0x0000
+  NI = 0x0000,
+  ScreenBuffer = 0x2000
 };
-} // namespace Registers
+} // namespace Reserved
 
 
 struct Machine
@@ -109,7 +96,31 @@ struct Machine
 };
 
 
+template <typename size>
+size *
+get_ptr(Memory& memory, MemoryAddress addr)
+{
+  return (size *)(memory.bytes + addr);
+}
+
+
+template <typename size>
+size
+get(Memory& memory, MemoryAddress addr)
+{
+  return *get_ptr<size>(memory, addr);
+}
+
+
+template <typename size>
+inline void
+set(Memory& memory, MemoryAddress addr, size byte_value)
+{
+  *get_ptr<size>(memory, addr) = byte_value;
+}
+
+
 void
-execute(Machine& machine);
+advance(Machine &machine);
 
 } // namespace Machine

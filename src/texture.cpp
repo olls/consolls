@@ -6,13 +6,13 @@ namespace Texture
 {
 
 bool
-init(Texture& texture, s32 width, s32 height)
+allocate(Texture& texture, s32 width, s32 height)
 {
   bool success = true;
 
   texture.width = width;
   texture.height = height;
-  texture.pixels = Allocate::allocate<u32>(texture.width * texture.height);
+  texture.pixels = Allocate::allocate<Pixel>(texture.width * texture.height);
   if (texture.pixels == NULL)
   {
     printf("Failed to allocate texture screen pixels.\n");

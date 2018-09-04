@@ -5,12 +5,9 @@ namespace Machine
 {
 
 void
-execute(Machine& machine)
+advance(Machine& machine)
 {
-  // TODO: Implement get_u16
-  MemoryAddress next_instruction = 0;
-  *(u8*)(&next_instruction) = get_byte(machine.memory, Registers::NI);
-  *((u8*)(&next_instruction)+1) = get_byte(machine.memory, Registers::NI+1);
+  MemoryAddress next_instruction = get<u16>(machine.memory, Reserved::NI);
 }
 
 } // namespace Machine
