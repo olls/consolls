@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "texture.h"
 
 
 namespace Machine
@@ -9,14 +10,14 @@ namespace Machine
 using MemoryAddress = u16;
 
 
+template <u32 screen_buffer_width, u32 screen_buffer_height>
 struct Memory
 {
-  static const u32 memory_space_start = 0x10;
-  static const u32 screen_buffer_size = 0x2000;
+  static constexpr r32 pixel_size = 0.5;
+
+  static const u32 screen_buffer_size = (screen_buffer_width * screen_buffer_height) * pixel_size;
   static const u32 general_buffer_size = 0x2000;
-  static const u32 size = ((screen_buffer_size +
-                            general_buffer_size) -
-                           memory_space_start);
+  static const u32 size = (screen_buffer_size + general_buffer_size);
 
   u8 bytes[size];
 
@@ -92,31 +93,39 @@ enum : MemoryAddress
 
 struct Machine
 {
-  Memory memory;
+  Memory<128, 128> memory;
 };
 
 
-template <typename size>
+template <typename size, u32 w, u32 h>
 size *
-get_ptr(Memory& memory, MemoryAddress addr)
+get_ptr(Memory<w,h>& memory, MemoryAddress addr)
 {
   return (size *)(memory.bytes + addr);
 }
 
 
-template <typename size>
+template <typename size, u32 w, u32 h>
 size
-get(Memory& memory, MemoryAddress addr)
+get(Memory<w,h>& memory, MemoryAddress addr)
 {
   return *get_ptr<size>(memory, addr);
 }
 
 
-template <typename size>
+template <typename size, u32 w, u32 h>
 inline void
-set(Memory& memory, MemoryAddress addr, size byte_value)
+set(Memory<w,h>& memory, MemoryAddress addr, size byte_value)
 {
   *get_ptr<size>(memory, addr) = byte_value;
+}
+
+
+template <u32 w, u32 h>
+inline bool
+allocate_screen_buffer_texture(Memory<w,h>& memory, Texture::Texture& texture)
+{
+  return Texture::allocate(texture, w, h);
 }
 
 

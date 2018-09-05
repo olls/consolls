@@ -27,6 +27,15 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
 
   Machine::advance(state->machine);
 
+  if (!state->texture.pixels)
+  {
+    success &= Machine::allocate_screen_buffer_texture(state->machine.memory, state->texture);
+    if (success)
+    {
+      success &= SDL_State::set_render_texture(sdl_state, state->texture);
+    }
+  }
+
   u8* pixels = Machine::get_ptr<u8>(state->machine.memory, Machine::Reserved::ScreenBuffer);
 
   // Convert and copy pixels into state.texture
@@ -50,14 +59,6 @@ run()
 
   SDL_State::SDL_State sdl_state = {};
   success &= SDL_State::init(sdl_state, APP_NAME, 640, 480, SDL_PIXELFORMAT_RGBX8888);
-  if (success)
-  {
-    success &= Texture::allocate(state.texture, 128, 128);
-    if (success)
-    {
-      success &= SDL_State::set_render_texture(sdl_state, state.texture);
-    }
-  }
 
   if (success)
   {
