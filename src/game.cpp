@@ -27,24 +27,27 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
 
   Machine::advance(state->machine);
 
+  bool texture = true;
   if (!state->texture.pixels)
   {
-    success &= Machine::allocate_screen_buffer_texture(state->machine.memory, state->texture);
-    if (success)
+    texture &= Machine::allocate_screen_buffer_texture(state->machine.memory, state->texture);
+    if (texture)
     {
-      success &= SDL_State::set_render_texture(sdl_state, state->texture);
+      texture &= SDL_State::set_render_texture(sdl_state, state->texture);
     }
   }
 
-  u8* pixels = Machine::get_ptr<u8>(state->machine.memory, Machine::Reserved::ScreenBuffer);
+  if (!texture)
+  {
+    success &= false;
+  }
+  else
+  {
+    u8* pixels = Machine::get_ptr<u8>(state->machine.memory, Machine::Reserved::ScreenBuffer);
 
-  // Convert and copy pixels into state.texture
-
-  static int n = 0;
-  n += 67;
-  Texture::set_pixel(state->texture, (n/state->texture.height)%state->texture.width, n%state->texture.height, (0xffd0043+n*437347%57342)*9);
-
-  assert(SDL_State::render(sdl_state, state->texture));
+    Machine::output_screen_buffer(state->machine, state->texture);
+    assert(SDL_State::render(sdl_state, state->texture));
+  }
 
   return success;
 }

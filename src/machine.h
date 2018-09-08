@@ -13,9 +13,13 @@ using MemoryAddress = u16;
 template <u32 screen_buffer_width, u32 screen_buffer_height>
 struct Memory
 {
-  static constexpr r32 pixel_size = 0.5;
+  static const u32 sb_width = screen_buffer_width;
+  static const u32 sb_height = screen_buffer_height;
 
-  static const u32 screen_buffer_size = (screen_buffer_width * screen_buffer_height) * pixel_size;
+  static constexpr u32 pixel_size = 4; // bits
+  static_assert(pixel_size < 8);
+
+  static const u32 screen_buffer_size = (screen_buffer_width * screen_buffer_height * pixel_size) / 8;
   static const u32 general_buffer_size = 0x2000;
   static const u32 size = (screen_buffer_size + general_buffer_size);
 
@@ -131,5 +135,9 @@ allocate_screen_buffer_texture(Memory<w,h>& memory, Texture::Texture& texture)
 
 void
 advance(Machine &machine);
+
+
+void
+output_screen_buffer(Machine& machine, Texture::Texture& texture);
 
 } // namespace Machine
