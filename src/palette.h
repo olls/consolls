@@ -3,7 +3,7 @@
 #include "types.h"
 
 
-namespace Pallete
+namespace Palette
 {
 
 using Colour = u32;
@@ -50,11 +50,11 @@ typedef enum : u8
 } Index;
 
 
-Colour
+inline Colour
 get_colour(Index index)
 {
   Colour result = COLOURS[index];
   return result;
 }
 
-} // namespace Pallet
+} // namespace Palette

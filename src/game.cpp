@@ -1,11 +1,67 @@
 #include "game.h"
 
 #include "sdl-state.h"
+#include "palette.h"
 #include "assert.h"
+
+#define ARRAY_LEN(a) (sizeof(a)/sizeof((a)[0]))
 
 
 namespace Game
 {
+
+void
+load_program(Machine::Machine& machine)
+{
+  Machine::MemoryAddress addr = Machine::Reserved::UserStart;
+
+  #define Instruction(c) (Machine::advance_addr<Machine::InstructionCode>(machine, addr) = (c))
+  #define Wide(a) (Machine::advance_addr<u16>(machine, addr) = (a))
+  #define Value(v) (Machine::advance_addr<u8>(machine, addr) = (v))
+
+  Machine::MemoryAddress vars = 0x100;
+  Machine::MemoryAddress stride = vars; vars += 2;
+  Machine::MemoryAddress colour = vars; vars += 1;
+  Machine::MemoryAddress colour_a = vars; vars += 2;
+  Machine::MemoryAddress counter = vars; vars += 2;
+
+  Instruction(Machine::InstructionCode::SET_W);
+    Wide(stride);
+    Wide(70);
+
+  Instruction(Machine::InstructionCode::SET);
+    Wide(colour);
+    Value(Palette::Red);
+
+  Instruction(Machine::InstructionCode::SET_W);
+    Wide(colour_a);
+    Wide(colour);
+
+  Instruction(Machine::InstructionCode::SET_W);
+    Wide(counter);
+    Wide(Machine::Reserved::ScreenBuffer);
+
+  Machine::MemoryAddress loop = addr;
+
+  Instruction(Machine::InstructionCode::COPY);
+    Wide(colour_a);
+    Wide(counter);
+
+  Instruction(Machine::InstructionCode::ADD_W);
+    Wide(counter);
+    Wide(stride);
+    Wide(counter);
+
+  Instruction(Machine::InstructionCode::JUMP);
+    Wide(loop);
+
+  #undef Instruction
+  #undef Address
+  #undef Value
+
+  Machine::set<Machine::MemoryAddress>(machine, Machine::Reserved::NI, Machine::Reserved::UserStart);
+}
+
 
 bool
 advance(State *state, SDL_State::SDL_State& sdl_state)
@@ -43,8 +99,6 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
   }
   else
   {
-    u8* pixels = Machine::get_ptr<u8>(state->machine.memory, Machine::Reserved::ScreenBuffer);
-
     Machine::output_screen_buffer(state->machine, state->texture);
     assert(SDL_State::render(sdl_state, state->texture));
   }
@@ -68,6 +122,8 @@ run()
     Input::init(state.input);
 
     state.frame_id = 0;
+
+    load_program(state.machine);
 
     bool running = true;
     while (running)

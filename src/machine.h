@@ -1,7 +1,8 @@
 #pragma once
 
-#include "types.h"
 #include "texture.h"
+#include "assert.h"
+#include "types.h"
 
 
 namespace Machine
@@ -58,30 +59,19 @@ struct Memory
 };
 
 
-enum class InstructionCodes : u8
+enum class InstructionCode : u8
 {
-  NOP     = 0x0,
-  ADD     = 0x1,
-  SUB     = 0x2,
-  MUL     = 0x3,
-  DIV     = 0x4,
-  IF_ZERO = 0x5,
-  LOAD    = 0x6,
-  STORE   = 0x7
-};
-
-
-enum class InstructionWidths
-{
-  // Size in bytes of instruction + arguments
-  NOP     = sizeof(MemoryAddress)*(1 + 0),
-  ADD     = sizeof(MemoryAddress)*(1 + 3),
-  SUB     = sizeof(MemoryAddress)*(1 + 3),
-  MUL     = sizeof(MemoryAddress)*(1 + 3),
-  DIV     = sizeof(MemoryAddress)*(1 + 3),
-  IF_ZERO = sizeof(MemoryAddress)*(1 + 2),
-  LOAD    = sizeof(MemoryAddress)*(1 + 1),
-  STORE   = sizeof(MemoryAddress)*(1 + 1)
+  NOP     = 0x00,
+  ADD     = 0x01,
+  ADD_W   = 0x02,
+  SUB     = 0x03,
+  MUL     = 0x04,
+  DIV     = 0x05,
+  JUMP    = 0x06,
+  IF_ZERO = 0x07,
+  SET     = 0x08,
+  SET_W   = 0x09,
+  COPY    = 0x10
 };
 
 
@@ -90,6 +80,7 @@ namespace Reserved
 enum : MemoryAddress
 {
   NI = 0x0000,
+  UserStart = 0x0002,
   ScreenBuffer = 0x2000
 };
 } // namespace Reserved
@@ -101,27 +92,36 @@ struct Machine
 };
 
 
-template <typename size, u32 w, u32 h>
-size *
-get_ptr(Memory<w,h>& memory, MemoryAddress addr)
+template <typename element_type>
+inline element_type *
+get_ptr(Machine& machine, MemoryAddress addr)
 {
-  return (size *)(memory.bytes + addr);
+  assert(addr < machine.memory.size);
+  return (element_type *)(machine.memory.bytes + addr);
 }
 
 
-template <typename size, u32 w, u32 h>
-size
-get(Memory<w,h>& memory, MemoryAddress addr)
+template <typename element_type>
+inline element_type
+get(Machine& machine, MemoryAddress addr)
 {
-  return *get_ptr<size>(memory, addr);
+  return *get_ptr<element_type>(machine, addr);
 }
 
 
-template <typename size, u32 w, u32 h>
+template <typename element_type>
 inline void
-set(Memory<w,h>& memory, MemoryAddress addr, size byte_value)
+set(Machine& machine, MemoryAddress addr, element_type byte_value)
 {
-  *get_ptr<size>(memory, addr) = byte_value;
+  *get_ptr<element_type>(machine, addr) = byte_value;
+}
+
+
+template <typename element_type>
+inline void
+set(Machine& machine, MemoryAddress start, element_type* elements, u32 n_elements)
+{
+  memcpy(machine.memory.bytes + start, elements, n_elements * sizeof(element_type));
 }
 
 
@@ -130,6 +130,16 @@ inline bool
 allocate_screen_buffer_texture(Memory<w,h>& memory, Texture::Texture& texture)
 {
   return Texture::allocate(texture, w, h);
+}
+
+
+template <typename element_type>
+inline element_type &
+advance_addr(Machine& machine, MemoryAddress& addr)
+{
+  element_type& result = *get_ptr<element_type>(machine, addr);
+  addr += sizeof(element_type);
+  return result;
 }
 
 
