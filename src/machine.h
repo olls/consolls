@@ -59,27 +59,6 @@ struct Memory
 };
 
 
-enum class InstructionCode : u8
-{
-  NOP,
-  ADD,
-  ADD_W,
-  SUB,
-  SUB_W,
-  MUL,
-  MUL_W,
-  DIV,
-  DIV_W,
-  JUMP,
-  CMP,
-  CMP_W,
-  SET,
-  SET_W,
-  COPY,
-  COPY_W
-};
-
-
 namespace Reserved
 {
 enum : MemoryAddress

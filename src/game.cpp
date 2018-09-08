@@ -2,6 +2,7 @@
 
 #include "sdl-state.h"
 #include "palette.h"
+#include "instructions.h"
 #include "assert.h"
 
 #define ARRAY_LEN(a) (sizeof(a)/sizeof((a)[0]))
@@ -15,7 +16,7 @@ load_program(Machine::Machine& machine)
 {
   Machine::MemoryAddress addr = Machine::Reserved::UserStart;
 
-  #define Instruction (Machine::advance_addr<Machine::InstructionCode>(machine, addr))
+  #define Instruction (Machine::advance_addr<Instructions::Code>(machine, addr))
   #define Wide(a) (Machine::advance_addr<u16>(machine, addr) = (a))
   #define Value(v) (Machine::advance_addr<u8>(machine, addr) = (v))
 
@@ -27,53 +28,53 @@ load_program(Machine::Machine& machine)
   Machine::MemoryAddress pixel_pos = vars; vars += 2;
   Machine::MemoryAddress offset = vars; vars += 2;
 
-  Instruction = Machine::InstructionCode::SET_W;
+  Instruction = Instructions::Code::SET_W;
     Wide(stride);
     Wide(71);
 
-  Instruction = Machine::InstructionCode::SET;
+  Instruction = Instructions::Code::SET;
     Wide(colour);
     Value(Palette::Red);
 
-  Instruction = Machine::InstructionCode::SET_W;
+  Instruction = Instructions::Code::SET_W;
     Wide(colour_a);
     Wide(colour);
 
-  Instruction = Machine::InstructionCode::SET_W;
+  Instruction = Instructions::Code::SET_W;
     Wide(offset);
     Wide(Machine::Reserved::ScreenBuffer);
 
-  Instruction = Machine::InstructionCode::SET_W;
+  Instruction = Instructions::Code::SET_W;
     Wide(counter);
     Wide(0);
 
   Machine::MemoryAddress loop = addr;
 
-  Instruction = Machine::InstructionCode::ADD_W;
+  Instruction = Instructions::Code::ADD_W;
     Wide(counter);
     Wide(offset);
     Wide(pixel_pos);
 
-  Instruction = Machine::InstructionCode::COPY;
+  Instruction = Instructions::Code::COPY;
     Wide(colour_a);
     Wide(pixel_pos);
 
-  Instruction = Machine::InstructionCode::ADD_W;
+  Instruction = Instructions::Code::ADD_W;
     Wide(counter);
     Wide(stride);
     Wide(counter);
 
-  Instruction = Machine::InstructionCode::CMP_W;
+  Instruction = Instructions::Code::CMP_W;
     Wide(offset);
     Wide(counter);
     Wide(loop);
 
-  Instruction = Machine::InstructionCode::SUB_W;
+  Instruction = Instructions::Code::SUB_W;
     Wide(counter);
     Wide(offset);
     Wide(counter);
 
-  Instruction = Machine::InstructionCode::JUMP;
+  Instruction = Instructions::Code::JUMP;
     Wide(loop);
 
   #undef Instruction
