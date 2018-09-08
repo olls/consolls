@@ -7,6 +7,110 @@
 namespace Machine
 {
 
+template <typename width>
+width
+get_from_address(Machine& machine, MemoryAddress& addr_addr)
+{
+  MemoryAddress addr = advance_addr<MemoryAddress>(machine, addr_addr);
+  width value = get<width>(machine, addr);
+  return value;
+}
+
+
+template <typename width>
+void
+add_inst(Machine& machine, MemoryAddress& instruction_ptr)
+{
+  width in_a = get_from_address<width>(machine, instruction_ptr);
+  width in_b = get_from_address<width>(machine, instruction_ptr);
+  MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
+
+  width result = in_a + in_b;
+
+  set<width>(machine, result_ptr, result);
+}
+
+
+template <typename width>
+void
+sub_inst(Machine& machine, MemoryAddress& instruction_ptr)
+{
+  width in_a = get_from_address<width>(machine, instruction_ptr);
+  width in_b = get_from_address<width>(machine, instruction_ptr);
+  MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
+
+  width result = in_a - in_b;
+
+  set<width>(machine, result_ptr, result);
+}
+
+
+template <typename width>
+void
+mul_inst(Machine& machine, MemoryAddress& instruction_ptr)
+{
+  width in_a = get_from_address<width>(machine, instruction_ptr);
+  width in_b = get_from_address<width>(machine, instruction_ptr);
+  MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
+
+  width result = in_a * in_b;
+
+  set<width>(machine, result_ptr, result);
+}
+
+
+template <typename width>
+void
+div_inst(Machine& machine, MemoryAddress& instruction_ptr)
+{
+  width in_a = get_from_address<width>(machine, instruction_ptr);
+  width in_b = get_from_address<width>(machine, instruction_ptr);
+  MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
+
+  width result = in_a / in_b;
+
+  set<width>(machine, result_ptr, result);
+}
+
+
+template <typename width>
+void
+cmp_inst(Machine& machine, MemoryAddress& instruction_ptr)
+{
+  width in_a = get_from_address<width>(machine, instruction_ptr);
+  width in_b = get_from_address<width>(machine, instruction_ptr);
+  MemoryAddress then = get<MemoryAddress>(machine, instruction_ptr);
+
+  if (in_a > in_b)
+  {
+    instruction_ptr = then;
+  }
+}
+
+
+template <typename width>
+void
+set_inst(Machine& machine, MemoryAddress& instruction_ptr)
+{
+  MemoryAddress to_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
+  width value = advance_addr<width>(machine, instruction_ptr);
+
+  set<width>(machine, to_ptr, value);
+}
+
+
+template <typename width>
+void
+copy_inst(Machine& machine, MemoryAddress& instruction_ptr)
+{
+  MemoryAddress from = get_from_address<MemoryAddress>(machine, instruction_ptr);
+  MemoryAddress to = get_from_address<MemoryAddress>(machine, instruction_ptr);
+
+  width from_value = get<width>(machine, from);
+  set<width>(machine, to, from_value);
+}
+
+
 void
 advance(Machine& machine)
 {
@@ -18,114 +122,47 @@ advance(Machine& machine)
   switch (instruction)
   {
     case (InstructionCode::NOP):
-    {} break;
-    case (InstructionCode::ADD):
-    {
-      MemoryAddress in_a_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress in_b_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
+      break;
 
-      u8 in_a = get<u8>(machine, in_a_ptr);
-      u8 in_b = get<u8>(machine, in_b_ptr);
+    case (InstructionCode::ADD):    add_inst<u8>(machine, instruction_ptr);
+      break;
+    case (InstructionCode::ADD_W):  add_inst<u16>(machine, instruction_ptr);
+      break;
 
-      u8 result = in_a + in_b;
+    case (InstructionCode::SUB):    sub_inst<u8>(machine, instruction_ptr);
+      break;
+    case (InstructionCode::SUB_W):  sub_inst<u16>(machine, instruction_ptr);
+      break;
 
-      set<u8>(machine, result_ptr, result);
-    } break;
-    case (InstructionCode::ADD_W):
-    {
-      MemoryAddress in_a_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress in_b_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
+    case (InstructionCode::MUL):    mul_inst<u8>(machine, instruction_ptr);
+      break;
+    case (InstructionCode::MUL_W):  mul_inst<u16>(machine, instruction_ptr);
+      break;
 
-      u16 in_a = get<u16>(machine, in_a_ptr);
-      u16 in_b = get<u16>(machine, in_b_ptr);
+    case (InstructionCode::DIV):    div_inst<u8>(machine, instruction_ptr);
+      break;
+    case (InstructionCode::DIV_W):  div_inst<u16>(machine, instruction_ptr);
+      break;
 
-      u16 result = in_a + in_b;
-
-      set<u16>(machine, result_ptr, result);
-    } break;
-    case (InstructionCode::SUB):
-    {
-      MemoryAddress in_a_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress in_b_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-
-      u8 in_a = get<u8>(machine, in_a_ptr);
-      u8 in_b = get<u8>(machine, in_b_ptr);
-
-      u8 result = in_a - in_b;
-
-      set<u8>(machine, result_ptr, result);
-    } break;
-    case (InstructionCode::MUL):
-    {
-      MemoryAddress in_a_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress in_b_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-
-      u8 in_a = get<u8>(machine, in_a_ptr);
-      u8 in_b = get<u8>(machine, in_b_ptr);
-
-      u8 result = in_a * in_b;
-
-      set<u8>(machine, result_ptr, result);
-    } break;
-    case (InstructionCode::DIV):
-    {
-      MemoryAddress in_a_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress in_b_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress result_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-
-      u8 in_a = get<u8>(machine, in_a_ptr);
-      u8 in_b = get<u8>(machine, in_b_ptr);
-
-      u8 result = in_a / in_b;
-
-      set<u8>(machine, result_ptr, result);
-    } break;
     case (InstructionCode::JUMP):
     {
-      MemoryAddress in_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      instruction_ptr = in_ptr;
+      instruction_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
     } break;
-    case (InstructionCode::IF_ZERO):
-    {
-      MemoryAddress in_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress then_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
 
-      u8 in = get<u8>(machine, in_ptr);
+    case (InstructionCode::CMP):    cmp_inst<u8>(machine, instruction_ptr);
+      break;
+    case (InstructionCode::CMP_W):  cmp_inst<u16>(machine, instruction_ptr);
+      break;
 
-      if (in == 0)
-      {
-        instruction_ptr = then_ptr;
-      }
-    } break;
-    case (InstructionCode::SET):
-    {
-      MemoryAddress to_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      u8 value = advance_addr<u8>(machine, instruction_ptr);
+    case (InstructionCode::SET):    set_inst<u8>(machine, instruction_ptr);
+      break;
+    case (InstructionCode::SET_W):  set_inst<u16>(machine, instruction_ptr);
+      break;
 
-      set<u8>(machine, to_ptr, value);
-    } break;
-    case (InstructionCode::SET_W):
-    {
-      MemoryAddress to_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress value = advance_addr<MemoryAddress>(machine, instruction_ptr);
-
-      set<MemoryAddress>(machine, to_ptr, value);
-    } break;
-    case (InstructionCode::COPY):
-    {
-      MemoryAddress from_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-      MemoryAddress to_ptr = advance_addr<MemoryAddress>(machine, instruction_ptr);
-
-      MemoryAddress from = get<MemoryAddress>(machine, from_ptr);
-      MemoryAddress to = get<MemoryAddress>(machine, to_ptr);
-
-      u8 from_value = get<u8>(machine, from);
-      set<u8>(machine, to, from_value);
-    } break;
+    case (InstructionCode::COPY):   copy_inst<u8>(machine, instruction_ptr);
+      break;
+    case (InstructionCode::COPY_W): copy_inst<u16>(machine, instruction_ptr);
+      break;
   }
 
   set<MemoryAddress>(machine, Reserved::NI, instruction_ptr);

@@ -61,17 +61,22 @@ struct Memory
 
 enum class InstructionCode : u8
 {
-  NOP     = 0x00,
-  ADD     = 0x01,
-  ADD_W   = 0x02,
-  SUB     = 0x03,
-  MUL     = 0x04,
-  DIV     = 0x05,
-  JUMP    = 0x06,
-  IF_ZERO = 0x07,
-  SET     = 0x08,
-  SET_W   = 0x09,
-  COPY    = 0x10
+  NOP,
+  ADD,
+  ADD_W,
+  SUB,
+  SUB_W,
+  MUL,
+  MUL_W,
+  DIV,
+  DIV_W,
+  JUMP,
+  CMP,
+  CMP_W,
+  SET,
+  SET_W,
+  COPY,
+  COPY_W
 };
 
 

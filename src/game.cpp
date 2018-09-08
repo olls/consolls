@@ -15,7 +15,7 @@ load_program(Machine::Machine& machine)
 {
   Machine::MemoryAddress addr = Machine::Reserved::UserStart;
 
-  #define Instruction(c) (Machine::advance_addr<Machine::InstructionCode>(machine, addr) = (c))
+  #define Instruction (Machine::advance_addr<Machine::InstructionCode>(machine, addr))
   #define Wide(a) (Machine::advance_addr<u16>(machine, addr) = (a))
   #define Value(v) (Machine::advance_addr<u8>(machine, addr) = (v))
 
@@ -24,35 +24,56 @@ load_program(Machine::Machine& machine)
   Machine::MemoryAddress colour = vars; vars += 1;
   Machine::MemoryAddress colour_a = vars; vars += 2;
   Machine::MemoryAddress counter = vars; vars += 2;
+  Machine::MemoryAddress pixel_pos = vars; vars += 2;
+  Machine::MemoryAddress offset = vars; vars += 2;
 
-  Instruction(Machine::InstructionCode::SET_W);
+  Instruction = Machine::InstructionCode::SET_W;
     Wide(stride);
-    Wide(70);
+    Wide(71);
 
-  Instruction(Machine::InstructionCode::SET);
+  Instruction = Machine::InstructionCode::SET;
     Wide(colour);
     Value(Palette::Red);
 
-  Instruction(Machine::InstructionCode::SET_W);
+  Instruction = Machine::InstructionCode::SET_W;
     Wide(colour_a);
     Wide(colour);
 
-  Instruction(Machine::InstructionCode::SET_W);
-    Wide(counter);
+  Instruction = Machine::InstructionCode::SET_W;
+    Wide(offset);
     Wide(Machine::Reserved::ScreenBuffer);
+
+  Instruction = Machine::InstructionCode::SET_W;
+    Wide(counter);
+    Wide(0);
 
   Machine::MemoryAddress loop = addr;
 
-  Instruction(Machine::InstructionCode::COPY);
-    Wide(colour_a);
+  Instruction = Machine::InstructionCode::ADD_W;
     Wide(counter);
+    Wide(offset);
+    Wide(pixel_pos);
 
-  Instruction(Machine::InstructionCode::ADD_W);
+  Instruction = Machine::InstructionCode::COPY;
+    Wide(colour_a);
+    Wide(pixel_pos);
+
+  Instruction = Machine::InstructionCode::ADD_W;
     Wide(counter);
     Wide(stride);
     Wide(counter);
 
-  Instruction(Machine::InstructionCode::JUMP);
+  Instruction = Machine::InstructionCode::CMP_W;
+    Wide(offset);
+    Wide(counter);
+    Wide(loop);
+
+  Instruction = Machine::InstructionCode::SUB_W;
+    Wide(counter);
+    Wide(offset);
+    Wide(counter);
+
+  Instruction = Machine::InstructionCode::JUMP;
     Wide(loop);
 
   #undef Instruction
