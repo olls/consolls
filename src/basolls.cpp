@@ -16,39 +16,32 @@ push_instruction(Machine::Machine& machine, Machine::MemoryAddress& addr, Args a
 
 
 template <typename type>
-void
+Machine::MemoryAddress
 push_data(Machine::Machine& machine, Machine::MemoryAddress& addr, u32 size, type* data)
 {
   void* ptr = Machine::get_ptr<void>(machine, addr);
   memcpy(ptr, data, size);
 
+  Machine::MemoryAddress start = addr;
   addr += size;
+
+  return start;
 }
 
 
-void
-load_compiler_program(Machine::Machine& machine)
+Machine::MemoryAddress
+demo_program(Machine::Machine& machine, Machine::MemoryAddress& addr)
 {
   using Machine::MemoryAddress;
 
-  MemoryAddress addr = Machine::Reserved::UserStart;
-  Machine::set<MemoryAddress>(machine, Machine::Reserved::NI, addr);
+  MemoryAddress stride = addr; addr += 2;
+  MemoryAddress colour = addr; addr += 1;
+  MemoryAddress colour_a = addr; addr += 2;
+  MemoryAddress counter = addr; addr += 2;
+  MemoryAddress pixel_pos = addr; addr += 2;
+  MemoryAddress offset = addr; addr += 2;
 
-  MemoryAddress vars_start = 0x100;
-  MemoryAddress text_start = 0x200;
-
-  MemoryAddress next_var = vars_start;
-  MemoryAddress stride = next_var; next_var += 2;
-  MemoryAddress colour = next_var; next_var += 1;
-  MemoryAddress colour_a = next_var; next_var += 2;
-  MemoryAddress counter = next_var; next_var += 2;
-  MemoryAddress pixel_pos = next_var; next_var += 2;
-  MemoryAddress offset = next_var; next_var += 2;
-
-  assert(next_var < text_start);
-
-  const char test_program[] = "u8 One := 1;\n";
-  push_data(machine, text_start, sizeof(test_program), test_program);
+  MemoryAddress program_start = addr;
 
   push_instruction<Instructions::SET<u16>>(machine, addr, {
     .addr = stride,
@@ -110,7 +103,28 @@ load_compiler_program(Machine::Machine& machine)
     .addr = loop
   });
 
-  assert(addr < vars_start);
+  return program_start;
+}
+
+
+Machine::MemoryAddress
+compiler_program(Machine::Machine& machine, Machine::MemoryAddress& addr)
+{
+  using Machine::MemoryAddress;
+
+  Machine::set<MemoryAddress>(machine, Machine::Reserved::NI, addr);
+
+  const char test_program[] = "SET 0x300 0xFF\n";
+  MemoryAddress text = push_data(machine, addr, sizeof(test_program), test_program);
+
+  MemoryAddress program_start = addr;
+
+  push_instruction<Instructions::SET<u16>>(machine, addr, {
+    .addr = 0x300,
+    .value = 71
+  });
+
+  return program_start;
 }
 
 } // namespace Basolls
