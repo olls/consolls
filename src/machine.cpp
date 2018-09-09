@@ -9,20 +9,10 @@ namespace Machine
 {
 
 template <typename width>
-width
-get_from_address(Machine& machine, MemoryAddress& addr_addr)
-{
-  MemoryAddress addr = advance_addr<MemoryAddress>(machine, addr_addr);
-  width value = get<width>(machine, addr);
-  return value;
-}
-
-
-template <typename width>
 void
 add_inst(Machine& machine, MemoryAddress& instruction_ptr)
 {
-  Instructions::ADD args = advance_addr<Instructions::ADD>(machine, instruction_ptr);
+  Instructions::ADD args = advance_addr<Instructions::ADD<width>>(machine, instruction_ptr);
 
   width a = get<width>(machine, args.a);
   width b = get<width>(machine, args.b);
@@ -36,7 +26,7 @@ template <typename width>
 void
 sub_inst(Machine& machine, MemoryAddress& instruction_ptr)
 {
-  Instructions::SUB args = advance_addr<Instructions::SUB>(machine, instruction_ptr);
+  Instructions::SUB args = advance_addr<Instructions::SUB<width>>(machine, instruction_ptr);
 
   width a = get<width>(machine, args.a);
   width b = get<width>(machine, args.b);
@@ -50,7 +40,7 @@ template <typename width>
 void
 mul_inst(Machine& machine, MemoryAddress& instruction_ptr)
 {
-  Instructions::MUL args = advance_addr<Instructions::MUL>(machine, instruction_ptr);
+  Instructions::MUL args = advance_addr<Instructions::MUL<width>>(machine, instruction_ptr);
 
   width a = get<width>(machine, args.a);
   width b = get<width>(machine, args.b);
@@ -64,7 +54,7 @@ template <typename width>
 void
 div_inst(Machine& machine, MemoryAddress& instruction_ptr)
 {
-  Instructions::DIV args = advance_addr<Instructions::DIV>(machine, instruction_ptr);
+  Instructions::DIV args = advance_addr<Instructions::DIV<width>>(machine, instruction_ptr);
 
   width a = get<width>(machine, args.a);
   width b = get<width>(machine, args.b);
@@ -86,7 +76,7 @@ template <typename width>
 void
 cmp_inst(Machine& machine, MemoryAddress& instruction_ptr)
 {
-  Instructions::CMP args = advance_addr<Instructions::CMP>(machine, instruction_ptr);
+  Instructions::CMP args = advance_addr<Instructions::CMP<width>>(machine, instruction_ptr);
 
   width a = get<width>(machine, args.a);
   width b = get<width>(machine, args.b);
@@ -112,7 +102,7 @@ template <typename width>
 void
 copy_inst(Machine& machine, MemoryAddress& instruction_ptr)
 {
-  Instructions::COPY args = advance_addr<Instructions::COPY>(machine, instruction_ptr);
+  Instructions::COPY args = advance_addr<Instructions::COPY<width>>(machine, instruction_ptr);
 
   MemoryAddress from = get<MemoryAddress>(machine, args.from);
   MemoryAddress to = get<MemoryAddress>(machine, args.to);

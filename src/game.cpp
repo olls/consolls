@@ -1,5 +1,6 @@
 #include "game.h"
 
+#include "basolls.h"
 #include "sdl-state.h"
 #include "palette.h"
 #include "instructions.h"
@@ -11,10 +12,18 @@
 namespace Game
 {
 
-void
+bool
 load_program(Machine::Machine& machine)
 {
+  bool success =  true;
+
+#if 1
+  Basolls::load_compiler_program(machine);
+
+#else
+
   Machine::MemoryAddress addr = Machine::Reserved::UserStart;
+  Machine::set<Machine::MemoryAddress>(machine, Machine::Reserved::NI, addr);
 
   Machine::MemoryAddress vars = 0x100;
   Machine::MemoryAddress stride = vars; vars += 2;
@@ -94,8 +103,9 @@ load_program(Machine::Machine& machine)
   Machine::advance_addr<Instructions::JUMP>(machine, addr) = {
     .addr = loop
   };
+#endif
 
-  Machine::set<Machine::MemoryAddress>(machine, Machine::Reserved::NI, Machine::Reserved::UserStart);
+  return success;
 }
 
 
@@ -153,13 +163,13 @@ run()
   SDL_State::SDL_State sdl_state = {};
   success &= SDL_State::init(sdl_state, APP_NAME, 640, 480, SDL_PIXELFORMAT_RGBX8888);
 
+  success &= load_program(state.machine);
+
   if (success)
   {
     Input::init(state.input);
 
     state.frame_id = 0;
-
-    load_program(state.machine);
 
     bool running = true;
     while (running)
