@@ -16,10 +16,6 @@ load_program(Machine::Machine& machine)
 {
   Machine::MemoryAddress addr = Machine::Reserved::UserStart;
 
-  #define Instruction (Machine::advance_addr<Instructions::Code>(machine, addr))
-  #define Wide(a) (Machine::advance_addr<u16>(machine, addr) = (a))
-  #define Value(v) (Machine::advance_addr<u8>(machine, addr) = (v))
-
   Machine::MemoryAddress vars = 0x100;
   Machine::MemoryAddress stride = vars; vars += 2;
   Machine::MemoryAddress colour = vars; vars += 1;
@@ -28,58 +24,76 @@ load_program(Machine::Machine& machine)
   Machine::MemoryAddress pixel_pos = vars; vars += 2;
   Machine::MemoryAddress offset = vars; vars += 2;
 
-  Instruction = Instructions::Code::SET_W;
-    Wide(stride);
-    Wide(71);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::SET_W;
+  Machine::advance_addr<Instructions::SET<u16>>(machine, addr) = {
+    .addr = stride,
+    .value = 71
+  };
 
-  Instruction = Instructions::Code::SET;
-    Wide(colour);
-    Value(Palette::Red);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::SET;
+  Machine::advance_addr<Instructions::SET<u8>>(machine, addr) = {
+    .addr = colour,
+    .value = Palette::Red
+  };
 
-  Instruction = Instructions::Code::SET_W;
-    Wide(colour_a);
-    Wide(colour);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::SET_W;
+  Machine::advance_addr<Instructions::SET<u16>>(machine, addr) = {
+    .addr = colour_a,
+    .value = colour
+  };
 
-  Instruction = Instructions::Code::SET_W;
-    Wide(offset);
-    Wide(Machine::Reserved::ScreenBuffer);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::SET_W;
+  Machine::advance_addr<Instructions::SET<u16>>(machine, addr) = {
+    .addr = offset,
+    .value = Machine::Reserved::ScreenBuffer
+  };
 
-  Instruction = Instructions::Code::SET_W;
-    Wide(counter);
-    Wide(0);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::SET_W;
+  Machine::advance_addr<Instructions::SET<u16>>(machine, addr) = {
+    .addr = counter,
+    .value = 0
+  };
 
   Machine::MemoryAddress loop = addr;
 
-  Instruction = Instructions::Code::ADD_W;
-    Wide(counter);
-    Wide(offset);
-    Wide(pixel_pos);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::ADD_W;
+  Machine::advance_addr<Instructions::ADD>(machine, addr) = {
+    .a = counter,
+    .b = offset,
+    .result = pixel_pos
+  };
 
-  Instruction = Instructions::Code::COPY;
-    Wide(colour_a);
-    Wide(pixel_pos);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::COPY;
+  Machine::advance_addr<Instructions::COPY>(machine, addr) = {
+    .from = colour_a,
+    .to = pixel_pos
+  };
 
-  Instruction = Instructions::Code::ADD_W;
-    Wide(counter);
-    Wide(stride);
-    Wide(counter);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::ADD_W;
+  Machine::advance_addr<Instructions::ADD>(machine, addr) = {
+    .a = counter,
+    .b = stride,
+    .result = counter
+  };
 
-  Instruction = Instructions::Code::CMP_W;
-    Wide(offset);
-    Wide(counter);
-    Wide(loop);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::CMP_W;
+  Machine::advance_addr<Instructions::CMP>(machine, addr) = {
+    .a = offset,
+    .b = counter,
+    .addr = loop
+  };
 
-  Instruction = Instructions::Code::SUB_W;
-    Wide(counter);
-    Wide(offset);
-    Wide(counter);
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::SUB_W;
+  Machine::advance_addr<Instructions::SUB>(machine, addr) = {
+    .a = counter,
+    .b = offset,
+    .result = counter
+  };
 
-  Instruction = Instructions::Code::JUMP;
-    Wide(loop);
-
-  #undef Instruction
-  #undef Address
-  #undef Value
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Code::JUMP;
+  Machine::advance_addr<Instructions::JUMP>(machine, addr) = {
+    .addr = loop
+  };
 
   Machine::set<Machine::MemoryAddress>(machine, Machine::Reserved::NI, Machine::Reserved::UserStart);
 }
