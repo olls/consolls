@@ -6,9 +6,12 @@
 namespace Basolls
 {
 
+using Machine::MemoryAddress;
+
+
 template <typename Args>
 void
-push_instruction(Machine::Machine& machine, Machine::MemoryAddress& addr, Args args)
+push_instruction(Machine::Machine& machine, MemoryAddress& addr, Args args)
 {
   Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Args_to_Code<Args>;
   Machine::advance_addr<Args>(machine, addr) = args;
@@ -16,30 +19,38 @@ push_instruction(Machine::Machine& machine, Machine::MemoryAddress& addr, Args a
 
 
 template <typename type>
-Machine::MemoryAddress
-push_data(Machine::Machine& machine, Machine::MemoryAddress& addr, u32 size, type* data)
+MemoryAddress
+push_data(Machine::Machine& machine, MemoryAddress& addr, u32 size, type* data)
 {
   void* ptr = Machine::get_ptr<void>(machine, addr);
   memcpy(ptr, data, size);
 
-  Machine::MemoryAddress start = addr;
+  MemoryAddress start = addr;
   addr += size;
 
   return start;
 }
 
 
-Machine::MemoryAddress
-demo_program(Machine::Machine& machine, Machine::MemoryAddress& addr)
+template <typename width>
+MemoryAddress
+push_variable(MemoryAddress& addr)
 {
-  using Machine::MemoryAddress;
+  MemoryAddress result = addr;
+  addr += sizeof(width);
+  return result;
+}
 
-  MemoryAddress stride = addr; addr += 2;
-  MemoryAddress colour = addr; addr += 1;
-  MemoryAddress colour_a = addr; addr += 2;
-  MemoryAddress counter = addr; addr += 2;
-  MemoryAddress pixel_pos = addr; addr += 2;
-  MemoryAddress offset = addr; addr += 2;
+
+MemoryAddress
+demo_program(Machine::Machine& machine, MemoryAddress& addr)
+{
+  MemoryAddress stride = push_variable<u16>(addr);
+  MemoryAddress colour = push_variable<u8>(addr);
+  MemoryAddress colour_a = push_variable<u16>(addr);
+  MemoryAddress counter = push_variable<u16>(addr);
+  MemoryAddress pixel_pos = push_variable<u16>(addr);
+  MemoryAddress offset = push_variable<u16>(addr);
 
   MemoryAddress program_start = addr;
 
@@ -107,13 +118,9 @@ demo_program(Machine::Machine& machine, Machine::MemoryAddress& addr)
 }
 
 
-Machine::MemoryAddress
-compiler_program(Machine::Machine& machine, Machine::MemoryAddress& addr)
+MemoryAddress
+compiler_program(Machine::Machine& machine, MemoryAddress& addr)
 {
-  using Machine::MemoryAddress;
-
-  Machine::set<MemoryAddress>(machine, Machine::Reserved::NI, addr);
-
   const char test_program[] = "SET 0x300 0xFF\n";
   MemoryAddress text = push_data(machine, addr, sizeof(test_program), test_program);
 

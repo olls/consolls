@@ -101,48 +101,48 @@ struct __attribute__((packed)) COPY
 
 // Compile time mappings from 'args' struct types to corresponding Code types
 template <typename ArgsType>
-static const Instructions::Code Args_to_Code = Instructions::Code::NOP;
+static const Code Args_to_Code = Code::NOP;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::NOP> = Instructions::Code::NOP;
+static const Code Args_to_Code<NOP> = Code::NOP;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::ADD<u8>> = Instructions::Code::ADD;
+static const Code Args_to_Code<ADD<u8>> = Code::ADD;
 template<>
-static const Instructions::Code Args_to_Code<Instructions::ADD<u16>> = Instructions::Code::ADD_W;
+static const Code Args_to_Code<ADD<u16>> = Code::ADD_W;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::SUB<u8>> = Instructions::Code::SUB;
+static const Code Args_to_Code<SUB<u8>> = Code::SUB;
 template<>
-static const Instructions::Code Args_to_Code<Instructions::SUB<u16>> = Instructions::Code::SUB_W;
+static const Code Args_to_Code<SUB<u16>> = Code::SUB_W;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::MUL<u8>> = Instructions::Code::MUL;
+static const Code Args_to_Code<MUL<u8>> = Code::MUL;
 template<>
-static const Instructions::Code Args_to_Code<Instructions::MUL<u16>> = Instructions::Code::MUL_W;
+static const Code Args_to_Code<MUL<u16>> = Code::MUL_W;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::DIV<u8>> = Instructions::Code::DIV;
+static const Code Args_to_Code<DIV<u8>> = Code::DIV;
 template<>
-static const Instructions::Code Args_to_Code<Instructions::DIV<u16>> = Instructions::Code::DIV_W;
+static const Code Args_to_Code<DIV<u16>> = Code::DIV_W;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::JUMP> = Instructions::Code::JUMP;
+static const Code Args_to_Code<JUMP> = Code::JUMP;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::CMP<u8>> = Instructions::Code::CMP;
+static const Code Args_to_Code<CMP<u8>> = Code::CMP;
 template<>
-static const Instructions::Code Args_to_Code<Instructions::CMP<u16>> = Instructions::Code::CMP_W;
+static const Code Args_to_Code<CMP<u16>> = Code::CMP_W;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::SET<u8>> = Instructions::Code::SET;
+static const Code Args_to_Code<SET<u8>> = Code::SET;
 template<>
-static const Instructions::Code Args_to_Code<Instructions::SET<u16>> = Instructions::Code::SET_W;
+static const Code Args_to_Code<SET<u16>> = Code::SET_W;
 
 template<>
-static const Instructions::Code Args_to_Code<Instructions::COPY<u8>> = Instructions::Code::COPY;
+static const Code Args_to_Code<COPY<u8>> = Code::COPY;
 template<>
-static const Instructions::Code Args_to_Code<Instructions::COPY<u16>> = Instructions::Code::COPY_W;
+static const Code Args_to_Code<COPY<u16>> = Code::COPY_W;
 
 
 #undef GEN_OP_IN
