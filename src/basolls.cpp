@@ -50,72 +50,94 @@ push_variable(MemoryAddress& addr)
 }
 
 
-MemoryAddress
+struct Subroutine
+{
+  MemoryAddress start;
+  MemoryAddress return_addr;
+  MemoryAddress args;
+};
+
+template <typename ArgsType>
+Subroutine
 push_subroutine_start(Machine::Machine& machine, MemoryAddress& addr)
 {
+  Subroutine subroutine;
+
+  // Reserve space for the caller to store args
+  subroutine.args = push_variable<ArgsType>(addr);
+
   // Reserve a MemoryAddress for the caller to store their return address
-  MemoryAddress subroutine_return_variable = push_variable<MemoryAddress>(addr);
-  return addr;
+  subroutine.return_addr = push_variable<MemoryAddress>(addr);
+  subroutine.start = addr;
+
+  return subroutine;
 }
 
 
 void
-push_subroutine_end(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress subroutine)
+push_subroutine_end(Machine::Machine& machine, MemoryAddress& addr, Subroutine subroutine)
 {
-  MemoryAddress subroutine_return_variable = subroutine - sizeof(MemoryAddress);
-
   push_instruction<Instructions::JUMP_I>(machine, addr, {
-    .addr = subroutine_return_variable
+    .addr = subroutine.return_addr
   });
 }
 
 
 void
-push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress subroutine)
+push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, Subroutine subroutine)
 {
   // The two bytes prior to the subroutine's address are reserved for the caller to store their return address
-
-  MemoryAddress subroutine_return_variable = subroutine - sizeof(MemoryAddress);
   MemoryAddress return_location = addr + (sizeof(Instructions::Code::SET) + sizeof(Instructions::SET<u16>) +
                                           sizeof(Instructions::Code::JUMP) + sizeof(Instructions::JUMP));
 
   push_instruction<Instructions::SET<u16>>(machine, addr, {
-    .addr = subroutine_return_variable,
+    .addr = subroutine.return_addr,
     .value = return_location
   });
 
-  push_instruction<Instructions::JUMP>(machine, addr, {subroutine});
+  push_instruction<Instructions::JUMP>(machine, addr, {subroutine.start});
 }
 
 
-MemoryAddress
-dot_subroutine(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress pixel_pos)
-{
-  MemoryAddress colour = push_value<u8>(machine, addr, Palette::LightBrown);
+#define SUBROUTINE_ARG_POSITION(ArgsType, subroutine, arg) (MemoryAddress)((subroutine).args + offsetof(ArgsType, arg))
 
-  MemoryAddress start = push_subroutine_start(machine, addr);
+
+struct DotSubroutineArgs
+{
+  MemoryAddress pixel_pos;
+  u8 colour;
+};
+
+Subroutine
+dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
+{
+  Subroutine subroutine = push_subroutine_start<DotSubroutineArgs>(machine, addr);
+
+  MemoryAddress pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine, pixel_pos);
+  MemoryAddress colour = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine, colour);
 
   push_instruction<Instructions::SET_I<u8>>(machine, addr, {
     .addr = pixel_pos,
     .value = colour
   });
 
-  push_subroutine_end(machine, addr, start);
+  push_subroutine_end(machine, addr, subroutine);
 
-  return start;
+  return subroutine;
 }
 
 
 MemoryAddress
 demo_program(Machine::Machine& machine, MemoryAddress& addr)
 {
-  MemoryAddress stride = push_value<u16>(machine, addr, 1);
+  MemoryAddress colour = push_value<u8>(machine, addr, Palette::Red);
+  MemoryAddress stride = push_value<u16>(machine, addr, 125);
   MemoryAddress counter = push_value<u16>(machine, addr, 0);
   MemoryAddress offset = push_value<u16>(machine, addr, Machine::Reserved::ScreenBuffer);
 
   MemoryAddress pixel_pos = push_variable<u16>(addr);
 
-  MemoryAddress dot = dot_subroutine(machine, addr, pixel_pos);
+  Subroutine dot = dot_subroutine(machine, addr);
 
   MemoryAddress program_start = addr;
   MemoryAddress loop = addr;
@@ -126,13 +148,29 @@ demo_program(Machine::Machine& machine, MemoryAddress& addr)
     .result = pixel_pos
   });
 
+  // Set dots args
+  push_instruction<Instructions::COPY<u16>>(machine, addr, {
+    .from = pixel_pos,
+    .to = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot, pixel_pos)
+  });
+
+  push_instruction<Instructions::COPY<u8>>(machine, addr, {
+    .from = colour,
+    .to = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot, colour)
+  });
+
+  // Call dot
   push_subroutine_call(machine, addr, dot);
+
+  // Increment counter
 
   push_instruction<Instructions::ADD<u16>>(machine, addr, {
     .a = counter,
     .b = stride,
     .result = counter
   });
+
+  // Check (and reset) counter
 
   push_instruction<Instructions::CMP<u16>>(machine, addr, {
     .a = offset,
