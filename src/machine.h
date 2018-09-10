@@ -65,6 +65,7 @@ enum : MemoryAddress
 {
   NI = 0x0000,
   UserStart = 0x0002,
+  Blit = 0x1FFF,
   ScreenBuffer = 0x2000
 };
 } // namespace Reserved
@@ -129,6 +130,10 @@ advance_addr(Machine& machine, MemoryAddress& addr)
 
 void
 advance(Machine &machine);
+
+
+bool
+blit(Machine &machine);
 
 
 void

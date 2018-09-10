@@ -212,6 +212,19 @@ advance(Machine& machine)
 }
 
 
+bool
+blit(Machine& machine)
+{
+  bool result = get<u8>(machine, Reserved::Blit);
+  if (result)
+  {
+    set<u8>(machine, Reserved::Blit, 0x00);
+  }
+
+  return result;
+}
+
+
 void
 output_screen_buffer(Machine& machine, Texture::Texture& texture)
 {

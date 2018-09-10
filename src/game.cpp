@@ -20,7 +20,6 @@ load_program(Machine::Machine& machine)
   Machine::MemoryAddress addr = Machine::Reserved::UserStart;
 
   Machine::MemoryAddress demo_program = Basolls::demo_program(machine, addr);
-  Machine::MemoryAddress compiler_program = Basolls::compiler_program(machine, addr);
 
   Machine::set<Machine::MemoryAddress>(machine, Machine::Reserved::NI, demo_program);
 
@@ -48,24 +47,27 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
 
   Machine::advance(state->machine);
 
-  bool texture = true;
-  if (!state->texture.pixels)
+  if (Machine::blit(state->machine))
   {
-    texture &= Machine::allocate_screen_buffer_texture(state->machine.memory, state->texture);
-    if (texture)
+    bool texture = true;
+    if (!state->texture.pixels)
     {
-      texture &= SDL_State::set_render_texture(sdl_state, state->texture);
+      texture &= Machine::allocate_screen_buffer_texture(state->machine.memory, state->texture);
+      if (texture)
+      {
+        texture &= SDL_State::set_render_texture(sdl_state, state->texture);
+      }
     }
-  }
 
-  if (!texture)
-  {
-    success &= false;
-  }
-  else
-  {
-    Machine::output_screen_buffer(state->machine, state->texture);
-    assert(SDL_State::render(sdl_state, state->texture));
+    if (!texture)
+    {
+      success &= false;
+    }
+    else
+    {
+      Machine::output_screen_buffer(state->machine, state->texture);
+      assert(SDL_State::render(sdl_state, state->texture));
+    }
   }
 
   return success;

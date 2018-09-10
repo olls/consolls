@@ -146,24 +146,14 @@ demo_program(Machine::Machine& machine, MemoryAddress& addr)
     .result = counter
   });
 
-  push_instruction<Instructions::JUMP>(machine, addr, {loop});
+  // Blit!
 
-  return program_start;
-}
-
-
-MemoryAddress
-compiler_program(Machine::Machine& machine, MemoryAddress& addr)
-{
-  const char test_program[] = "SET 0x300 0xFF\n";
-  MemoryAddress text = push_data(machine, addr, sizeof(test_program), test_program);
-
-  MemoryAddress program_start = addr;
-
-  push_instruction<Instructions::SET<u16>>(machine, addr, {
-    .addr = 0x300,
-    .value = 71
+  push_instruction<Instructions::SET<u8>>(machine, addr, {
+    .addr = Machine::Reserved::Blit,
+    .value = 0x01
   });
+
+  push_instruction<Instructions::JUMP>(machine, addr, {loop});
 
   return program_start;
 }
