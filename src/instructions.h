@@ -18,12 +18,17 @@ enum class Code : u8
   DIV,
   DIV_W,
   JUMP,
+  JUMP_I,
   CMP,
   CMP_W,
   SET,
   SET_W,
+  SET_I,
+  SET_I_W,
   COPY,
-  COPY_W
+  COPY_W,
+  COPY_I,
+  COPY_I_W
 };
 
 
@@ -73,6 +78,11 @@ struct __attribute__((packed)) JUMP
   Machine::MemoryAddress addr;
 };
 
+struct __attribute__((packed)) JUMP_I
+{
+  Machine::MemoryAddress addr;
+};
+
 
 template <typename width>
 struct __attribute__((packed)) CMP
@@ -90,9 +100,23 @@ struct __attribute__((packed)) SET
   width value;
 };
 
+template <typename width>
+struct __attribute__((packed)) SET_I
+{
+  Machine::MemoryAddress addr;
+  Machine::MemoryAddress value;
+};
+
 
 template <typename width>
 struct __attribute__((packed)) COPY
+{
+  Machine::MemoryAddress from;
+  Machine::MemoryAddress to;
+};
+
+template <typename width>
+struct __attribute__((packed)) COPY_I
 {
   Machine::MemoryAddress from;
   Machine::MemoryAddress to;
@@ -128,6 +152,8 @@ static const Code Args_to_Code<DIV<u16>> = Code::DIV_W;
 
 template<>
 static const Code Args_to_Code<JUMP> = Code::JUMP;
+template<>
+static const Code Args_to_Code<JUMP_I> = Code::JUMP_I;
 
 template<>
 static const Code Args_to_Code<CMP<u8>> = Code::CMP;
@@ -140,9 +166,19 @@ template<>
 static const Code Args_to_Code<SET<u16>> = Code::SET_W;
 
 template<>
+static const Code Args_to_Code<SET_I<u8>> = Code::SET_I;
+template<>
+static const Code Args_to_Code<SET_I<u16>> = Code::SET_I_W;
+
+template<>
 static const Code Args_to_Code<COPY<u8>> = Code::COPY;
 template<>
 static const Code Args_to_Code<COPY<u16>> = Code::COPY_W;
+
+template<>
+static const Code Args_to_Code<COPY_I<u8>> = Code::COPY_I;
+template<>
+static const Code Args_to_Code<COPY_I<u16>> = Code::COPY_I_W;
 
 
 #undef GEN_OP_IN

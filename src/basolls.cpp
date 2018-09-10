@@ -23,12 +23,20 @@ MemoryAddress
 push_data(Machine::Machine& machine, MemoryAddress& addr, u32 size, type* data)
 {
   void* ptr = Machine::get_ptr<void>(machine, addr);
-  memcpy(ptr, data, size);
+  memcpy(ptr, data, size*sizeof(type));
 
   MemoryAddress start = addr;
-  addr += size;
+  addr += size*sizeof(type);
 
   return start;
+}
+
+
+template <typename type>
+MemoryAddress
+push_value(Machine::Machine& machine, MemoryAddress& addr, type value)
+{
+  return push_data<type>(machine, addr, 1, &value);
 }
 
 
@@ -43,42 +51,73 @@ push_variable(MemoryAddress& addr)
 
 
 MemoryAddress
-demo_program(Machine::Machine& machine, MemoryAddress& addr)
+push_subroutine_start(Machine::Machine& machine, MemoryAddress& addr)
 {
-  MemoryAddress stride = push_variable<u16>(addr);
-  MemoryAddress colour = push_variable<u8>(addr);
-  MemoryAddress colour_a = push_variable<u16>(addr);
-  MemoryAddress counter = push_variable<u16>(addr);
-  MemoryAddress pixel_pos = push_variable<u16>(addr);
-  MemoryAddress offset = push_variable<u16>(addr);
+  // Reserve a MemoryAddress for the caller to store their return address
+  MemoryAddress subroutine_return_variable = push_variable<MemoryAddress>(addr);
+  return addr;
+}
 
-  MemoryAddress program_start = addr;
+
+void
+push_subroutine_end(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress subroutine)
+{
+  MemoryAddress subroutine_return_variable = subroutine - sizeof(MemoryAddress);
+
+  push_instruction<Instructions::JUMP_I>(machine, addr, {
+    .addr = subroutine_return_variable
+  });
+}
+
+
+void
+push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress subroutine)
+{
+  // The two bytes prior to the subroutine's address are reserved for the caller to store their return address
+
+  MemoryAddress subroutine_return_variable = subroutine - sizeof(MemoryAddress);
+  MemoryAddress return_location = addr + (sizeof(Instructions::Code::SET) + sizeof(Instructions::SET<u16>) +
+                                          sizeof(Instructions::Code::JUMP) + sizeof(Instructions::JUMP));
 
   push_instruction<Instructions::SET<u16>>(machine, addr, {
-    .addr = stride,
-    .value = 71
+    .addr = subroutine_return_variable,
+    .value = return_location
   });
 
-  push_instruction<Instructions::SET<u8>>(machine, addr, {
-    .addr = colour,
-    .value = Palette::Red
-  });
+  push_instruction<Instructions::JUMP>(machine, addr, {subroutine});
+}
 
-  push_instruction<Instructions::SET<u16>>(machine, addr, {
-    .addr = colour_a,
+
+MemoryAddress
+dot_subroutine(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress pixel_pos)
+{
+  MemoryAddress colour = push_value<u8>(machine, addr, Palette::LightBrown);
+
+  MemoryAddress start = push_subroutine_start(machine, addr);
+
+  push_instruction<Instructions::SET_I<u8>>(machine, addr, {
+    .addr = pixel_pos,
     .value = colour
   });
 
-  push_instruction<Instructions::SET<u16>>(machine, addr, {
-    .addr = offset,
-    .value = Machine::Reserved::ScreenBuffer
-  });
+  push_subroutine_end(machine, addr, start);
 
-  push_instruction<Instructions::SET<u16>>(machine, addr, {
-    .addr = counter,
-    .value = 0
-  });
+  return start;
+}
 
+
+MemoryAddress
+demo_program(Machine::Machine& machine, MemoryAddress& addr)
+{
+  MemoryAddress stride = push_value<u16>(machine, addr, 1);
+  MemoryAddress counter = push_value<u16>(machine, addr, 0);
+  MemoryAddress offset = push_value<u16>(machine, addr, Machine::Reserved::ScreenBuffer);
+
+  MemoryAddress pixel_pos = push_variable<u16>(addr);
+
+  MemoryAddress dot = dot_subroutine(machine, addr, pixel_pos);
+
+  MemoryAddress program_start = addr;
   MemoryAddress loop = addr;
 
   push_instruction<Instructions::ADD<u16>>(machine, addr, {
@@ -87,10 +126,7 @@ demo_program(Machine::Machine& machine, MemoryAddress& addr)
     .result = pixel_pos
   });
 
-  push_instruction<Instructions::COPY<u8>>(machine, addr, {
-    .from = colour_a,
-    .to = pixel_pos
-  });
+  push_subroutine_call(machine, addr, dot);
 
   push_instruction<Instructions::ADD<u16>>(machine, addr, {
     .a = counter,
@@ -110,9 +146,7 @@ demo_program(Machine::Machine& machine, MemoryAddress& addr)
     .result = counter
   });
 
-  push_instruction<Instructions::JUMP>(machine, addr, {
-    .addr = loop
-  });
+  push_instruction<Instructions::JUMP>(machine, addr, {loop});
 
   return program_start;
 }
