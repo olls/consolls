@@ -8,86 +8,139 @@
 namespace Machine
 {
 
-template <typename width>
+template <Instructions::Code Code>
 void
-add_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Code> args)
+{}
+
+
+template <>
+void
+inst<Instructions::Code::ADD>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::ADD> args)
 {
-  Instructions::ADD args = advance_addr<Instructions::ADD<width>>(machine, instruction_ptr);
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
+  u8 result = a + b;
 
-  width a = get<width>(machine, args.a);
-  width b = get<width>(machine, args.b);
-  width result = a + b;
+  set<u8>(machine, args.result, result);
+}
 
-  set<width>(machine, args.result, result);
+template <>
+void
+inst<Instructions::Code::ADD_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::ADD_W> args)
+{
+  u16 a = get<u16>(machine, args.a);
+  u16 b = get<u16>(machine, args.b);
+  u16 result = a + b;
+
+  set<u16>(machine, args.result, result);
 }
 
 
-template <typename width>
+template <>
 void
-sub_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::SUB>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::SUB> args)
 {
-  Instructions::SUB args = advance_addr<Instructions::SUB<width>>(machine, instruction_ptr);
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
+  u8 result = a - b;
 
-  width a = get<width>(machine, args.a);
-  width b = get<width>(machine, args.b);
-  width result = a - b;
+  set<u8>(machine, args.result, result);
+}
 
-  set<width>(machine, args.result, result);
+template <>
+void
+inst<Instructions::Code::SUB_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::SUB_W> args)
+{
+  u16 a = get<u16>(machine, args.a);
+  u16 b = get<u16>(machine, args.b);
+  u16 result = a - b;
+
+  set<u16>(machine, args.result, result);
 }
 
 
-template <typename width>
+template <>
 void
-mul_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::MUL>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::MUL> args)
 {
-  Instructions::MUL args = advance_addr<Instructions::MUL<width>>(machine, instruction_ptr);
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
+  u8 result = a * b;
 
-  width a = get<width>(machine, args.a);
-  width b = get<width>(machine, args.b);
-  width result = a * b;
+  set<u8>(machine, args.result, result);
+}
 
-  set<width>(machine, args.result, result);
+template <>
+void
+inst<Instructions::Code::MUL_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::MUL_W> args)
+{
+  u16 a = get<u16>(machine, args.a);
+  u16 b = get<u16>(machine, args.b);
+  u16 result = a * b;
+
+  set<u16>(machine, args.result, result);
 }
 
 
-template <typename width>
+template <>
 void
-div_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::DIV>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::DIV> args)
 {
-  Instructions::DIV args = advance_addr<Instructions::DIV<width>>(machine, instruction_ptr);
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
+  u8 result = a / b;
 
-  width a = get<width>(machine, args.a);
-  width b = get<width>(machine, args.b);
-  width result = a / b;
+  set<u8>(machine, args.result, result);
+}
 
-  set<width>(machine, args.result, result);
+template <>
+void
+inst<Instructions::Code::DIV_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::DIV_W> args)
+{
+  u16 a = get<u16>(machine, args.a);
+  u16 b = get<u16>(machine, args.b);
+  u16 result = a / b;
+
+  set<u16>(machine, args.result, result);
 }
 
 
+template <>
 void
-jump_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::JUMP>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::JUMP> args)
 {
-  Instructions::JUMP args = advance_addr<Instructions::JUMP>(machine, instruction_ptr);
-  instruction_ptr = args.addr;
+ instruction_ptr = args.addr;
 }
 
 
+template <>
 void
-jump_i_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::JUMP_I>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::JUMP_I> args)
 {
-  Instructions::JUMP args = advance_addr<Instructions::JUMP>(machine, instruction_ptr);
-  instruction_ptr = get<MemoryAddress>(machine, args.addr);
+ instruction_ptr = get<MemoryAddress>(machine, args.addr);
 }
 
 
-template <typename width>
+template <>
 void
-cmp_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::CMP>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::CMP> args)
 {
-  Instructions::CMP args = advance_addr<Instructions::CMP<width>>(machine, instruction_ptr);
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
 
-  width a = get<width>(machine, args.a);
-  width b = get<width>(machine, args.b);
+  if (a > b)
+  {
+    instruction_ptr = args.addr;
+  }
+}
+
+template <>
+void
+inst<Instructions::Code::CMP_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::CMP_W> args)
+{
+  u16 a = get<u16>(machine, args.a);
+  u16 b = get<u16>(machine, args.b);
 
   if (a > b)
   {
@@ -96,51 +149,89 @@ cmp_inst(Machine& machine, MemoryAddress& instruction_ptr)
 }
 
 
-template <typename width>
+template <>
 void
-set_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::SET>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::SET> args)
 {
-  Instructions::SET args = advance_addr<Instructions::SET<width>>(machine, instruction_ptr);
+  set<u8>(machine, args.addr, args.value);
+}
 
-  set<width>(machine, args.addr, args.value);
+template <>
+void
+inst<Instructions::Code::SET_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::SET_W> args)
+{
+  set<u16>(machine, args.addr, args.value);
 }
 
 
-template <typename width>
+template <>
 void
-set_i_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::SET_I>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::SET_I> args)
 {
-  Instructions::SET_I args = advance_addr<Instructions::SET_I<width>>(machine, instruction_ptr);
-
   MemoryAddress addr = get<MemoryAddress>(machine, args.addr);
-  width value = get<width>(machine, args.value);
+  u8 value = get<u8>(machine, args.value);
 
-  set<width>(machine, addr, value);
+  set<u8>(machine, addr, value);
+}
+
+template <>
+void
+inst<Instructions::Code::SET_I_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::SET_I_W> args)
+{
+  MemoryAddress addr = get<MemoryAddress>(machine, args.addr);
+  u16 value = get<u16>(machine, args.value);
+
+  set<u16>(machine, addr, value);
 }
 
 
-template <typename width>
+template <>
 void
-copy_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::COPY>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::COPY> args)
 {
-  Instructions::COPY args = advance_addr<Instructions::COPY<width>>(machine, instruction_ptr);
+  u8 from_value = get<u8>(machine, args.from);
+  set<u8>(machine, args.to, from_value);
+}
 
-  width from_value = get<width>(machine, args.from);
-  set<width>(machine, args.to, from_value);
+template <>
+void
+inst<Instructions::Code::COPY_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::COPY_W> args)
+{
+  u16 from_value = get<u16>(machine, args.from);
+  set<u16>(machine, args.to, from_value);
 }
 
 
-template <typename width>
+template <>
 void
-copy_i_inst(Machine& machine, MemoryAddress& instruction_ptr)
+inst<Instructions::Code::COPY_I>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::COPY_I> args)
 {
-  Instructions::COPY_I args = advance_addr<Instructions::COPY_I<width>>(machine, instruction_ptr);
-
   MemoryAddress from = get<MemoryAddress>(machine, args.from);
   MemoryAddress to = get<MemoryAddress>(machine, args.to);
 
-  width from_value = get<width>(machine, from);
-  set<width>(machine, to, from_value);
+  u8 from_value = get<u8>(machine, from);
+  set<u8>(machine, to, from_value);
+}
+
+template <>
+void
+inst<Instructions::Code::COPY_I_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::COPY_I_W> args)
+{
+  MemoryAddress from = get<MemoryAddress>(machine, args.from);
+  MemoryAddress to = get<MemoryAddress>(machine, args.to);
+
+  u16 from_value = get<u16>(machine, from);
+  set<u16>(machine, to, from_value);
+}
+
+
+template <Instructions::Code Code>
+void
+exe_inst(Machine& machine, MemoryAddress& instruction_ptr)
+{
+  Instructions::Args<Code> args = advance_addr<Instructions::Args<Code>>(machine, instruction_ptr);
+
+  inst<Code>(machine, instruction_ptr, args);
 }
 
 
@@ -154,57 +245,47 @@ advance(Machine& machine)
 
   switch (instruction)
   {
-    case (Instructions::Code::NOP):
+    case (Instructions::Code::NOP):       exe_inst<Instructions::Code::NOP>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::ADD):       add_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::ADD):       exe_inst<Instructions::Code::ADD>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::ADD_W):     add_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::ADD_W):     exe_inst<Instructions::Code::ADD_W>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::SUB):       sub_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::SUB):       exe_inst<Instructions::Code::SUB>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::SUB_W):     sub_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::SUB_W):     exe_inst<Instructions::Code::SUB_W>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::MUL):       mul_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::MUL):       exe_inst<Instructions::Code::MUL>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::MUL_W):     mul_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::MUL_W):     exe_inst<Instructions::Code::MUL_W>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::DIV):       div_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::DIV):       exe_inst<Instructions::Code::DIV>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::DIV_W):     div_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::DIV_W):     exe_inst<Instructions::Code::DIV_W>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::JUMP):      jump_inst(machine, instruction_ptr);
+    case (Instructions::Code::JUMP):      exe_inst<Instructions::Code::JUMP>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::JUMP_I):    jump_i_inst(machine, instruction_ptr);
+    case (Instructions::Code::JUMP_I):    exe_inst<Instructions::Code::JUMP_I>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::CMP):       cmp_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::CMP):       exe_inst<Instructions::Code::CMP>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::CMP_W):     cmp_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::CMP_W):     exe_inst<Instructions::Code::CMP_W>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::SET):       set_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::SET):       exe_inst<Instructions::Code::SET>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::SET_W):     set_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::SET_W):     exe_inst<Instructions::Code::SET_W>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::SET_I):     set_i_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::SET_I):     exe_inst<Instructions::Code::SET_I>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::SET_I_W):   set_i_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::SET_I_W):   exe_inst<Instructions::Code::SET_I_W>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::COPY):      copy_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::COPY):      exe_inst<Instructions::Code::COPY>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::COPY_W):    copy_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::COPY_W):    exe_inst<Instructions::Code::COPY_W>(machine, instruction_ptr);
       break;
-
-    case (Instructions::Code::COPY_I):    copy_i_inst<u8>(machine, instruction_ptr);
+    case (Instructions::Code::COPY_I):    exe_inst<Instructions::Code::COPY_I>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::COPY_I_W):  copy_i_inst<u16>(machine, instruction_ptr);
+    case (Instructions::Code::COPY_I_W):  exe_inst<Instructions::Code::COPY_I_W>(machine, instruction_ptr);
       break;
   }
 

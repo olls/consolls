@@ -31,14 +31,26 @@ enum class Code : u8
   COPY_I_W
 };
 
+template <Code InstructionCode>
+struct __attribute__((packed)) Args;
 
-struct __attribute__((packed)) NOP
+
+template <>
+struct __attribute__((packed)) Args<Code::NOP>
 {
 };
 
 
-template <typename width>
-struct __attribute__((packed)) ADD
+template <>
+struct __attribute__((packed)) Args<Code::ADD>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::ADD_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -46,8 +58,16 @@ struct __attribute__((packed)) ADD
 };
 
 
-template <typename width>
-struct __attribute__((packed)) SUB
+template <>
+struct __attribute__((packed)) Args<Code::SUB>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::SUB_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -55,8 +75,16 @@ struct __attribute__((packed)) SUB
 };
 
 
-template <typename width>
-struct __attribute__((packed)) MUL
+template <>
+struct __attribute__((packed)) Args<Code::MUL>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::MUL_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -64,8 +92,16 @@ struct __attribute__((packed)) MUL
 };
 
 
-template <typename width>
-struct __attribute__((packed)) DIV
+template <>
+struct __attribute__((packed)) Args<Code::DIV>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::DIV_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -73,19 +109,29 @@ struct __attribute__((packed)) DIV
 };
 
 
-struct __attribute__((packed)) JUMP
+template <>
+struct __attribute__((packed)) Args<Code::JUMP>
 {
   Machine::MemoryAddress addr;
 };
 
-struct __attribute__((packed)) JUMP_I
+template <>
+struct __attribute__((packed)) Args<Code::JUMP_I>
 {
   Machine::MemoryAddress addr;
 };
 
 
-template <typename width>
-struct __attribute__((packed)) CMP
+template <>
+struct __attribute__((packed)) Args<Code::CMP>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress addr;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::CMP_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -93,92 +139,138 @@ struct __attribute__((packed)) CMP
 };
 
 
-template <typename width>
-struct __attribute__((packed)) SET
+template <>
+struct __attribute__((packed)) Args<Code::SET>
 {
   Machine::MemoryAddress addr;
-  width value;
+  u8 value;
 };
 
-template <typename width>
-struct __attribute__((packed)) SET_I
+template <>
+struct __attribute__((packed)) Args<Code::SET_W>
+{
+  Machine::MemoryAddress addr;
+  u16 value;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::SET_I>
+{
+  Machine::MemoryAddress addr;
+  Machine::MemoryAddress value;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::SET_I_W>
 {
   Machine::MemoryAddress addr;
   Machine::MemoryAddress value;
 };
 
 
-template <typename width>
-struct __attribute__((packed)) COPY
+template <>
+struct __attribute__((packed)) Args<Code::COPY>
 {
   Machine::MemoryAddress from;
   Machine::MemoryAddress to;
 };
 
-template <typename width>
-struct __attribute__((packed)) COPY_I
+template <>
+struct __attribute__((packed)) Args<Code::COPY_W>
+{
+  Machine::MemoryAddress from;
+  Machine::MemoryAddress to;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::COPY_I>
+{
+  Machine::MemoryAddress from;
+  Machine::MemoryAddress to;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::COPY_I_W>
 {
   Machine::MemoryAddress from;
   Machine::MemoryAddress to;
 };
 
 
-// Compile time mappings from 'args' struct types to corresponding Code types
-template <typename ArgsType>
-static const Code Args_to_Code = Code::NOP;
 
-template<>
-static const Code Args_to_Code<NOP> = Code::NOP;
+inline u32
+get_args_size(Code code)
+{
+  u32 result;
 
-template<>
-static const Code Args_to_Code<ADD<u8>> = Code::ADD;
-template<>
-static const Code Args_to_Code<ADD<u16>> = Code::ADD_W;
-
-template<>
-static const Code Args_to_Code<SUB<u8>> = Code::SUB;
-template<>
-static const Code Args_to_Code<SUB<u16>> = Code::SUB_W;
-
-template<>
-static const Code Args_to_Code<MUL<u8>> = Code::MUL;
-template<>
-static const Code Args_to_Code<MUL<u16>> = Code::MUL_W;
-
-template<>
-static const Code Args_to_Code<DIV<u8>> = Code::DIV;
-template<>
-static const Code Args_to_Code<DIV<u16>> = Code::DIV_W;
-
-template<>
-static const Code Args_to_Code<JUMP> = Code::JUMP;
-template<>
-static const Code Args_to_Code<JUMP_I> = Code::JUMP_I;
-
-template<>
-static const Code Args_to_Code<CMP<u8>> = Code::CMP;
-template<>
-static const Code Args_to_Code<CMP<u16>> = Code::CMP_W;
-
-template<>
-static const Code Args_to_Code<SET<u8>> = Code::SET;
-template<>
-static const Code Args_to_Code<SET<u16>> = Code::SET_W;
-
-template<>
-static const Code Args_to_Code<SET_I<u8>> = Code::SET_I;
-template<>
-static const Code Args_to_Code<SET_I<u16>> = Code::SET_I_W;
-
-template<>
-static const Code Args_to_Code<COPY<u8>> = Code::COPY;
-template<>
-static const Code Args_to_Code<COPY<u16>> = Code::COPY_W;
-
-template<>
-static const Code Args_to_Code<COPY_I<u8>> = Code::COPY_I;
-template<>
-static const Code Args_to_Code<COPY_I<u16>> = Code::COPY_I_W;
+  switch (code)
+  {
+  case (Code::NOP):
+    result = sizeof(Args<Code::NOP>);
+    break;
+  case (Code::ADD):
+    result = sizeof(Args<Code::ADD>);
+    break;
+  case (Code::ADD_W):
+    result = sizeof(Args<Code::ADD_W>);
+    break;
+  case (Code::SUB):
+    result = sizeof(Args<Code::SUB>);
+    break;
+  case (Code::SUB_W):
+    result = sizeof(Args<Code::SUB_W>);
+    break;
+  case (Code::MUL):
+    result = sizeof(Args<Code::MUL>);
+    break;
+  case (Code::MUL_W):
+    result = sizeof(Args<Code::MUL_W>);
+    break;
+  case (Code::DIV):
+    result = sizeof(Args<Code::DIV>);
+    break;
+  case (Code::DIV_W):
+    result = sizeof(Args<Code::DIV_W>);
+    break;
+  case (Code::JUMP):
+    result = sizeof(Args<Code::JUMP>);
+    break;
+  case (Code::JUMP_I):
+    result = sizeof(Args<Code::JUMP_I>);
+    break;
+  case (Code::CMP):
+    result = sizeof(Args<Code::CMP>);
+    break;
+  case (Code::CMP_W):
+    result = sizeof(Args<Code::CMP_W>);
+    break;
+  case (Code::SET):
+    result = sizeof(Args<Code::SET>);
+    break;
+  case (Code::SET_W):
+    result = sizeof(Args<Code::SET_W>);
+    break;
+  case (Code::SET_I):
+    result = sizeof(Args<Code::SET_I>);
+    break;
+  case (Code::SET_I_W):
+    result = sizeof(Args<Code::SET_I_W>);
+    break;
+  case (Code::COPY):
+    result = sizeof(Args<Code::COPY>);
+    break;
+  case (Code::COPY_W):
+    result = sizeof(Args<Code::COPY_W>);
+    break;
+  case (Code::COPY_I):
+    result = sizeof(Args<Code::COPY_I>);
+    break;
+  case (Code::COPY_I_W):
+    result = sizeof(Args<Code::COPY_I_W>);
+    break;
+  }
+  return result;
+}
 
 
 #undef GEN_OP_IN

@@ -6,12 +6,12 @@
 namespace Basolls
 {
 
-template <typename Args>
+template <Instructions::Code Code>
 void
-push_instruction(Machine::Machine& machine, MemoryAddress& addr, Args args)
+push_instruction(Machine::Machine& machine, MemoryAddress& addr, Instructions::Args<Code> args)
 {
-  Machine::advance_addr<Instructions::Code>(machine, addr) = Instructions::Args_to_Code<Args>;
-  Machine::advance_addr<Args>(machine, addr) = args;
+  Machine::advance_addr<Instructions::Code>(machine, addr) = Code;
+  Machine::advance_addr<Instructions::Args<Code>>(machine, addr) = args;
 }
 
 
@@ -70,7 +70,7 @@ push_variable<void>(MemoryAddress& addr)
 }
 
 
-template <typename ArgsType=void>
+template <typename ArgsType>
 Subroutine<ArgsType>
 push_subroutine_start(Machine::Machine& machine, MemoryAddress& addr)
 {
@@ -91,7 +91,7 @@ template <typename ArgsType>
 void
 push_subroutine_end(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> subroutine)
 {
-  push_instruction<Instructions::JUMP_I>(machine, addr, {
+  push_instruction<Instructions::Code::JUMP_I>(machine, addr, {
     .addr = subroutine.return_addr
   });
 }
@@ -105,7 +105,7 @@ push_type_copy(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress fro
        byte_n < sizeof(width);
        ++byte_n)
   {
-    push_instruction<Instructions::COPY<u8>>(machine, addr, {
+    push_instruction<Instructions::Code::COPY>(machine, addr, {
       .from = (MemoryAddress)(from + byte_n),
       .to = (MemoryAddress)(to + byte_n)
     });
@@ -131,22 +131,22 @@ void
 push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> subroutine)
 {
   // The two bytes prior to the subroutine's address are reserved for the caller to store their return address
-  MemoryAddress return_location = addr + (sizeof(Instructions::Code::SET) + sizeof(Instructions::SET<u16>) +
-                                          sizeof(Instructions::Code::JUMP) + sizeof(Instructions::JUMP));
+  MemoryAddress return_location = addr + (sizeof(Instructions::Code::SET) + sizeof(Instructions::Args<Instructions::Code::SET_W>) +
+                                          sizeof(Instructions::Code::JUMP) + sizeof(Instructions::Args<Instructions::Code::JUMP>));
 
-  push_instruction<Instructions::SET<u16>>(machine, addr, {
+  push_instruction<Instructions::Code::SET_W>(machine, addr, {
     .addr = subroutine.return_addr,
     .value = return_location
   });
 
-  push_instruction<Instructions::JUMP>(machine, addr, {subroutine.start});
+  push_instruction<Instructions::Code::JUMP>(machine, addr, {subroutine.start});
 }
 
 
 #define SUBROUTINE_ARG_POSITION(ArgsType, subroutine_args, arg) (MemoryAddress)((subroutine_args) + offsetof(ArgsType, arg))
 
 
-struct __attribute__((packed)) DotSubroutineArgs
+struct PACKED DotSubroutineArgs
 {
   MemoryAddress pixel_pos;
   u8 colour;
@@ -160,7 +160,7 @@ push_dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
   MemoryAddress pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, pixel_pos);
   MemoryAddress colour = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, colour);
 
-  push_instruction<Instructions::SET_I<u8>>(machine, addr, {
+  push_instruction<Instructions::Code::SET_I>(machine, addr, {
     .addr = pixel_pos,
     .value = colour
   });
@@ -191,11 +191,11 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
   MemoryAddress offset = push_value<u16>(machine, addr, Machine::Reserved::ScreenBuffer);
 
   // Start routine
-  Subroutine subroutine = push_subroutine_start(machine, addr);
+  Subroutine subroutine = push_subroutine_start<void>(machine, addr);
 
   MemoryAddress loop = addr;
 
-  push_instruction<Instructions::ADD<u16>>(machine, addr, {
+  push_instruction<Instructions::Code::ADD_W>(machine, addr, {
     .a = counter,
     .b = offset,
     .result = pixel_pos
@@ -206,32 +206,32 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
   push_subroutine_call(machine, addr, dot);
 
   // Increment counter
-  push_instruction<Instructions::ADD<u16>>(machine, addr, {
+  push_instruction<Instructions::Code::ADD_W>(machine, addr, {
     .a = counter,
     .b = stride,
     .result = counter
   });
 
   // Check (and reset) counter
-  push_instruction<Instructions::CMP<u16>>(machine, addr, {
+  push_instruction<Instructions::Code::CMP_W>(machine, addr, {
     .a = offset,
     .b = counter,
     .addr = loop
   });
 
-  push_instruction<Instructions::SUB<u16>>(machine, addr, {
+  push_instruction<Instructions::Code::SUB_W>(machine, addr, {
     .a = counter,
     .b = offset,
     .result = counter
   });
 
   // Blit!
-  push_instruction<Instructions::SET<u8>>(machine, addr, {
+  push_instruction<Instructions::Code::SET>(machine, addr, {
     .addr = Machine::Reserved::Blit,
     .value = 0x01
   });
 
-  push_instruction<Instructions::JUMP>(machine, addr, {loop});
+  push_instruction<Instructions::Code::JUMP>(machine, addr, {loop});
 
   // End routine
 
