@@ -9,6 +9,7 @@ namespace Basolls
 using Machine::MemoryAddress;
 
 
+template <typename ArgsType>
 struct Subroutine
 {
   MemoryAddress start;
