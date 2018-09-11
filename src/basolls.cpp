@@ -6,9 +6,6 @@
 namespace Basolls
 {
 
-using Machine::MemoryAddress;
-
-
 template <typename Args>
 void
 push_instruction(Machine::Machine& machine, MemoryAddress& addr, Args args)
@@ -49,15 +46,15 @@ push_variable(MemoryAddress& addr)
   return result;
 }
 
-
-struct Subroutine
+template <>
+MemoryAddress
+push_variable<void>(MemoryAddress& addr)
 {
-  MemoryAddress start;
-  MemoryAddress return_addr;
-  MemoryAddress args;
-};
+  return addr;
+}
 
-template <typename ArgsType>
+
+template <typename ArgsType=void>
 Subroutine
 push_subroutine_start(Machine::Machine& machine, MemoryAddress& addr)
 {
@@ -109,7 +106,7 @@ struct DotSubroutineArgs
 };
 
 Subroutine
-dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
+push_dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
 {
   Subroutine subroutine = push_subroutine_start<DotSubroutineArgs>(machine, addr);
 
@@ -127,9 +124,15 @@ dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
 }
 
 
-MemoryAddress
-demo_program(Machine::Machine& machine, MemoryAddress& addr)
+Subroutine
+push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
 {
+  // Subroutines
+
+  Subroutine dot = push_dot_subroutine(machine, addr);
+
+  // Variables / Constants
+
   MemoryAddress colour = push_value<u8>(machine, addr, Palette::Red);
   MemoryAddress stride = push_value<u16>(machine, addr, 125);
   MemoryAddress counter = push_value<u16>(machine, addr, 0);
@@ -137,9 +140,10 @@ demo_program(Machine::Machine& machine, MemoryAddress& addr)
 
   MemoryAddress pixel_pos = push_variable<u16>(addr);
 
-  Subroutine dot = dot_subroutine(machine, addr);
+  // Start routine
 
-  MemoryAddress program_start = addr;
+  Subroutine subroutine = push_subroutine_start(machine, addr);
+
   MemoryAddress loop = addr;
 
   push_instruction<Instructions::ADD<u16>>(machine, addr, {
@@ -169,7 +173,6 @@ demo_program(Machine::Machine& machine, MemoryAddress& addr)
     .b = stride,
     .result = counter
   });
-
   // Check (and reset) counter
 
   push_instruction<Instructions::CMP<u16>>(machine, addr, {
@@ -193,7 +196,30 @@ demo_program(Machine::Machine& machine, MemoryAddress& addr)
 
   push_instruction<Instructions::JUMP>(machine, addr, {loop});
 
-  return program_start;
+  // End routine
+
+  push_subroutine_end(machine, addr, subroutine);
+
+  return subroutine;
 }
+
+
+bool
+load_os(Machine::Machine& machine)
+{
+  bool success =  true;
+
+  MemoryAddress addr = Machine::Reserved::UserStart;
+
+  Subroutine demo_program = push_demo_program(machine, addr);
+
+  MemoryAddress os_start = addr;
+  push_subroutine_call(machine, addr, demo_program);
+
+  Machine::set<MemoryAddress>(machine, Machine::Reserved::NI, os_start);
+
+  return success;
+}
+
 
 } // namespace Basolls

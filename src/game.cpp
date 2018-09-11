@@ -13,21 +13,6 @@ namespace Game
 {
 
 bool
-load_program(Machine::Machine& machine)
-{
-  bool success =  true;
-
-  Machine::MemoryAddress addr = Machine::Reserved::UserStart;
-
-  Machine::MemoryAddress demo_program = Basolls::demo_program(machine, addr);
-
-  Machine::set<Machine::MemoryAddress>(machine, Machine::Reserved::NI, demo_program);
-
-  return success;
-}
-
-
-bool
 advance(State *state, SDL_State::SDL_State& sdl_state)
 {
   bool success = true;
@@ -84,7 +69,7 @@ run()
   SDL_State::SDL_State sdl_state = {};
   success &= SDL_State::init(sdl_state, APP_NAME, 640, 480, SDL_PIXELFORMAT_RGBX8888);
 
-  success &= load_program(state.machine);
+  success &= Basolls::load_os(state.machine);
 
   if (success)
   {

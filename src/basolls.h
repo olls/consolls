@@ -6,7 +6,18 @@
 namespace Basolls
 {
 
-Machine::MemoryAddress
-demo_program(Machine::Machine& machine, Machine::MemoryAddress& addr);
+using Machine::MemoryAddress;
+
+
+struct Subroutine
+{
+  MemoryAddress start;
+  MemoryAddress return_addr;
+  MemoryAddress args;
+};
+
+
+bool
+load_os(Machine::Machine& machine);
 
 } // namespace Basolls
