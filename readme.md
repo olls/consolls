@@ -1,6 +1,12 @@
 # Instructions
 
-    NOP
+All instructions and arguments are byte aligned and packed sequentially into bytes.
+
+
+## Misc
+
+### NOP
+Takes no arguments, and does nothing for 1 cycle.
 
 
 ## Arithmetic
