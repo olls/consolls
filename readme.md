@@ -84,14 +84,14 @@ Sets the next instruction register equal to the 16-bit address stored at `addr`.
     MemoryAddress addr
 
 
-### CMP
+### CJUMP
 Compares the 8-bit value stored at `a` to the value at `b`, is a is greater, set the next instruction register equal to `addr`.
 
     MemoryAddress a
     MemoryAddress b
     MemoryAddress addr
 
-### CMP_W
+### CJUMP_W
 Compares the 16-bit value stored at `a` to the value at `b`, is a is greater, set the next instruction register equal to `addr`.
 
     MemoryAddress a

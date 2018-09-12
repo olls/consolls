@@ -19,6 +19,8 @@ enum class Code : u8
   DIV_W,
   JUMP,
   JUMP_I,
+  CJUMP,
+  CJUMP_W,
   CMP,
   CMP_W,
   SET,
@@ -123,7 +125,7 @@ struct __attribute__((packed)) Args<Code::JUMP_I>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::CMP>
+struct __attribute__((packed)) Args<Code::CJUMP>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -131,7 +133,7 @@ struct __attribute__((packed)) Args<Code::CMP>
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::CMP_W>
+struct __attribute__((packed)) Args<Code::CJUMP_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -238,11 +240,11 @@ get_args_size(Code code)
   case (Code::JUMP_I):
     result = sizeof(Args<Code::JUMP_I>);
     break;
-  case (Code::CMP):
-    result = sizeof(Args<Code::CMP>);
+  case (Code::CJUMP):
+    result = sizeof(Args<Code::CJUMP>);
     break;
-  case (Code::CMP_W):
-    result = sizeof(Args<Code::CMP_W>);
+  case (Code::CJUMP_W):
+    result = sizeof(Args<Code::CJUMP_W>);
     break;
   case (Code::SET):
     result = sizeof(Args<Code::SET>);

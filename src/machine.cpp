@@ -124,7 +124,7 @@ inst<Instructions::Code::JUMP_I>(Machine& machine, MemoryAddress& instruction_pt
 
 template <>
 void
-inst<Instructions::Code::CMP>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::CMP> args)
+inst<Instructions::Code::CJUMP>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::CJUMP> args)
 {
   u8 a = get<u8>(machine, args.a);
   u8 b = get<u8>(machine, args.b);
@@ -137,7 +137,7 @@ inst<Instructions::Code::CMP>(Machine& machine, MemoryAddress& instruction_ptr, 
 
 template <>
 void
-inst<Instructions::Code::CMP_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::CMP_W> args)
+inst<Instructions::Code::CJUMP_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::CJUMP_W> args)
 {
   u16 a = get<u16>(machine, args.a);
   u16 b = get<u16>(machine, args.b);
@@ -267,9 +267,9 @@ advance(Machine& machine)
       break;
     case (Instructions::Code::JUMP_I):    exe_inst<Instructions::Code::JUMP_I>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::CMP):       exe_inst<Instructions::Code::CMP>(machine, instruction_ptr);
+    case (Instructions::Code::CJUMP):     exe_inst<Instructions::Code::CJUMP>(machine, instruction_ptr);
       break;
-    case (Instructions::Code::CMP_W):     exe_inst<Instructions::Code::CMP_W>(machine, instruction_ptr);
+    case (Instructions::Code::CJUMP_W):   exe_inst<Instructions::Code::CJUMP_W>(machine, instruction_ptr);
       break;
     case (Instructions::Code::SET):       exe_inst<Instructions::Code::SET>(machine, instruction_ptr);
       break;

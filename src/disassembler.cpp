@@ -92,16 +92,16 @@ disassemble_args<Instructions::Code::JUMP_I>(Machine::Machine& machine, Instruct
 
 template <>
 void
-disassemble_args<Instructions::Code::CMP>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CMP> args)
+disassemble_args<Instructions::Code::CJUMP>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CJUMP> args)
 {
-  printf("CMP a=%#x, b=%#x, addr=%#x", args.a, args.b, args.addr);
+  printf("CJUMP a=%#x, b=%#x, addr=%#x", args.a, args.b, args.addr);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::CMP_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CMP_W> args)
+disassemble_args<Instructions::Code::CJUMP_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CJUMP_W> args)
 {
-  printf("CMP_W a=%#x, b=%#x, addr=%#x", args.a, args.b, args.addr);
+  printf("CJUMP_W a=%#x, b=%#x, addr=%#x", args.a, args.b, args.addr);
 }
 
 template <>
@@ -204,9 +204,9 @@ disassemble(Machine::Machine& machine, Machine::MemoryAddress from, Machine::Mem
         break;
       case (Instructions::Code::JUMP_I):  disassemble_instruction<Instructions::Code::JUMP_I>(machine, addr);
         break;
-      case (Instructions::Code::CMP):  disassemble_instruction<Instructions::Code::CMP>(machine, addr);
+      case (Instructions::Code::CJUMP):  disassemble_instruction<Instructions::Code::CJUMP>(machine, addr);
         break;
-      case (Instructions::Code::CMP_W):  disassemble_instruction<Instructions::Code::CMP_W>(machine, addr);
+      case (Instructions::Code::CJUMP_W):  disassemble_instruction<Instructions::Code::CJUMP_W>(machine, addr);
         break;
       case (Instructions::Code::SET):  disassemble_instruction<Instructions::Code::SET>(machine, addr);
         break;

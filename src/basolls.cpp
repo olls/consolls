@@ -214,7 +214,7 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
   });
 
   // Check (and reset) counter
-  push_instruction<Instructions::Code::CMP_W>(machine, addr, {
+  push_instruction<Instructions::Code::CJUMP_W>(machine, addr, {
     .a = offset,
     .b = counter,
     .addr = loop
