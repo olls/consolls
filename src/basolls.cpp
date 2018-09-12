@@ -2,6 +2,7 @@
 
 #include "palette.h"
 #include "instructions.h"
+#include "disassembler.h"
 
 namespace Basolls
 {
