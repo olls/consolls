@@ -106,6 +106,20 @@ disassemble_args<Instructions::Code::CJUMP_W>(Machine::Machine& machine, Instruc
 
 template <>
 void
+disassemble_args<Instructions::Code::CMP>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CMP> args)
+{
+  printf("CMP a=%#x, b=%#x, result=%#x", args.a, args.b, args.result);
+}
+
+template <>
+void
+disassemble_args<Instructions::Code::CMP_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CMP_W> args)
+{
+  printf("CMP_W a=%#x, b=%#x, result=%#x", args.a, args.b, args.result);
+}
+
+template <>
+void
 disassemble_args<Instructions::Code::SET>(Machine::Machine& machine, Instructions::Args<Instructions::Code::SET> args)
 {
   printf("SET addr=%#x, value=%#x", args.addr, args.value);

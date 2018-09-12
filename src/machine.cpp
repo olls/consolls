@@ -151,6 +151,33 @@ inst<Instructions::Code::CJUMP_W>(Machine& machine, MemoryAddress& instruction_p
 
 template <>
 void
+inst<Instructions::Code::CMP>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::CMP> args)
+{
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
+
+  if (a == b)
+  {
+    set<u8>(machine, args.result, 0x01);
+  }
+}
+
+template <>
+void
+inst<Instructions::Code::CMP_W>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::CMP_W> args)
+{
+  u16 a = get<u16>(machine, args.a);
+  u16 b = get<u16>(machine, args.b);
+
+  if (a == b)
+  {
+    set<u8>(machine, args.result, 0x00);
+  }
+}
+
+
+template <>
+void
 inst<Instructions::Code::SET>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::SET> args)
 {
   set<u8>(machine, args.addr, args.value);
@@ -270,6 +297,10 @@ advance(Machine& machine)
     case (Instructions::Code::CJUMP):     exe_inst<Instructions::Code::CJUMP>(machine, instruction_ptr);
       break;
     case (Instructions::Code::CJUMP_W):   exe_inst<Instructions::Code::CJUMP_W>(machine, instruction_ptr);
+      break;
+    case (Instructions::Code::CMP):       exe_inst<Instructions::Code::CMP>(machine, instruction_ptr);
+      break;
+    case (Instructions::Code::CMP_W):     exe_inst<Instructions::Code::CMP_W>(machine, instruction_ptr);
       break;
     case (Instructions::Code::SET):       exe_inst<Instructions::Code::SET>(machine, instruction_ptr);
       break;

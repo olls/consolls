@@ -142,6 +142,23 @@ struct __attribute__((packed)) Args<Code::CJUMP_W>
 
 
 template <>
+struct __attribute__((packed)) Args<Code::CMP>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::CMP_W>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
 struct __attribute__((packed)) Args<Code::SET>
 {
   Machine::MemoryAddress addr;
@@ -245,6 +262,12 @@ get_args_size(Code code)
     break;
   case (Code::CJUMP_W):
     result = sizeof(Args<Code::CJUMP_W>);
+    break;
+  case (Code::CMP):
+    result = sizeof(Args<Code::CMP>);
+    break;
+  case (Code::CMP_W):
+    result = sizeof(Args<Code::CMP_W>);
     break;
   case (Code::SET):
     result = sizeof(Args<Code::SET>);
