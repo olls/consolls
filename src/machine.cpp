@@ -272,7 +272,7 @@ advance(Machine& machine)
 
   switch (instruction)
   {
-    case (Instructions::Code::NOP):       exe_inst<Instructions::Code::NOP>(machine, instruction_ptr);
+    case (Instructions::Code::NOP):
       break;
     case (Instructions::Code::ADD):       exe_inst<Instructions::Code::ADD>(machine, instruction_ptr);
       break;
