@@ -13,6 +13,7 @@ template <typename ArgsType>
 struct Subroutine
 {
   MemoryAddress start;
+  MemoryAddress end;
   MemoryAddress return_addr;
   MemoryAddress args;
 };

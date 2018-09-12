@@ -90,11 +90,12 @@ push_subroutine_start(Machine::Machine& machine, MemoryAddress& addr)
 
 template <typename ArgsType>
 void
-push_subroutine_end(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> subroutine)
+push_subroutine_end(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType>& subroutine)
 {
   push_instruction<Instructions::Code::JUMP_I>(machine, addr, {
     .addr = subroutine.return_addr
   });
+  subroutine.end = addr;
 }
 
 
