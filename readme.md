@@ -84,6 +84,50 @@ Sets the next instruction register equal to the 16-bit address stored at `addr`.
     MemoryAddress addr
 
 
+## Bitwise Logic
+
+### NOT
+Bitwise inversion of 8-bit value stored at `in`, storing the result at `result`.
+
+    MemoryAddress in
+    MemoryAddress result
+
+### LSHIFT
+Bitwise-left-shift of 8-bit value stored at `in` by the number of bits stored at `bits`, storing the result at `result`.
+
+    MemoryAddress in
+    MemoryAddress bits
+    MemoryAddress result
+
+### RSHIFT
+Bitwise-right-shift of 8-bit value stored at `in` by the number of bits stored at `bits`, storing the result at `result`.
+
+    MemoryAddress in
+    MemoryAddress bits
+    MemoryAddress result
+
+### AND
+Bitwise logical AND of 8-bit values stored at `a` and `b`, storing the result at `result`.
+
+    MemoryAddress a
+    MemoryAddress b
+    MemoryAddress result
+
+### OR
+Bitwise logical OR of 8-bit values stored at `a` and `b`, storing the result at `result`.
+
+    MemoryAddress a
+    MemoryAddress b
+    MemoryAddress result
+
+### XOR
+Bitwise logical exclusive OR of 8-bit values stored at `a` and `b`, storing the result at `result`.
+
+    MemoryAddress a
+    MemoryAddress b
+    MemoryAddress result
+
+
 ## Comparison
 
 ### CJUMP

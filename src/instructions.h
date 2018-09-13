@@ -17,6 +17,12 @@ enum class Code : u8
   MUL_W,
   DIV,
   DIV_W,
+  NOT,
+  LSHIFT,
+  RSHIFT,
+  AND,
+  OR,
+  XOR,
   JUMP,
   JUMP_I,
   CJUMP,
@@ -98,6 +104,59 @@ struct __attribute__((packed)) Args<Code::DIV>
 
 template <>
 struct __attribute__((packed)) Args<Code::DIV_W>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct __attribute__((packed)) Args<Code::NOT>
+{
+  Machine::MemoryAddress in;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct __attribute__((packed)) Args<Code::LSHIFT>
+{
+  Machine::MemoryAddress in;
+  Machine::MemoryAddress bits;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct __attribute__((packed)) Args<Code::RSHIFT>
+{
+  Machine::MemoryAddress in;
+  Machine::MemoryAddress bits;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct __attribute__((packed)) Args<Code::AND>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct __attribute__((packed)) Args<Code::OR>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct __attribute__((packed)) Args<Code::XOR>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;

@@ -68,6 +68,48 @@ disassemble_args<Instructions::Code::DIV_W>(Machine::Machine& machine, Instructi
 
 template <>
 void
+disassemble_args<Instructions::Code::NOT>(Machine::Machine& machine, Instructions::Args<Instructions::Code::NOT> args)
+{
+  printf("NOT in=%#.4x, result=%#.4x", args.in, args.result);
+}
+
+template <>
+void
+disassemble_args<Instructions::Code::LSHIFT>(Machine::Machine& machine, Instructions::Args<Instructions::Code::LSHIFT> args)
+{
+  printf("LSHIFT in=%#.4x, bits=%#.4x, result=%#.4x", args.in, args.bits, args.result);
+}
+
+template <>
+void
+disassemble_args<Instructions::Code::RSHIFT>(Machine::Machine& machine, Instructions::Args<Instructions::Code::RSHIFT> args)
+{
+  printf("RSHIFT in=%#.4x, bits=%#.4x, result=%#.4x", args.in, args.bits, args.result);
+}
+
+template <>
+void
+disassemble_args<Instructions::Code::AND>(Machine::Machine& machine, Instructions::Args<Instructions::Code::AND> args)
+{
+  printf("AND a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
+}
+
+template <>
+void
+disassemble_args<Instructions::Code::OR>(Machine::Machine& machine, Instructions::Args<Instructions::Code::OR> args)
+{
+  printf("OR a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
+}
+
+template <>
+void
+disassemble_args<Instructions::Code::XOR>(Machine::Machine& machine, Instructions::Args<Instructions::Code::XOR> args)
+{
+  printf("XOR a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
+}
+
+template <>
+void
 disassemble_args<Instructions::Code::JUMP>(Machine::Machine& machine, Instructions::Args<Instructions::Code::JUMP> args)
 {
   printf("JUMP %#.4x", args.addr);
@@ -205,6 +247,18 @@ disassemble(Machine::Machine& machine, Machine::MemoryAddress from, Machine::Mem
       case (Instructions::Code::DIV):  disassemble_instruction<Instructions::Code::DIV>(machine, addr);
         break;
       case (Instructions::Code::DIV_W):  disassemble_instruction<Instructions::Code::DIV_W>(machine, addr);
+        break;
+      case (Instructions::Code::NOT):  disassemble_instruction<Instructions::Code::NOT>(machine, addr);
+        break;
+      case (Instructions::Code::LSHIFT):  disassemble_instruction<Instructions::Code::LSHIFT>(machine, addr);
+        break;
+      case (Instructions::Code::RSHIFT):  disassemble_instruction<Instructions::Code::RSHIFT>(machine, addr);
+        break;
+      case (Instructions::Code::AND):  disassemble_instruction<Instructions::Code::AND>(machine, addr);
+        break;
+      case (Instructions::Code::OR):  disassemble_instruction<Instructions::Code::OR>(machine, addr);
+        break;
+      case (Instructions::Code::XOR):  disassemble_instruction<Instructions::Code::XOR>(machine, addr);
         break;
       case (Instructions::Code::JUMP):  disassemble_instruction<Instructions::Code::JUMP>(machine, addr);
         break;

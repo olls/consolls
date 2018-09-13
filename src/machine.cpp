@@ -108,6 +108,65 @@ inst<Instructions::Code::DIV_W>(Machine& machine, MemoryAddress& instruction_ptr
 
 template <>
 void
+inst<Instructions::Code::NOT>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::NOT> args)
+{
+  u8 a = get<u8>(machine, args.in);
+  set<u8>(machine, args.result, ~a);
+}
+
+
+template <>
+void
+inst<Instructions::Code::LSHIFT>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::LSHIFT> args)
+{
+  u8 in = get<u8>(machine, args.in);
+  u8 bits = get<u8>(machine, args.bits);
+  set<u8>(machine, args.result, in << bits);
+}
+
+
+template <>
+void
+inst<Instructions::Code::RSHIFT>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::RSHIFT> args)
+{
+  u8 in = get<u8>(machine, args.in);
+  u8 bits = get<u8>(machine, args.bits);
+  set<u8>(machine, args.result, in >> bits);
+}
+
+
+template <>
+void
+inst<Instructions::Code::AND>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::AND> args)
+{
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
+  set<u8>(machine, args.result, a & b);
+}
+
+
+template <>
+void
+inst<Instructions::Code::OR>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::OR> args)
+{
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
+  set<u8>(machine, args.result, a | b);
+}
+
+
+template <>
+void
+inst<Instructions::Code::XOR>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::XOR> args)
+{
+  u8 a = get<u8>(machine, args.a);
+  u8 b = get<u8>(machine, args.b);
+  set<u8>(machine, args.result, a ^ b);
+}
+
+
+template <>
+void
 inst<Instructions::Code::JUMP>(Machine& machine, MemoryAddress& instruction_ptr, Instructions::Args<Instructions::Code::JUMP> args)
 {
  instruction_ptr = args.addr;
@@ -289,6 +348,18 @@ advance(Machine& machine)
     case (Instructions::Code::DIV):       exe_inst<Instructions::Code::DIV>(machine, instruction_ptr);
       break;
     case (Instructions::Code::DIV_W):     exe_inst<Instructions::Code::DIV_W>(machine, instruction_ptr);
+      break;
+    case (Instructions::Code::NOT):       exe_inst<Instructions::Code::NOT>(machine, instruction_ptr);
+      break;
+    case (Instructions::Code::LSHIFT):    exe_inst<Instructions::Code::LSHIFT>(machine, instruction_ptr);
+      break;
+    case (Instructions::Code::RSHIFT):    exe_inst<Instructions::Code::RSHIFT>(machine, instruction_ptr);
+      break;
+    case (Instructions::Code::AND):       exe_inst<Instructions::Code::AND>(machine, instruction_ptr);
+      break;
+    case (Instructions::Code::OR):        exe_inst<Instructions::Code::OR>(machine, instruction_ptr);
+      break;
+    case (Instructions::Code::XOR):       exe_inst<Instructions::Code::XOR>(machine, instruction_ptr);
       break;
     case (Instructions::Code::JUMP):      exe_inst<Instructions::Code::JUMP>(machine, instruction_ptr);
       break;
