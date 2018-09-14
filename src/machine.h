@@ -104,9 +104,16 @@ set(Machine& machine, MemoryAddress addr, element_type byte_value)
 
 template <typename element_type>
 inline void
-set(Machine& machine, MemoryAddress start, element_type* elements, u32 n_elements)
+copy(Machine& machine, MemoryAddress start, element_type* elements, u32 n_elements)
 {
   memcpy(machine.memory.bytes + start, elements, n_elements * sizeof(element_type));
+}
+
+
+inline void
+set(Machine& machine, MemoryAddress start, u8 element, u32 n_copies)
+{
+  memset(machine.memory.bytes + start, element, n_copies);
 }
 
 
