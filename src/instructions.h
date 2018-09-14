@@ -24,19 +24,19 @@ enum class Code : u8
   OR,
   XOR,
   JUMP,
-  JUMP_I,
+  JUMP_V,
   CJUMP,
   CJUMP_W,
   CMP,
   CMP_W,
-  SET,
-  SET_W,
-  SET_I,
-  SET_I_W,
+  SET_V,
+  SET_VW,
   COPY,
   COPY_W,
-  COPY_I,
-  COPY_I_W
+  GET,
+  GET_W,
+  SET,
+  SET_W
 };
 
 template <Code InstructionCode>
@@ -171,7 +171,7 @@ struct __attribute__((packed)) Args<Code::JUMP>
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::JUMP_I>
+struct __attribute__((packed)) Args<Code::JUMP_V>
 {
   Machine::MemoryAddress addr;
 };
@@ -212,31 +212,17 @@ struct __attribute__((packed)) Args<Code::CMP_W>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::SET>
+struct __attribute__((packed)) Args<Code::SET_V>
 {
   Machine::MemoryAddress addr;
   u8 value;
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::SET_W>
+struct __attribute__((packed)) Args<Code::SET_VW>
 {
   Machine::MemoryAddress addr;
   u16 value;
-};
-
-template <>
-struct __attribute__((packed)) Args<Code::SET_I>
-{
-  Machine::MemoryAddress addr;
-  Machine::MemoryAddress value;
-};
-
-template <>
-struct __attribute__((packed)) Args<Code::SET_I_W>
-{
-  Machine::MemoryAddress addr;
-  Machine::MemoryAddress value;
 };
 
 
@@ -254,21 +240,34 @@ struct __attribute__((packed)) Args<Code::COPY_W>
   Machine::MemoryAddress to;
 };
 
+
 template <>
-struct __attribute__((packed)) Args<Code::COPY_I>
+struct __attribute__((packed)) Args<Code::GET>
 {
-  Machine::MemoryAddress from;
+  Machine::MemoryAddress from_p;
   Machine::MemoryAddress to;
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::COPY_I_W>
+struct __attribute__((packed)) Args<Code::GET_W>
 {
-  Machine::MemoryAddress from;
+  Machine::MemoryAddress from_p;
   Machine::MemoryAddress to;
 };
 
 
-#undef GEN_OP_IN
+template <>
+struct __attribute__((packed)) Args<Code::SET>
+{
+  Machine::MemoryAddress from;
+  Machine::MemoryAddress to_p;
+};
+
+template <>
+struct __attribute__((packed)) Args<Code::SET_W>
+{
+  Machine::MemoryAddress from;
+  Machine::MemoryAddress to_p;
+};
 
 } // namespace Instructions

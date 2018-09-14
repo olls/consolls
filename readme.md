@@ -71,19 +71,6 @@ Divides the 16-bit value at address `a` by the value at `b`, storing the result 
     MemoryAddress result
 
 
-## Branching
-
-### JUMP
-Sets the next instruction register equal to `addr`.
-
-    MemoryAddress addr
-
-### JUMP_I
-Sets the next instruction register equal to the 16-bit address stored at `addr`.
-
-    MemoryAddress addr
-
-
 ## Bitwise Logic
 
 ### NOT
@@ -128,6 +115,19 @@ Bitwise logical exclusive OR of 8-bit values stored at `a` and `b`, storing the 
     MemoryAddress result
 
 
+## Branching
+
+### JUMP_V
+Sets the next instruction register equal to `addr`.
+
+    MemoryAddress addr
+
+### JUMP
+Sets the next instruction register equal to the 16-bit address stored at `addr_p`.
+
+    MemoryAddress addr_p
+
+
 ## Comparison
 
 ### CJUMP
@@ -162,29 +162,17 @@ Compares the 16-bit value stored at `a` to the value at `b`, is they are equal, 
 
 ## Data
 
-### SET
+### SET_V
 Sets the 8-bit value at `addr` equal to `value`.
 
     MemoryAddress addr
     u8 value
 
-### SET_W
+### SET_VW
 Sets the 16-bit value at `addr` equal to `value`.
 
     MemoryAddress addr
     u16 value
-
-### SET_I
-Sets the 8-bit value at the address stored in the address `addr`, to the value at the address `value`.
-
-    MemoryAddress addr
-    MemoryAddress value
-
-### SET_I_W
-Sets the 16-bit value at the address stored at the address `addr`, to the value at the address `value`.
-
-    MemoryAddress addr
-    MemoryAddress value
 
 
 ### COPY
@@ -199,14 +187,28 @@ Copies the 16-bit value at the address `from` to the value at `to`.
     MemoryAddress from
     MemoryAddress to
 
-### COPY_I
-Copies the 8-bit value at the address stored at the address `from`, to the value at the address stored at the address `to`.
 
-    MemoryAddress from
+### GET
+Copies the 8-bit value at the address stored at `from_p` to the address `to`
+
+    MemoryAddress from_p
     MemoryAddress to
 
-### COPY_I_W
-Copies the 16-bit value at the address stored at the address `from`, to the value at the address stored at the address `to`.
+### GET_W
+Copies the 16-bit value at the address stored at `from_p` to the address `to`
+
+    MemoryAddress from_p
+    MemoryAddress to
+
+
+### SET
+Copies the 8-bit value at the address `from` to the address stored at `to_p`
 
     MemoryAddress from
-    MemoryAddress to
+    MemoryAddress to_p
+
+### SET_W
+Copies the 16-bit value at the address `from` to the address stored at `to_p`
+
+    MemoryAddress from
+    MemoryAddress to_p
