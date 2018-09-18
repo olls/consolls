@@ -152,6 +152,7 @@ push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, Subroutine<
 
 struct PACKED DotSubroutineArgs
 {
+  MemoryAddress offset;
   MemoryAddress pixel_pos;
   u8 colour;
 };
@@ -159,13 +160,62 @@ struct PACKED DotSubroutineArgs
 Subroutine<DotSubroutineArgs>
 push_dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
 {
+  MemoryAddress one = push_value<u16>(machine, addr, 0x1);
+  MemoryAddress two = push_value<u16>(machine, addr, 0x2);
+  MemoryAddress pixel_shift = push_variable<u8>(addr);
+  MemoryAddress old_colour = push_variable<u8>(addr);
+
   Subroutine subroutine = push_subroutine_start<DotSubroutineArgs>(machine, addr);
 
+  MemoryAddress offset = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, offset);
   MemoryAddress pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, pixel_pos);
-  MemoryAddress colour_p = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, colour);
+  MemoryAddress colour = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, colour);
+
+  push_instruction<Code::AND>(machine, addr, {
+    .a = pixel_pos,
+    .b = one,
+    .result = pixel_shift
+  });
+
+  push_instruction<Code::LSHIFT>(machine, addr, {
+    .in = pixel_shift,
+    .bits = two,
+    .result = pixel_shift
+  });
+
+  push_instruction<Code::LSHIFT>(machine, addr, {
+    .in = colour,
+    .bits = pixel_shift,
+    .result = colour
+  });
+
+  push_instruction<Code::DIV_W>(machine, addr, {
+    .a = pixel_pos,
+    .b = two,
+    .result = pixel_pos
+  });
+
+  push_instruction<Code::ADD_W>(machine, addr, {
+    .a = pixel_pos,
+    .b = offset,
+    .result = pixel_pos
+  });
+
+  push_instruction<Code::GET>(machine, addr, {
+    .from_p = pixel_pos,
+    .to = old_colour
+  });
+
+  // TODO: Clear the bits we are or-ing into
+
+  push_instruction<Code::OR>(machine, addr, {
+    .a = old_colour,
+    .b = colour,
+    .result = colour
+  });
 
   push_instruction<Code::SET>(machine, addr, {
-    .from = colour_p,
+    .from = colour,
     .to_p = pixel_pos
   });
 
@@ -189,48 +239,43 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
   // Variables / Constants
 
   MemoryAddress dot_args = push_variable<DotSubroutineArgs>(addr);
+  MemoryAddress offset = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, offset);
   MemoryAddress pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, pixel_pos);
   MemoryAddress colour = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, colour);
 
+  set_value<u16>(machine, offset, Machine::Reserved::ScreenBuffer);
   set_value<u8>(machine, colour, Palette::Red);
+  set_value<u16>(machine, pixel_pos, 0x0);
 
-  MemoryAddress stride = push_value<u16>(machine, addr, 125);
-  MemoryAddress counter = push_value<u16>(machine, addr, 0);
-  MemoryAddress offset = push_value<u16>(machine, addr, Machine::Reserved::ScreenBuffer);
+  MemoryAddress stride = push_value<u16>(machine, addr, 0x01);
 
   // Start routine
   Subroutine subroutine = push_subroutine_start<void>(machine, addr);
 
   MemoryAddress loop = addr;
 
-  push_instruction<Code::ADD_W>(machine, addr, {
-    .a = counter,
-    .b = offset,
-    .result = pixel_pos
-  });
-
   // Call dot
   push_copy_subroutine_args(machine, addr, dot, dot_args);
   push_subroutine_call(machine, addr, dot);
 
-  // Increment counter
+  // Increment pixel_pos
   push_instruction<Code::ADD_W>(machine, addr, {
-    .a = counter,
+    .a = pixel_pos,
     .b = stride,
-    .result = counter
+    .result = pixel_pos
   });
 
-  // Check (and reset) counter
+  // Check (and reset) pixel_pos
   push_instruction<Code::CJUMP_W>(machine, addr, {
     .a = offset,
-    .b = counter,
+    .b = pixel_pos,
     .addr = loop
   });
 
   push_instruction<Code::SUB_W>(machine, addr, {
-    .a = counter,
+    .a = pixel_pos,
     .b = offset,
-    .result = counter
+    .result = pixel_pos
   });
 
   // Blit!
