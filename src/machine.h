@@ -47,7 +47,7 @@ struct Memory
   // Screen buffer = [0x2000, 0x4000)  8 KiB
   // Total = 16 KiB
   //
-  // 16KiB of address space requires 2 bytes to index. (u16)
+  // 16KiB of address space requires 14 bits or 2 bytes to index. (u16)
   //
   // Instructions have a set specified length of their inputs, which is the gap until the next instruction.
   // All instructions are byte aligned.

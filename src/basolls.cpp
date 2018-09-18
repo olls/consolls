@@ -4,6 +4,7 @@
 #include "instructions.h"
 #include "disassembler.h"
 
+
 namespace Basolls
 {
 
@@ -288,10 +289,9 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
   push_instruction<Code::JUMP_V>(machine, addr, {loop});
 
   // End routine
-
   push_subroutine_end(machine, addr, subroutine);
 
-  printf("Compiler:\n");
+  printf("Demo:\n");
   Disassembler::disassemble(machine, subroutine.start, subroutine.end);
   printf("\n\n");
 

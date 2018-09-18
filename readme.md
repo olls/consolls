@@ -11,7 +11,7 @@ Takes no arguments, and does nothing for 1 cycle.
 
 ## Arithmetic
 
-### Add
+### ADD
 Adds the 8-bit values at addresses `a` and `b` together, storing the result at `result`.
 
     MemoryAddress a

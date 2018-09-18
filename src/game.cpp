@@ -6,8 +6,6 @@
 #include "instructions.h"
 #include "assert.h"
 
-#define ARRAY_LEN(a) (sizeof(a)/sizeof((a)[0]))
-
 
 namespace Game
 {
