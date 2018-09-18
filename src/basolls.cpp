@@ -245,6 +245,10 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
 
   push_subroutine_end(machine, addr, subroutine);
 
+  printf("Compiler:\n");
+  Disassembler::disassemble(machine, subroutine.start, subroutine.end);
+  printf("\n\n");
+
   return subroutine;
 }
 
@@ -262,6 +266,10 @@ load_os(Machine::Machine& machine)
   push_subroutine_call(machine, addr, demo_program);
 
   Machine::set<MemoryAddress>(machine, Machine::Reserved::NI, os_start);
+
+  printf("OS:\n");
+  Disassembler::disassemble(machine, os_start, addr);
+  printf("\n\n");
 
   return success;
 }
