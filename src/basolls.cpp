@@ -247,7 +247,8 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
   set_value<u8>(machine, colour, Palette::Red);
   set_value<u16>(machine, pixel_pos, 0x0);
 
-  MemoryAddress stride = push_value<u16>(machine, addr, 0x01);
+  MemoryAddress n_pixels = push_value<u16>(machine, addr, 0x4000);
+  MemoryAddress stride = push_value<u16>(machine, addr, 0x031);
 
   // Start routine
   Subroutine subroutine = push_subroutine_start<void>(machine, addr);
@@ -267,14 +268,14 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
 
   // Check (and reset) pixel_pos
   push_instruction<Code::CJUMP_W>(machine, addr, {
-    .a = offset,
+    .a = n_pixels,
     .b = pixel_pos,
     .addr = loop
   });
 
   push_instruction<Code::SUB_W>(machine, addr, {
     .a = pixel_pos,
-    .b = offset,
+    .b = n_pixels,
     .result = pixel_pos
   });
 
