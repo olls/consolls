@@ -1,6 +1,7 @@
 #pragma once
 
 #include "allocate.h"
+#include "assert.h"
 #include "types.h"
 
 
@@ -23,8 +24,13 @@ bool
 allocate(Texture& texture, s32 width, s32 height);
 
 
-bool
-set_pixel(Texture& texture, u32 x, u32 y, Pixel colour);
+inline void
+set_pixel(Texture& texture, u32 x, u32 y, Pixel colour)
+{
+  assert(x < texture.width &&
+         y < texture.height);
+  texture.pixels[texture.width*y + x] = colour;
+}
 
 
 void

@@ -30,6 +30,12 @@ def configure(conf):
 
   conf.setenv('release', env=base_env)
   conf.env.append_value('CXXFLAGS', ['-Ofast'])
+  conf.env.append_value('DEFINES', ['NDEBUG'])
+
+  release_env = conf.env.derive()
+
+  conf.setenv('profile', env=release_env)
+  conf.env.append_value('CXXFLAGS', ['-g'])
 
 
 def build(bld):
@@ -49,7 +55,7 @@ def build(bld):
 def init(ctx):
   from waflib.Build import BuildContext, CleanContext, InstallContext, UninstallContext, ListContext
 
-  for x in 'debug release'.split():
+  for x in ('debug', 'release', 'profile'):
     for y in (BuildContext, CleanContext, InstallContext, UninstallContext, ListContext):
       name = y.__name__.replace('Context', '').lower()
       class tmp(y):

@@ -49,7 +49,7 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
     else
     {
       Machine::output_screen_buffer(state->machine, state->texture);
-      assert(SDL_State::render(sdl_state, state->texture));
+      success &= SDL_State::render(sdl_state, state->texture);
     }
   }
 

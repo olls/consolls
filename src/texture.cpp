@@ -23,25 +23,6 @@ allocate(Texture& texture, s32 width, s32 height)
 }
 
 
-bool
-set_pixel(Texture& texture, u32 x, u32 y, Pixel colour)
-{
-  bool success = true;
-
-  if (x < texture.width &&
-      y < texture.height)
-  {
-    texture.pixels[texture.width*y + x] = colour;
-  }
-  else
-  {
-    success &= false;
-  }
-
-  return success;
-}
-
-
 void
 destroy(Texture& texture)
 {
