@@ -4,6 +4,7 @@
 #include "texture.h"
 #include "input.h"
 #include "frame-id.h"
+#include "clock.h"
 #include "types.h"
 
 
@@ -16,6 +17,7 @@ struct State
 
   FrameID::FrameID frame_id;
   Input::Input input;
+  Clock::Clock clock;
 
   Machine::Machine machine;
 };

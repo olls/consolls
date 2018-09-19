@@ -4,6 +4,7 @@
 #include "sdl-state.h"
 #include "palette.h"
 #include "instructions.h"
+#include "clock.h"
 #include "assert.h"
 
 
@@ -79,6 +80,8 @@ run()
     while (running)
     {
       running &= advance(&state, sdl_state);
+
+      Clock::regulate(state.clock);
     }
   }
 
