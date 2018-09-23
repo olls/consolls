@@ -17,21 +17,26 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
   bool success = true;
 
   FrameID::update(state->frame_id);
-  Input::update(state->input, state->frame_id);
 
-  if (state->input.quit)
+  if (Timer::check(state->input_update) ||
+      Machine::consume_signal_register(state->machine, Machine::Reserved::PollInput))
   {
-    success = false;
-  }
+    Input::update(state->input, state->frame_id);
 
-  if (Input::up<Key::F11>(state->input, state->frame_id))
-  {
-    SDL_State::toggle_fullscreen(sdl_state);
+    if (state->input.quit)
+    {
+      success = false;
+    }
+
+    if (Input::up<Key::F11>(state->input, state->frame_id))
+    {
+      SDL_State::toggle_fullscreen(sdl_state);
+    }
   }
 
   Machine::advance(state->machine);
 
-  if (Machine::blit(state->machine))
+  if (Machine::consume_signal_register(state->machine, Machine::Reserved::Blit))
   {
     bool texture = true;
     if (!state->texture.pixels)
@@ -45,6 +50,7 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
 
     if (!texture)
     {
+      state->texture.pixels = 0;
       success &= false;
     }
     else
@@ -73,6 +79,7 @@ run()
   if (success)
   {
     Input::init(state.input);
+    Timer::init(state.input_update, 1000000*.2);
 
     state.frame_id = 0;
 
@@ -84,6 +91,8 @@ run()
       Clock::regulate(state.clock);
     }
   }
+
+  Clock::print_report(state.clock);
 
   SDL_State::destroy(sdl_state);
   return success;

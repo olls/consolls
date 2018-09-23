@@ -390,12 +390,12 @@ advance(Machine& machine)
 
 
 bool
-blit(Machine& machine)
+consume_signal_register(Machine& machine, MemoryAddress addr)
 {
-  bool result = get<u8>(machine, Reserved::Blit);
+  bool result = get<u8>(machine, addr);
   if (result)
   {
-    set<u8>(machine, Reserved::Blit, 0x00);
+    set<u8>(machine, addr, 0x00);
   }
 
   return result;

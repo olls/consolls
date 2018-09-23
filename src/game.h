@@ -5,6 +5,7 @@
 #include "input.h"
 #include "frame-id.h"
 #include "clock.h"
+#include "timer.h"
 #include "types.h"
 
 
@@ -17,6 +18,7 @@ struct State
 
   FrameID::FrameID frame_id;
   Input::Input input;
+  Timer::Timer input_update;
   Clock::Clock clock;
 
   Machine::Machine machine;

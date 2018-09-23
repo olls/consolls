@@ -65,6 +65,7 @@ enum : MemoryAddress
 {
   NI = 0x0000,
   UserStart = 0x0002,
+  PollInput = 0x1FFE,
   Blit = 0x1FFF,
   ScreenBuffer = 0x2000
 };
@@ -140,7 +141,7 @@ advance(Machine &machine);
 
 
 bool
-blit(Machine &machine);
+consume_signal_register(Machine& machine, MemoryAddress addr);
 
 
 void
