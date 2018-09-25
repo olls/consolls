@@ -161,8 +161,9 @@ struct PACKED DotSubroutineArgs
 Subroutine<DotSubroutineArgs>
 push_dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
 {
-  MemoryAddress one = push_value<u16>(machine, addr, 0x1);
+  MemoryAddress one = push_value<u8>(machine, addr, 0x1);
   MemoryAddress two = push_value<u16>(machine, addr, 0x2);
+  MemoryAddress mask = push_variable<u8>(addr);
   MemoryAddress pixel_shift = push_variable<u8>(addr);
   MemoryAddress old_colour = push_variable<u8>(addr);
 
@@ -196,6 +197,18 @@ push_dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
     .result = pixel_pos
   });
 
+  // MASK
+  push_instruction<Code::SET_V>(machine, addr, {
+    .value = 0xf0,
+    .addr = mask
+  });
+
+  push_instruction<Code::RSHIFT>(machine, addr, {
+    .in = mask,
+    .bits = pixel_shift,
+    .result = mask
+  });
+
   push_instruction<Code::ADD_W>(machine, addr, {
     .a = pixel_pos,
     .b = offset,
@@ -207,7 +220,12 @@ push_dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
     .to = old_colour
   });
 
-  // TODO: Clear the bits we are or-ing into
+  // Clear the bits we are or-ing into
+  push_instruction<Code::AND>(machine, addr, {
+    .a = old_colour,
+    .b = mask,
+    .result = old_colour
+  });
 
   push_instruction<Code::OR>(machine, addr, {
     .a = old_colour,
