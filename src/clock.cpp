@@ -22,12 +22,14 @@ regulate(Clock& clock)
   }
 
   u32 frame_dt = now - clock.last_frame_start;
+  clock.accumulated_frame_dt += frame_dt;
 
   if (CLOCK_RATE_US > frame_dt)
   {
     Time::sleep_us(CLOCK_RATE_US - frame_dt);
   }
 
+  clock.frame_count += 1;
   if (frame_dt > CLOCK_RATE_US)
   {
     clock.frame_overruns += 1;
@@ -43,7 +45,8 @@ regulate(Clock& clock)
 void
 print_report(Clock& clock)
 {
-  printf("Frame overruns: %u\n", clock.frame_overruns);
+  printf("Frame overruns: %u / %u\n", clock.frame_overruns, clock.frame_count);
+  printf("Average frame dt: %f\n", clock.accumulated_frame_dt / (r32)clock.frame_count);
 }
 
 } // namespace Clock
