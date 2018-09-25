@@ -1,7 +1,9 @@
 #pragma once
 
-#include "basolls.h"
 #include "machine.h"
+
+
+#define PACKED __attribute__((packed))
 
 
 namespace Instructions
