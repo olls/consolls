@@ -3,6 +3,9 @@
 #include "machine.h"
 
 
+#define PACKED __attribute__((packed))
+
+
 namespace Instructions
 {
 
@@ -40,11 +43,11 @@ enum class Code : u8
 };
 
 template <Code InstructionCode>
-struct __attribute__((packed)) Args;
+struct PACKED Args;
 
 
 template <>
-struct __attribute__((packed)) Args<Code::ADD>
+struct PACKED Args<Code::ADD>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -52,24 +55,7 @@ struct __attribute__((packed)) Args<Code::ADD>
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::ADD_W>
-{
-  Machine::MemoryAddress a;
-  Machine::MemoryAddress b;
-  Machine::MemoryAddress result;
-};
-
-
-template <>
-struct __attribute__((packed)) Args<Code::SUB>
-{
-  Machine::MemoryAddress a;
-  Machine::MemoryAddress b;
-  Machine::MemoryAddress result;
-};
-
-template <>
-struct __attribute__((packed)) Args<Code::SUB_W>
+struct PACKED Args<Code::ADD_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -78,7 +64,7 @@ struct __attribute__((packed)) Args<Code::SUB_W>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::MUL>
+struct PACKED Args<Code::SUB>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -86,24 +72,7 @@ struct __attribute__((packed)) Args<Code::MUL>
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::MUL_W>
-{
-  Machine::MemoryAddress a;
-  Machine::MemoryAddress b;
-  Machine::MemoryAddress result;
-};
-
-
-template <>
-struct __attribute__((packed)) Args<Code::DIV>
-{
-  Machine::MemoryAddress a;
-  Machine::MemoryAddress b;
-  Machine::MemoryAddress result;
-};
-
-template <>
-struct __attribute__((packed)) Args<Code::DIV_W>
+struct PACKED Args<Code::SUB_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -112,7 +81,41 @@ struct __attribute__((packed)) Args<Code::DIV_W>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::NOT>
+struct PACKED Args<Code::MUL>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+template <>
+struct PACKED Args<Code::MUL_W>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct PACKED Args<Code::DIV>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+template <>
+struct PACKED Args<Code::DIV_W>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct PACKED Args<Code::NOT>
 {
   Machine::MemoryAddress in;
   Machine::MemoryAddress result;
@@ -120,16 +123,7 @@ struct __attribute__((packed)) Args<Code::NOT>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::LSHIFT>
-{
-  Machine::MemoryAddress in;
-  Machine::MemoryAddress bits;
-  Machine::MemoryAddress result;
-};
-
-
-template <>
-struct __attribute__((packed)) Args<Code::RSHIFT>
+struct PACKED Args<Code::LSHIFT>
 {
   Machine::MemoryAddress in;
   Machine::MemoryAddress bits;
@@ -138,7 +132,16 @@ struct __attribute__((packed)) Args<Code::RSHIFT>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::AND>
+struct PACKED Args<Code::RSHIFT>
+{
+  Machine::MemoryAddress in;
+  Machine::MemoryAddress bits;
+  Machine::MemoryAddress result;
+};
+
+
+template <>
+struct PACKED Args<Code::AND>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -147,7 +150,7 @@ struct __attribute__((packed)) Args<Code::AND>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::OR>
+struct PACKED Args<Code::OR>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -156,7 +159,7 @@ struct __attribute__((packed)) Args<Code::OR>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::XOR>
+struct PACKED Args<Code::XOR>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -165,37 +168,37 @@ struct __attribute__((packed)) Args<Code::XOR>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::JUMP>
+struct PACKED Args<Code::JUMP>
 {
   Machine::MemoryAddress addr;
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::JUMP_V>
+struct PACKED Args<Code::JUMP_V>
 {
   Machine::MemoryAddress addr;
 };
 
 
 template <>
-struct __attribute__((packed)) Args<Code::CJUMP>
-{
-  Machine::MemoryAddress a;
-  Machine::MemoryAddress b;
-  Machine::MemoryAddress addr;
-};
-
-template <>
-struct __attribute__((packed)) Args<Code::CJUMP_W>
+struct PACKED Args<Code::CJUMP>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
   Machine::MemoryAddress addr;
 };
 
+template <>
+struct PACKED Args<Code::CJUMP_W>
+{
+  Machine::MemoryAddress a;
+  Machine::MemoryAddress b;
+  Machine::MemoryAddress addr;
+};
+
 
 template <>
-struct __attribute__((packed)) Args<Code::CMP>
+struct PACKED Args<Code::CMP>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -203,7 +206,7 @@ struct __attribute__((packed)) Args<Code::CMP>
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::CMP_W>
+struct PACKED Args<Code::CMP_W>
 {
   Machine::MemoryAddress a;
   Machine::MemoryAddress b;
@@ -212,14 +215,14 @@ struct __attribute__((packed)) Args<Code::CMP_W>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::SET_V>
+struct PACKED Args<Code::SET_V>
 {
   Machine::MemoryAddress addr;
   u8 value;
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::SET_VW>
+struct PACKED Args<Code::SET_VW>
 {
   Machine::MemoryAddress addr;
   u16 value;
@@ -227,14 +230,14 @@ struct __attribute__((packed)) Args<Code::SET_VW>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::COPY>
+struct PACKED Args<Code::COPY>
 {
   Machine::MemoryAddress from;
   Machine::MemoryAddress to;
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::COPY_W>
+struct PACKED Args<Code::COPY_W>
 {
   Machine::MemoryAddress from;
   Machine::MemoryAddress to;
@@ -242,14 +245,14 @@ struct __attribute__((packed)) Args<Code::COPY_W>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::GET>
+struct PACKED Args<Code::GET>
 {
   Machine::MemoryAddress from_p;
   Machine::MemoryAddress to;
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::GET_W>
+struct PACKED Args<Code::GET_W>
 {
   Machine::MemoryAddress from_p;
   Machine::MemoryAddress to;
@@ -257,14 +260,14 @@ struct __attribute__((packed)) Args<Code::GET_W>
 
 
 template <>
-struct __attribute__((packed)) Args<Code::SET>
+struct PACKED Args<Code::SET>
 {
   Machine::MemoryAddress from;
   Machine::MemoryAddress to_p;
 };
 
 template <>
-struct __attribute__((packed)) Args<Code::SET_W>
+struct PACKED Args<Code::SET_W>
 {
   Machine::MemoryAddress from;
   Machine::MemoryAddress to_p;

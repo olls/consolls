@@ -19,9 +19,6 @@ struct Subroutine
 };
 
 
-#define PACKED __attribute__((packed))
-
-
 bool
 load_os(Machine::Machine& machine);
 
