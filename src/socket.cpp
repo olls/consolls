@@ -7,23 +7,12 @@
 namespace Socket
 {
 
-// #include <sys/types.h>
-// #include <sys/socket.h>
-// #include <netdb.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <unistd.h>
-// #include <sys/types.h>
-// #include <sys/socket.h>
-// #include <netinet/in.h>
-
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <errno.h>
+#include <fcntl.h>
 
 const u32 BUF_SIZE = 500;
 const u32 PORT = 62626;
@@ -36,12 +25,19 @@ init()
 {
   bool success = true;
 
-  server = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+  server = socket(AF_INET, SOCK_STREAM, 0);
   if (server == -1)
   {
      perror("socket error");
      success &= false;
      return success;
+  }
+
+  if (fcntl(server, F_SETFL, O_NONBLOCK))
+  {
+    perror("setting non blocking");
+    success &= false;
+    return success;
   }
 
   sockaddr_in server_addr;
@@ -67,18 +63,6 @@ init()
   printf("Socket initialised\n");
 
   return success;
-}
-
-
-void
-close_socket(int socket_fd)
-{
-  if (socket_fd != -1)
-  {
-    shutdown(socket_fd, SHUT_RDWR);
-    close(socket_fd);
-    socket_fd = -1;
-  }
 }
 
 
@@ -126,11 +110,20 @@ advance(Machine::Machine& machine)
     {
       perror("sending message");
     }
-
-    // destroy();
   }
 
   return success;
+}
+
+
+void
+close_socket(int socket_fd)
+{
+  if (socket_fd != -1)
+  {
+    close(socket_fd);
+    socket_fd = -1;
+  }
 }
 
 
@@ -140,12 +133,12 @@ destroy()
   connected = false;
   if (client != -1)
   {
-    close(client);
+    close_socket(client);
   }
 
   if (server != -1)
   {
-    close(server);
+    close_socket(server);
   }
 }
 
