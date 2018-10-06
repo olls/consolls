@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+.build_results
+.listener_PID
+.lock-*
+.waf-*
+build/
+*.sublime-project
+*.sublime-workspace
+*.bin
