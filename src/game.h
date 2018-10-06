@@ -26,6 +26,6 @@ struct State
 
 
 bool
-run();
+run(bool debugger);
 
 } // namespace Game

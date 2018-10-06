@@ -1,5 +1,6 @@
 #include "game.h"
 
+#include "debugger.h"
 #include "basolls.h"
 #include "sdl-state.h"
 #include "palette.h"
@@ -65,7 +66,7 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
 
 
 bool
-run()
+run(bool debugger)
 {
   bool success = true;
 
@@ -86,6 +87,11 @@ run()
     bool running = true;
     while (running)
     {
+      if (debugger)
+      {
+
+      }
+
       running &= advance(&state, sdl_state);
 
       Clock::regulate(state.clock);
