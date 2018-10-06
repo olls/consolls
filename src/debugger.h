@@ -6,7 +6,15 @@ namespace Debugger
 {
 
 void
-advance(Machine::Machine& machine);
+init();
+
+
+void
+destroy();
+
+
+void
+advance(Machine::Machine& machine, bool);
 
 
 } // namespace Debugger

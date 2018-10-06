@@ -12,6 +12,8 @@
 namespace Game
 {
 
+static bool blit = false;
+
 bool
 advance(State *state, SDL_State::SDL_State& sdl_state)
 {
@@ -39,6 +41,7 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
 
   if (Machine::consume_signal_register(state->machine, Machine::Reserved::Blit))
   {
+    blit = true;
     bool texture = true;
     if (!state->texture.pixels)
     {
@@ -60,6 +63,10 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
       success &= SDL_State::render(sdl_state, state->texture);
     }
   }
+  else
+  {
+    blit = false;
+  }
 
   return success;
 }
@@ -77,6 +84,8 @@ run(bool debugger)
 
   success &= Basolls::load_os(state.machine);
 
+  Debugger::init();
+
   if (success)
   {
     Input::init(state.input);
@@ -89,7 +98,7 @@ run(bool debugger)
     {
       if (debugger)
       {
-        Debugger::advance(state.machine);
+        Debugger::advance(state.machine, blit);
       }
 
       running &= advance(&state, sdl_state);
@@ -97,6 +106,8 @@ run(bool debugger)
       Clock::regulate(state.clock);
     }
   }
+
+  Debugger::destroy();
 
   Clock::print_report(state.clock);
 
