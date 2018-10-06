@@ -220,8 +220,8 @@ disassemble_instruction_templated(Machine::Machine& machine, Machine::MemoryAddr
 }
 
 
-void
-disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress& addr)
+Machine::MemoryAddress
+disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress addr)
 {
   printf("%#.4x (%lu", addr, sizeof(Instructions::Code));
   Instructions::Code code = Machine::advance_addr<Instructions::Code>(machine, addr);
@@ -290,6 +290,8 @@ disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress& addr)
       printf(") Unrecognised code: %#.2hhx", code);
   }
   printf("\n");
+
+  return addr;
 }
 
 
@@ -299,7 +301,7 @@ disassemble(Machine::Machine& machine, Machine::MemoryAddress from, Machine::Mem
   Machine::MemoryAddress addr = from;
   while (addr < to)
   {
-    disassemble_instruction(machine, addr);
+    addr = disassemble_instruction(machine, addr);
     assert(addr <= to);
   }
 }

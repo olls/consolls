@@ -89,7 +89,7 @@ run(bool debugger)
     {
       if (debugger)
       {
-
+        Debugger::advance(state.machine);
       }
 
       running &= advance(&state, sdl_state);
