@@ -7,6 +7,7 @@
 #include "instructions.h"
 #include "clock.h"
 #include "assert.h"
+#include "options.h"
 
 
 namespace Game
@@ -73,7 +74,7 @@ advance(State *state, SDL_State::SDL_State& sdl_state)
 
 
 bool
-run(bool debugger)
+run(Options::Args args)
 {
   bool success = true;
 
@@ -84,7 +85,7 @@ run(bool debugger)
 
   success &= Basolls::load_os(state.machine);
 
-  Debugger::init();
+  Debugger::init(args);
 
   if (success)
   {
@@ -96,10 +97,7 @@ run(bool debugger)
     bool running = true;
     while (running)
     {
-      if (debugger)
-      {
-        Debugger::advance(state.machine, blit);
-      }
+      Debugger::advance(args, state.machine, blit);
 
       running &= advance(&state, sdl_state);
 
@@ -107,7 +105,7 @@ run(bool debugger)
     }
   }
 
-  Debugger::destroy();
+  Debugger::destroy(args);
 
   Clock::print_report(state.clock);
 
