@@ -13,6 +13,13 @@ bool
 init(SDL_State& sdl_state, const char *title, u32 initial_width, u32 initial_height, u32 pixel_format)
 {
   bool success = true;
+
+  if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
+  {
+    printf("Failed to init SDL: %s\n", SDL_GetError());
+    success &= false;
+  }
+
   sdl_state.sdl_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, initial_width, initial_height, SDL_WINDOW_RESIZABLE);
 
   if (sdl_state.sdl_window == NULL)
