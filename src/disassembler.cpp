@@ -210,7 +210,7 @@ disassemble_args<Instructions::Code::SET_W>(Machine::Machine& machine, Instructi
 
 template <Instructions::Code Code>
 void
-disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress& addr)
+disassemble_instruction_templated(Machine::Machine& machine, Machine::MemoryAddress& addr)
 {
   Instructions::Args<Code> args = Machine::advance_addr<Instructions::Args<Code>>(machine, addr);
 
@@ -221,79 +221,85 @@ disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress& addr)
 
 
 void
+disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress& addr)
+{
+  printf("%#.4x (%lu", addr, sizeof(Instructions::Code));
+  Instructions::Code code = Machine::advance_addr<Instructions::Code>(machine, addr);
+  switch (code)
+  {
+    case (Instructions::Code::NOP):  printf(") :  NOP");
+      break;
+    case (Instructions::Code::ADD):  disassemble_instruction_templated<Instructions::Code::ADD>(machine, addr);
+      break;
+    case (Instructions::Code::ADD_W):  disassemble_instruction_templated<Instructions::Code::ADD_W>(machine, addr);
+      break;
+    case (Instructions::Code::SUB):  disassemble_instruction_templated<Instructions::Code::SUB>(machine, addr);
+      break;
+    case (Instructions::Code::SUB_W):  disassemble_instruction_templated<Instructions::Code::SUB_W>(machine, addr);
+      break;
+    case (Instructions::Code::MUL):  disassemble_instruction_templated<Instructions::Code::MUL>(machine, addr);
+      break;
+    case (Instructions::Code::MUL_W):  disassemble_instruction_templated<Instructions::Code::MUL_W>(machine, addr);
+      break;
+    case (Instructions::Code::DIV):  disassemble_instruction_templated<Instructions::Code::DIV>(machine, addr);
+      break;
+    case (Instructions::Code::DIV_W):  disassemble_instruction_templated<Instructions::Code::DIV_W>(machine, addr);
+      break;
+    case (Instructions::Code::NOT):  disassemble_instruction_templated<Instructions::Code::NOT>(machine, addr);
+      break;
+    case (Instructions::Code::LSHIFT):  disassemble_instruction_templated<Instructions::Code::LSHIFT>(machine, addr);
+      break;
+    case (Instructions::Code::RSHIFT):  disassemble_instruction_templated<Instructions::Code::RSHIFT>(machine, addr);
+      break;
+    case (Instructions::Code::AND):  disassemble_instruction_templated<Instructions::Code::AND>(machine, addr);
+      break;
+    case (Instructions::Code::OR):  disassemble_instruction_templated<Instructions::Code::OR>(machine, addr);
+      break;
+    case (Instructions::Code::XOR):  disassemble_instruction_templated<Instructions::Code::XOR>(machine, addr);
+      break;
+    case (Instructions::Code::JUMP_V):  disassemble_instruction_templated<Instructions::Code::JUMP_V>(machine, addr);
+      break;
+    case (Instructions::Code::JUMP):  disassemble_instruction_templated<Instructions::Code::JUMP>(machine, addr);
+      break;
+    case (Instructions::Code::CJUMP):  disassemble_instruction_templated<Instructions::Code::CJUMP>(machine, addr);
+      break;
+    case (Instructions::Code::CJUMP_W):  disassemble_instruction_templated<Instructions::Code::CJUMP_W>(machine, addr);
+      break;
+    case (Instructions::Code::CMP):  disassemble_instruction_templated<Instructions::Code::CMP>(machine, addr);
+      break;
+    case (Instructions::Code::CMP_W):  disassemble_instruction_templated<Instructions::Code::CMP_W>(machine, addr);
+      break;
+    case (Instructions::Code::SET_V):  disassemble_instruction_templated<Instructions::Code::SET_V>(machine, addr);
+      break;
+    case (Instructions::Code::SET_VW):  disassemble_instruction_templated<Instructions::Code::SET_VW>(machine, addr);
+      break;
+    case (Instructions::Code::COPY):  disassemble_instruction_templated<Instructions::Code::COPY>(machine, addr);
+      break;
+    case (Instructions::Code::COPY_W):  disassemble_instruction_templated<Instructions::Code::COPY_W>(machine, addr);
+      break;
+    case (Instructions::Code::GET):  disassemble_instruction_templated<Instructions::Code::GET>(machine, addr);
+      break;
+    case (Instructions::Code::GET_W):  disassemble_instruction_templated<Instructions::Code::GET_W>(machine, addr);
+      break;
+    case (Instructions::Code::SET):  disassemble_instruction_templated<Instructions::Code::SET>(machine, addr);
+      break;
+    case (Instructions::Code::SET_W):  disassemble_instruction_templated<Instructions::Code::SET_W>(machine, addr);
+      break;
+
+    default:
+      printf(") Unrecognised code: %#.2hhx", code);
+  }
+  printf("\n");
+}
+
+
+void
 disassemble(Machine::Machine& machine, Machine::MemoryAddress from, Machine::MemoryAddress to)
 {
   Machine::MemoryAddress addr = from;
   while (addr < to)
   {
-    printf("%#.4x (%lu", addr, sizeof(Instructions::Code));
-    Instructions::Code code = Machine::advance_addr<Instructions::Code>(machine, addr);
-    switch (code)
-    {
-      case (Instructions::Code::NOP):  printf(") :  NOP");
-        break;
-      case (Instructions::Code::ADD):  disassemble_instruction<Instructions::Code::ADD>(machine, addr);
-        break;
-      case (Instructions::Code::ADD_W):  disassemble_instruction<Instructions::Code::ADD_W>(machine, addr);
-        break;
-      case (Instructions::Code::SUB):  disassemble_instruction<Instructions::Code::SUB>(machine, addr);
-        break;
-      case (Instructions::Code::SUB_W):  disassemble_instruction<Instructions::Code::SUB_W>(machine, addr);
-        break;
-      case (Instructions::Code::MUL):  disassemble_instruction<Instructions::Code::MUL>(machine, addr);
-        break;
-      case (Instructions::Code::MUL_W):  disassemble_instruction<Instructions::Code::MUL_W>(machine, addr);
-        break;
-      case (Instructions::Code::DIV):  disassemble_instruction<Instructions::Code::DIV>(machine, addr);
-        break;
-      case (Instructions::Code::DIV_W):  disassemble_instruction<Instructions::Code::DIV_W>(machine, addr);
-        break;
-      case (Instructions::Code::NOT):  disassemble_instruction<Instructions::Code::NOT>(machine, addr);
-        break;
-      case (Instructions::Code::LSHIFT):  disassemble_instruction<Instructions::Code::LSHIFT>(machine, addr);
-        break;
-      case (Instructions::Code::RSHIFT):  disassemble_instruction<Instructions::Code::RSHIFT>(machine, addr);
-        break;
-      case (Instructions::Code::AND):  disassemble_instruction<Instructions::Code::AND>(machine, addr);
-        break;
-      case (Instructions::Code::OR):  disassemble_instruction<Instructions::Code::OR>(machine, addr);
-        break;
-      case (Instructions::Code::XOR):  disassemble_instruction<Instructions::Code::XOR>(machine, addr);
-        break;
-      case (Instructions::Code::JUMP_V):  disassemble_instruction<Instructions::Code::JUMP_V>(machine, addr);
-        break;
-      case (Instructions::Code::JUMP):  disassemble_instruction<Instructions::Code::JUMP>(machine, addr);
-        break;
-      case (Instructions::Code::CJUMP):  disassemble_instruction<Instructions::Code::CJUMP>(machine, addr);
-        break;
-      case (Instructions::Code::CJUMP_W):  disassemble_instruction<Instructions::Code::CJUMP_W>(machine, addr);
-        break;
-      case (Instructions::Code::CMP):  disassemble_instruction<Instructions::Code::CMP>(machine, addr);
-        break;
-      case (Instructions::Code::CMP_W):  disassemble_instruction<Instructions::Code::CMP_W>(machine, addr);
-        break;
-      case (Instructions::Code::SET_V):  disassemble_instruction<Instructions::Code::SET_V>(machine, addr);
-        break;
-      case (Instructions::Code::SET_VW):  disassemble_instruction<Instructions::Code::SET_VW>(machine, addr);
-        break;
-      case (Instructions::Code::COPY):  disassemble_instruction<Instructions::Code::COPY>(machine, addr);
-        break;
-      case (Instructions::Code::COPY_W):  disassemble_instruction<Instructions::Code::COPY_W>(machine, addr);
-        break;
-      case (Instructions::Code::GET):  disassemble_instruction<Instructions::Code::GET>(machine, addr);
-        break;
-      case (Instructions::Code::GET_W):  disassemble_instruction<Instructions::Code::GET_W>(machine, addr);
-        break;
-      case (Instructions::Code::SET):  disassemble_instruction<Instructions::Code::SET>(machine, addr);
-        break;
-      case (Instructions::Code::SET_W):  disassemble_instruction<Instructions::Code::SET_W>(machine, addr);
-        break;
-
-      default:
-        printf(") Unrecognised code: %#.2hhx", code);
-    }
-    printf("\n");
-
+    disassemble_instruction(machine, addr);
     assert(addr <= to);
   }
 }
