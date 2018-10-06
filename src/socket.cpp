@@ -28,14 +28,14 @@ init()
   server = socket(AF_INET, SOCK_STREAM, 0);
   if (server == -1)
   {
-     perror("socket error");
+     perror("Error creating socket");
      success &= false;
      return success;
   }
 
   if (fcntl(server, F_SETFL, O_NONBLOCK))
   {
-    perror("setting non blocking");
+    perror("Error setting non blocking");
     success &= false;
     return success;
   }
@@ -47,7 +47,7 @@ init()
 
   if (bind(server, (sockaddr *) &server_addr, sizeof(sockaddr)) == -1)
   {
-     perror("bind error");
+     perror("Error binding");
      success &= false;
      return success;
   }
@@ -55,7 +55,7 @@ init()
   const u32 LISTEN_BACKLOG = 10;
   if (listen(server, LISTEN_BACKLOG) == -1)
   {
-     perror("listen error");
+     perror("Error listening");
      success &= false;
      return success;
   }
@@ -66,19 +66,53 @@ init()
 }
 
 
+void
+close_socket(s32 socket_fd)
+{
+  if (socket_fd != -1)
+  {
+    close(socket_fd);
+    socket_fd = -1;
+  }
+}
+
+
 static bool connected = false;
-static int client = -1;
+static s32 client = -1;
+
+
+bool
+write_data(s32 socket_fd, void* data, u32 size)
+{
+  bool success = true;
+
+  if (write(client, data, size) < 0)
+  {
+    if (errno == EBADF)
+    {
+      printf("Client disconnecting\n");
+      close_socket(client);
+    }
+    else
+    {
+      perror("Error sending message");
+    }
+    success &= false;
+  }
+
+  return success;
+}
+
 
 bool
 advance(Machine::Machine& machine)
 {
-  static socklen_t client_addr_size;
-  static sockaddr client_addr;
-
   bool success = true;
 
   if (!connected && server != -1)
   {
+    socklen_t client_addr_size;
+    sockaddr client_addr;
     client_addr_size = sizeof(sockaddr);
     client = accept(server, &client_addr, &client_addr_size);
     if (client == -1 )
@@ -86,7 +120,7 @@ advance(Machine::Machine& machine)
       if (errno != EAGAIN && errno != EWOULDBLOCK)
       {
         connected = false;
-        perror("accept error");
+        perror("Error accepting");
         success &= false;
       }
     }
@@ -100,30 +134,18 @@ advance(Machine::Machine& machine)
   if (connected)
   {
     printf("Sending message\n");
-    assert(sizeof(machine.memory) < ((1<<16)-1));
+
+    assert(sizeof(machine.memory) < (1<<16));
     u16 message_size = sizeof(machine.memory);
-    if (write(client, &message_size, sizeof(message_size)) < 0)
+
+    success &= write_data(client, &message_size, sizeof(message_size));
+    if (success)
     {
-      perror("sending header");
-    }
-    if (write(client, &machine.memory, message_size) < 0)
-    {
-      perror("sending message");
+      success &= write_data(client, &machine.memory, message_size);
     }
   }
 
   return success;
-}
-
-
-void
-close_socket(int socket_fd)
-{
-  if (socket_fd != -1)
-  {
-    close(socket_fd);
-    socket_fd = -1;
-  }
 }
 
 
