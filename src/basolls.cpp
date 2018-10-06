@@ -1,8 +1,10 @@
 #include "basolls.h"
 
+#include "debug.h"
 #include "palette.h"
 #include "instructions.h"
 #include "disassembler.h"
+#include <cstddef>
 
 
 namespace Basolls

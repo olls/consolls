@@ -1,8 +1,14 @@
 #pragma once
 
-#include <malloc.h>
-#include <cstring>
 #include "types.h"
+
+#if defined(__MACH__)
+#include <cstdlib>
+#else
+#include <malloc.h>
+#endif
+
+#include <cstring>
 
 
 namespace Allocate
