@@ -19,28 +19,30 @@ init(SDL_State& sdl_state, const char *title, u32 initial_width, u32 initial_hei
     printf("Failed to init SDL: %s\n", SDL_GetError());
     success &= false;
   }
-
-  sdl_state.sdl_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, initial_width, initial_height, SDL_WINDOW_RESIZABLE);
-
-  if (sdl_state.sdl_window == NULL)
-  {
-    printf("Failed to create SDL_Window: %s\n", SDL_GetError());
-    success &= false;
-  }
   else
   {
-    sdl_state.sdl_renderer = SDL_CreateRenderer(sdl_state.sdl_window, -1, SDL_RENDERER_PRESENTVSYNC);
-    if (sdl_state.sdl_renderer == NULL)
+    sdl_state.sdl_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, initial_width, initial_height, SDL_WINDOW_RESIZABLE);
+
+    if (sdl_state.sdl_window == NULL)
     {
-      printf("Failed to create SDL_Renderer: %s\n", SDL_GetError());
+      printf("Failed to create SDL_Window: %s\n", SDL_GetError());
       success &= false;
     }
+    else
+    {
+      sdl_state.sdl_renderer = SDL_CreateRenderer(sdl_state.sdl_window, -1, SDL_RENDERER_PRESENTVSYNC);
+      if (sdl_state.sdl_renderer == NULL)
+      {
+        printf("Failed to create SDL_Renderer: %s\n", SDL_GetError());
+        success &= false;
+      }
+    }
+
+    success &= SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+
+    assert(sizeof(Texture::Pixel) == SDL_BYTESPERPIXEL(pixel_format));
+    sdl_state.pixel_format = pixel_format;
   }
-
-  success &= SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-
-  assert(sizeof(Texture::Pixel) == SDL_BYTESPERPIXEL(pixel_format));
-  sdl_state.pixel_format = pixel_format;
 
   return success;
 }
