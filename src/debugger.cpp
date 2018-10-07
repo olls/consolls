@@ -3,7 +3,6 @@
 #include "debug.h"
 #include "disassembler.h"
 #include "socket.h"
-#include "options.h"
 
 
 namespace Debugger
@@ -17,7 +16,7 @@ init(Options::Args args)
 {
   if (args.debugger)
   {
-    Socket::init();
+    Socket::init(args.client);
   }
 }
 
@@ -43,7 +42,7 @@ advance(Options::Args args, Machine::Machine& machine, bool blit)
     if (blit)
     {
       Machine::set<u8>(machine, Machine::Reserved::Blit, 1);
-      Socket::advance(machine);
+      Socket::advance(args.client, machine);
       Machine::set<u8>(machine, Machine::Reserved::Blit, 0);
     }
   }

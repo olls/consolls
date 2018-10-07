@@ -7,7 +7,6 @@
 #include "instructions.h"
 #include "clock.h"
 #include "assert.h"
-#include "options.h"
 
 
 namespace Game
