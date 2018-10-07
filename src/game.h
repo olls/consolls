@@ -7,6 +7,7 @@
 #include "clock.h"
 #include "timer.h"
 #include "types.h"
+#include "options.h"
 
 
 namespace Game
@@ -26,6 +27,6 @@ struct State
 
 
 bool
-run(bool debugger);
+run(Options::Args args);
 
 } // namespace Game

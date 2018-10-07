@@ -1,6 +1,6 @@
 #include "game.h"
+#include "options.h"
 #include "assert.h"
-#include <cstring>
 
 
 s32
@@ -8,7 +8,7 @@ main(s32 argc, char const *argv[])
 {
   bool success = true;
 
-  bool (*game_run)(bool debugger) = NULL;
+  bool (*game_run)(Options::Args args) = NULL;
 
 #if LIVE_RELOAD
 
@@ -16,15 +16,8 @@ main(s32 argc, char const *argv[])
   game_run = &(Game::run);
 #endif
 
-  bool debugger = false;
-
-  if (argc > 1 && strcmp(argv[1], "--debugger") == 0)
-  {
-    debugger = true;
-  }
-
   assert(game_run);
-  success &= game_run(debugger);
+  success &= game_run(Options::get_args(argc, argv));
 
   return success ? 0 : 1;
 }

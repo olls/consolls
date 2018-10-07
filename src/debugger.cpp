@@ -1,7 +1,9 @@
 #include "debugger.h"
 
+#include "debug.h"
 #include "disassembler.h"
 #include "socket.h"
+#include "options.h"
 
 
 namespace Debugger
@@ -11,30 +13,39 @@ using Machine::MemoryAddress;
 
 
 void
-init()
+init(Options::Args args)
 {
-  Socket::init();
-}
-
-
-void
-destroy()
-{
-  Socket::destroy();
-}
-
-
-void
-advance(Machine::Machine& machine, bool blit)
-{
-  MemoryAddress ni = Machine::get<MemoryAddress>(machine, Machine::Reserved::NI);
-  Disassembler::disassemble_instruction(machine, ni);
-
-  if (blit)
+  if (args.debugger)
   {
-    Machine::set<u8>(machine, Machine::Reserved::Blit, 1);
-    Socket::advance(machine);
-    Machine::set<u8>(machine, Machine::Reserved::Blit, 0);
+    Socket::init();
+  }
+}
+
+
+void
+destroy(Options::Args args)
+{
+  if (args.debugger)
+  {
+    Socket::destroy();
+  }
+}
+
+
+void
+advance(Options::Args args, Machine::Machine& machine, bool blit)
+{
+  if (args.debugger)
+  {
+    MemoryAddress ni = Machine::get<MemoryAddress>(machine, Machine::Reserved::NI);
+    Disassembler::disassemble_instruction(machine, ni);
+
+    if (blit)
+    {
+      Machine::set<u8>(machine, Machine::Reserved::Blit, 1);
+      Socket::advance(machine);
+      Machine::set<u8>(machine, Machine::Reserved::Blit, 0);
+    }
   }
 }
 

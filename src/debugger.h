@@ -1,20 +1,23 @@
 #pragma once
 
+
 #include "machine.h"
+#include "options.h"
+
 
 namespace Debugger
 {
 
 void
-init();
+init(Options::Args args);
 
 
 void
-destroy();
+destroy(Options::Args args);
 
 
 void
-advance(Machine::Machine& machine, bool);
+advance(Options::Args args, Machine::Machine& machine, bool blit);
 
 
 } // namespace Debugger
