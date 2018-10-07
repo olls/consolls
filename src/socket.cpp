@@ -88,7 +88,7 @@ write_data(s32 socket_fd, void* data, u32 size)
 
   if (send(client, data, size, MSG_NOSIGNAL) < 0)
   {
-    if (errno == EBADF)
+    if (errno == EPIPE | errno == EBADF)
     {
       printf("Client disconnecting\n");
       close_socket(client);
