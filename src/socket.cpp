@@ -139,9 +139,9 @@ write_data(s32 socket_fd, void* data, u32 size)
 {
   bool success = true;
 
-  if (write(client, data, size) < 0)
+  if (send(client, data, size, MSG_NOSIGNAL) < 0)
   {
-    if (errno == EBADF)
+    if (errno == EPIPE | errno == EBADF)
     {
       printf("Client disconnecting\n");
       close_socket(client);
@@ -150,6 +150,7 @@ write_data(s32 socket_fd, void* data, u32 size)
     {
       perror("Error sending message");
     }
+    connected = false;
     success &= false;
   }
 
@@ -217,7 +218,6 @@ advance(bool receive, Machine::Machine& machine)
 
     assert(sizeof(machine.memory) < (1<<16));
     u16 message_size = sizeof(machine.memory);
-
     success &= write_data(client, &message_size, sizeof(message_size));
     if (success)
     {
