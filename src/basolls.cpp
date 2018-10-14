@@ -23,19 +23,11 @@ push_instruction(Machine::Machine& machine, MemoryAddress& addr, Instructions::A
 
 
 template <typename type>
-void
-set_data(Machine::Machine& machine, MemoryAddress addr, u32 size, type* data)
-{
-  void* ptr = Machine::get_ptr<void>(machine, addr);
-  memcpy(ptr, data, size*sizeof(type));
-}
-
-
-template <typename type>
 MemoryAddress
-push_data(Machine::Machine& machine, MemoryAddress& addr, u32 size, type* data)
+push_data(Machine::Machine& machine, MemoryAddress& addr, u32 size, type const * data)
 {
-  set_data<type>(machine, addr, size, data);
+  void *const ptr = Machine::get_ptr<void>(machine, addr);
+  memcpy(ptr, data, size*sizeof(type));
 
   MemoryAddress start = addr;
   addr += size*sizeof(type);
@@ -45,49 +37,26 @@ push_data(Machine::Machine& machine, MemoryAddress& addr, u32 size, type* data)
 
 
 template <typename type>
-void
-set_value(Machine::Machine& machine, MemoryAddress addr, type value)
-{
-  set_data<type>(machine, addr, 1, &value);
-}
-
-
-template <typename type>
 MemoryAddress
 push_value(Machine::Machine& machine, MemoryAddress& addr, type value)
 {
-  return push_data<type>(machine, addr, 1, &value);
-}
-
-
-template <typename width>
-MemoryAddress
-push_variable(MemoryAddress& addr)
-{
-  MemoryAddress result = addr;
-  addr += sizeof(width);
-  return result;
-}
-
-template <>
-MemoryAddress
-push_variable<void>(MemoryAddress& addr)
-{
-  return addr;
+  MemoryAddress value_addr = addr;
+  Machine::advance_addr<type>(machine, addr) = value;
+  return value_addr;
 }
 
 
 template <typename ArgsType>
 Subroutine<ArgsType>
-push_subroutine_start(Machine::Machine& machine, MemoryAddress& addr)
+push_subroutine_start(MemoryAddress& addr)
 {
   Subroutine<ArgsType> subroutine;
 
   // Reserve space for the caller to store args
-  subroutine.args = push_variable<ArgsType>(addr);
+  subroutine.args = Machine::advance_addr<ArgsType>(addr);
 
   // Reserve a MemoryAddress for the caller to store their return address
-  subroutine.return_addr = push_variable<MemoryAddress>(addr);
+  subroutine.return_addr = Machine::advance_addr<MemoryAddress>(addr);
   subroutine.start = addr;
 
   return subroutine;
@@ -107,7 +76,7 @@ push_subroutine_end(Machine::Machine& machine, MemoryAddress& addr, Subroutine<A
 
 template <typename width>
 void
-push_type_copy(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress from, MemoryAddress to)
+push_copy(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress from, MemoryAddress to)
 {
   for (MemoryAddress byte_n = 0;
        byte_n < sizeof(width);
@@ -122,21 +91,21 @@ push_type_copy(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress fro
 
 template <>
 void
-push_type_copy<void>(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress from, MemoryAddress to)
+push_copy<void>(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress from, MemoryAddress to)
 {}
 
 
 template <typename ArgsType>
 void
-push_copy_subroutine_args(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> subroutine, MemoryAddress args_addr)
+push_copy_subroutine_args(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> const & subroutine, MemoryAddress args_addr)
 {
-  push_type_copy<ArgsType>(machine, addr, args_addr, subroutine.args);
+  push_copy<ArgsType>(machine, addr, args_addr, subroutine.args);
 }
 
 
 template <typename ArgsType>
 void
-push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> subroutine)
+push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> const & subroutine)
 {
   MemoryAddress return_location = addr + (sizeof(Code::SET_VW) + sizeof(Instructions::Args<Code::SET_VW>) +
                                           sizeof(Code::JUMP_V) + sizeof(Instructions::Args<Code::JUMP_V>));
@@ -163,17 +132,17 @@ struct PACKED DotSubroutineArgs
 Subroutine<DotSubroutineArgs>
 push_dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
 {
-  MemoryAddress one = push_value<u8>(machine, addr, 0x1);
-  MemoryAddress two = push_value<u16>(machine, addr, 0x2);
-  MemoryAddress mask = push_variable<u8>(addr);
-  MemoryAddress pixel_shift = push_variable<u8>(addr);
-  MemoryAddress old_colour = push_variable<u8>(addr);
+  MemoryAddress const one = push_value<u8>(machine, addr, 0x1);
+  MemoryAddress const two = push_value<u16>(machine, addr, 0x2);
+  MemoryAddress const mask = Machine::advance_addr<u8>(addr);
+  MemoryAddress const pixel_shift = Machine::advance_addr<u8>(addr);
+  MemoryAddress const old_colour = Machine::advance_addr<u8>(addr);
 
-  Subroutine subroutine = push_subroutine_start<DotSubroutineArgs>(machine, addr);
+  Subroutine subroutine = push_subroutine_start<DotSubroutineArgs>(addr);
 
-  MemoryAddress offset = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, offset);
-  MemoryAddress pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, pixel_pos);
-  MemoryAddress colour = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, colour);
+  MemoryAddress const offset = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, offset);
+  MemoryAddress const pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, pixel_pos);
+  MemoryAddress const colour = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, colour);
 
   push_instruction<Code::AND>(machine, addr, {
     .a = pixel_pos,
@@ -259,22 +228,22 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
 
   // Variables / Constants
 
-  MemoryAddress dot_args = push_variable<DotSubroutineArgs>(addr);
-  MemoryAddress offset = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, offset);
-  MemoryAddress pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, pixel_pos);
-  MemoryAddress colour = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, colour);
+  MemoryAddress const dot_args = Machine::advance_addr<DotSubroutineArgs>(addr);
+  MemoryAddress const offset = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, offset);
+  MemoryAddress const pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, pixel_pos);
+  MemoryAddress const colour = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, dot_args, colour);
 
-  set_value<u16>(machine, offset, Machine::Reserved::ScreenBuffer);
-  set_value<u8>(machine, colour, Palette::Red);
-  set_value<u16>(machine, pixel_pos, 0x0);
+  Machine::get<u16>(machine, offset) = Machine::Reserved::ScreenBuffer;
+  Machine::get<u8>(machine, colour) = Palette::Red;
+  Machine::get<u16>(machine, pixel_pos) = 0x0000;
 
-  MemoryAddress n_pixels = push_value<u16>(machine, addr, 0x4000);
-  MemoryAddress stride = push_value<u16>(machine, addr, 0x031);
+  MemoryAddress const n_pixels = push_value<u16>(machine, addr, 0x4000);
+  MemoryAddress const stride = push_value<u16>(machine, addr, 0x0031);
 
   // Start routine
-  Subroutine subroutine = push_subroutine_start<void>(machine, addr);
+  Subroutine subroutine = push_subroutine_start<void>(addr);
 
-  MemoryAddress loop = addr;
+  MemoryAddress const loop = addr;
 
   // Call dot
   push_copy_subroutine_args(machine, addr, dot, dot_args);
@@ -322,13 +291,13 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
 bool
 load_os(Machine::Machine& machine)
 {
-  bool success =  true;
+  bool success = true;
 
   MemoryAddress addr = Machine::Reserved::UserStart;
 
-  Subroutine demo_program = push_demo_program(machine, addr);
+  Subroutine const demo_program = push_demo_program(machine, addr);
 
-  MemoryAddress os_start = addr;
+  MemoryAddress const os_start = addr;
   push_subroutine_call(machine, addr, demo_program);
 
   Machine::set<MemoryAddress>(machine, Machine::Reserved::NI, os_start);

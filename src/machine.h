@@ -79,17 +79,17 @@ struct Machine
 
 
 template <typename element_type>
-inline element_type *
-get_ptr(Machine& machine, MemoryAddress addr)
+inline element_type *const
+get_ptr(Machine const & machine, MemoryAddress addr)
 {
   assert(addr < machine.memory.size);
-  return (element_type *)(machine.memory.bytes + addr);
+  return (element_type *const)(machine.memory.bytes + addr);
 }
 
 
 template <typename element_type>
-inline element_type
-get(Machine& machine, MemoryAddress addr)
+inline element_type &
+get(Machine const & machine, MemoryAddress addr)
 {
   return *get_ptr<element_type>(machine, addr);
 }
@@ -105,7 +105,7 @@ set(Machine& machine, MemoryAddress addr, element_type byte_value)
 
 template <typename element_type>
 inline void
-copy(Machine& machine, MemoryAddress start, element_type* elements, u32 n_elements)
+copy(Machine const & machine, MemoryAddress start, element_type const * elements, u32 n_elements)
 {
   memcpy(machine.memory.bytes + start, elements, n_elements * sizeof(element_type));
 }
@@ -120,19 +120,34 @@ set(Machine& machine, MemoryAddress start, u8 element, u32 n_copies)
 
 template <u32 w, u32 h>
 inline bool
-allocate_screen_buffer_texture(Memory<w,h>& memory, Texture::Texture& texture)
+allocate_screen_buffer_texture(Memory<w,h> const & memory, Texture::Texture& texture)
 {
   return Texture::allocate(texture, w, h);
 }
 
 
 template <typename element_type>
-inline element_type &
-advance_addr(Machine& machine, MemoryAddress& addr)
+inline MemoryAddress
+advance_addr(MemoryAddress& addr)
 {
-  element_type& result = *get_ptr<element_type>(machine, addr);
+  MemoryAddress result = addr;
   addr += sizeof(element_type);
   return result;
+}
+
+template <>
+inline MemoryAddress
+advance_addr<void>(MemoryAddress& addr)
+{
+  return addr;
+}
+
+
+template <typename element_type>
+inline element_type &
+advance_addr(Machine const & machine, MemoryAddress& addr)
+{
+  return  *get_ptr<element_type>(machine, advance_addr<element_type>(addr));
 }
 
 
@@ -145,6 +160,6 @@ consume_signal_register(Machine& machine, MemoryAddress addr);
 
 
 void
-output_screen_buffer(Machine& machine, Texture::Texture& texture);
+output_screen_buffer(Machine const & machine, Texture::Texture& texture);
 
 } // namespace Machine

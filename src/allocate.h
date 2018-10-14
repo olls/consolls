@@ -18,7 +18,7 @@ template<typename X>
 X *
 allocate(u32 n_elements)
 {
-  u32 bytes_size = sizeof(X) * n_elements;
+  u32 const bytes_size = sizeof(X) * n_elements;
   X *result = (X *)malloc(bytes_size);
   memset(result, 0, bytes_size);
 
@@ -26,8 +26,12 @@ allocate(u32 n_elements)
 }
 
 
+template<typename X>
 inline void
-unallocate(void *ptr) { free(ptr); }
-
+unallocate(X* & ptr)
+{
+  free(ptr);
+  ptr = NULL;
+}
 
 } // namespace Allocate

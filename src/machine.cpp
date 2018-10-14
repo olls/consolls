@@ -309,7 +309,7 @@ template <Instructions::Code Code>
 void
 exe_inst(Machine& machine, MemoryAddress& instruction_ptr)
 {
-  Instructions::Args<Code> args = advance_addr<Instructions::Args<Code>>(machine, instruction_ptr);
+  Instructions::Args<Code> const args = advance_addr<Instructions::Args<Code>>(machine, instruction_ptr);
 
   inst<Code>(machine, instruction_ptr, args);
 }
@@ -395,7 +395,7 @@ consume_signal_register(Machine& machine, MemoryAddress addr)
   bool result = get<u8>(machine, addr);
   if (result)
   {
-    set<u8>(machine, addr, 0x00);
+    get<u8>(machine, addr) = 0x00;
   }
 
   return result;
@@ -403,11 +403,11 @@ consume_signal_register(Machine& machine, MemoryAddress addr)
 
 
 void
-output_screen_buffer(Machine& machine, Texture::Texture& texture)
+output_screen_buffer(Machine const & machine, Texture::Texture& texture)
 {
-  u8* sb = &machine.memory.bytes[Reserved::ScreenBuffer];
+  u8 const *const sb = &machine.memory.bytes[Reserved::ScreenBuffer];
 
-  u8 pixel_mask = (1 << machine.memory.pixel_size) - 1;
+  u8 const pixel_mask = (1 << machine.memory.pixel_size) - 1;
 
   for (u32 y = 0;
        y < machine.memory.sb_height;

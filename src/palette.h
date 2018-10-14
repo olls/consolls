@@ -9,7 +9,7 @@ namespace Palette
 using Colour = u32;
 
 
-static const Colour COLOURS[] = {
+static Colour const COLOURS[] = {
   0xF2F1DA00, // White
   0xF2EC7900, // Yellow
   0xFFCCCE00, // Light Pink

@@ -15,7 +15,7 @@ namespace Game
 static bool blit = false;
 
 bool
-advance(State *state, SDL_State::SDL_State& sdl_state)
+advance(State *const state, SDL_State::SDL_State& sdl_state)
 {
   bool success = true;
 

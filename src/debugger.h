@@ -9,15 +9,14 @@ namespace Debugger
 {
 
 void
-init(Options::Args args);
+init(Options::Args const & args);
 
 
 void
-destroy(Options::Args args);
+destroy(Options::Args const & args);
 
 
 void
-advance(Options::Args args, Machine::Machine& machine, bool blit);
-
+advance(Options::Args const & args, Machine::Machine& machine, bool blit);
 
 } // namespace Debugger

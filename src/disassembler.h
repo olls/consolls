@@ -6,10 +6,10 @@ namespace Disassembler
 {
 
 Machine::MemoryAddress
-disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress addr);
+disassemble_instruction(Machine::Machine const & machine, Machine::MemoryAddress addr);
 
 
 void
-disassemble(Machine::Machine& machine, Machine::MemoryAddress from, Machine::MemoryAddress to);
+disassemble(Machine::Machine const & machine, Machine::MemoryAddress from, Machine::MemoryAddress to);
 
 } // namespace Disassembler

@@ -10,7 +10,6 @@ namespace Socket
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -22,67 +21,7 @@ static int server = -1;
 
 
 bool
-init_client()
-{
-  bool success = true;
-
-  sockaddr_in client_addr;
-  client_addr.sin_family = AF_INET;
-  client_addr.sin_addr.s_addr = INADDR_ANY;
-  client_addr.sin_port = 0;
-
-  if (bind(server, (sockaddr *) &client_addr, sizeof(sockaddr)) == -1)
-  {
-     perror("Error binding");
-     success &= false;
-  }
-  else
-  {
-    sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = inet_addr("192.168.1.188");
-    server_addr.sin_port = htons(PORT);
-
-    if (connect(server, (sockaddr *) &server_addr, sizeof(sockaddr)) == -1)
-    {
-       perror("Error connecting");
-       success &= false;
-    }
-  }
-
-  return success;
-}
-
-bool
-init_server()
-{
-  bool success = true;
-
-  sockaddr_in server_addr;
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_addr.s_addr = INADDR_ANY;
-  server_addr.sin_port = htons(PORT);
-
-  if (bind(server, (sockaddr *) &server_addr, sizeof(sockaddr)) == -1)
-  {
-     perror("Error binding");
-     success &= false;
-  }
-  else
-  {
-    const u32 LISTEN_BACKLOG = 10;
-    if (listen(server, LISTEN_BACKLOG) == -1)
-    {
-       perror("Error listening");
-       success &= false;
-    }
-  }
-
-  return success;
-}
-
-bool
-init(bool receive)
+init()
 {
   bool success = true;
 
@@ -101,19 +40,27 @@ init(bool receive)
     return success;
   }
 
-  if (receive)
+  sockaddr_in server_addr;
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_addr.s_addr = INADDR_ANY;
+  server_addr.sin_port = htons(PORT);
+
+  if (bind(server, (sockaddr *) &server_addr, sizeof(sockaddr)) == -1)
   {
-    success &= init_client();
-  }
-  else
-  {
-    success &= init_server();
+     perror("Error binding");
+     success &= false;
+     return success;
   }
 
-  if (success)
+  const u32 LISTEN_BACKLOG = 10;
+  if (listen(server, LISTEN_BACKLOG) == -1)
   {
-    printf("Socket initialised\n");
+     perror("Error listening");
+     success &= false;
+     return success;
   }
+
+  printf("Socket initialised\n");
 
   return success;
 }
@@ -159,36 +106,9 @@ write_data(s32 socket_fd, void* data, u32 size)
 
 
 bool
-advance(bool receive, Machine::Machine& machine)
+advance(Machine::Machine& machine)
 {
   bool success = true;
-
-  if (receive)
-  {
-    u16 size;
-    if (read(server, &size, sizeof(u16)) == -1)
-    {
-      perror("Error reading size");
-      success &= false;
-    }
-    else
-    {
-      printf("%u\n", size);
-      // if (size != sizeof(machine.memory))
-      // {
-      //   printf("TOO BIG %u\n", size);
-      //   return false;
-      // }
-
-      if (read(server, &machine.memory, sizeof(machine.memory)) == -1)
-      {
-        perror("Error writing memory");
-        success &= false;
-      }
-    }
-
-    return success;
-  }
 
   if (!connected && server != -1)
   {

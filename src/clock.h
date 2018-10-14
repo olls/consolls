@@ -20,6 +20,6 @@ regulate(Clock& clock);
 
 
 void
-print_report(Clock& clock);
+print_report(Clock const & clock);
 
 } // namespace Clock

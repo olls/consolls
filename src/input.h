@@ -11,7 +11,7 @@ namespace Key_Hidden
 // Need Key enum to be anonymous for it to be used as array indices.
 // Typedef needed so that we can reference its type for function args...
 // Namespace needed so all the Keys are not polluting the global scope!
-// using K::Key needed to hide the namespace
+// using Key_Hidden::Key needed to hide the namespace
 
 typedef enum
 {
@@ -56,7 +56,7 @@ init(Input& input);
 
 template <Key key>
 bool
-is_pressed(Input& input)
+is_pressed(Input const & input)
 {
   bool result = (input.keys[key].up_at < input.keys[key].down_at);
   return result;
@@ -65,7 +65,7 @@ is_pressed(Input& input)
 
 template <Key key>
 bool
-up(Input& input, FrameID::FrameID frame_id)
+up(Input const & input, FrameID::FrameID frame_id)
 {
   bool result = (input.keys[key].up_at == frame_id);
   return result;
@@ -74,7 +74,7 @@ up(Input& input, FrameID::FrameID frame_id)
 
 template <Key key>
 bool
-down(Input& input, FrameID::FrameID frame_id)
+down(Input const & input, FrameID::FrameID frame_id)
 {
   bool result = (input.keys[key].down_at == frame_id);
   return result;

@@ -5,11 +5,11 @@ namespace Socket
 {
 
 bool
-init(bool receive);
+init();
 
 
 bool
-advance(bool receive, Machine::Machine& machine);
+advance(Machine::Machine& machine);
 
 
 void

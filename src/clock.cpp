@@ -43,7 +43,7 @@ regulate(Clock& clock)
 
 
 void
-print_report(Clock& clock)
+print_report(Clock const & clock)
 {
   printf("Frame overruns: %u / %u\n", clock.frame_overruns, clock.frame_count);
   printf("Average frame dt: %f\n", clock.accumulated_frame_dt / (r32)clock.frame_count);

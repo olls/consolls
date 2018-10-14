@@ -103,7 +103,7 @@ init(Input& input)
 
 
 void
-update(KeyState& key, SDL_Event& key_event, FrameID::FrameID frame_id)
+update(KeyState& key, SDL_Event const & key_event, FrameID::FrameID frame_id)
 {
   if (key_event.key.keysym.sym == key.sdl_key_code)
   {

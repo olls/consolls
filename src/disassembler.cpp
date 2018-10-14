@@ -9,200 +9,200 @@ namespace Disassembler
 
 template <Instructions::Code Code>
 void
-disassemble_args(Machine::Machine& machine, Instructions::Args<Code> args);
+disassemble_args(Machine::Machine const & machine, Instructions::Args<Code> args);
 
 template <>
 void
-disassemble_args<Instructions::Code::ADD>(Machine::Machine& machine, Instructions::Args<Instructions::Code::ADD> args)
+disassemble_args<Instructions::Code::ADD>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::ADD> args)
 {
   printf("ADD a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::ADD_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::ADD_W> args)
+disassemble_args<Instructions::Code::ADD_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::ADD_W> args)
 {
   printf("ADD_W a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::SUB>(Machine::Machine& machine, Instructions::Args<Instructions::Code::SUB> args)
+disassemble_args<Instructions::Code::SUB>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::SUB> args)
 {
   printf("SUB a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::SUB_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::SUB_W> args)
+disassemble_args<Instructions::Code::SUB_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::SUB_W> args)
 {
   printf("SUB_W a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::MUL>(Machine::Machine& machine, Instructions::Args<Instructions::Code::MUL> args)
+disassemble_args<Instructions::Code::MUL>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::MUL> args)
 {
   printf("MUL a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::MUL_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::MUL_W> args)
+disassemble_args<Instructions::Code::MUL_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::MUL_W> args)
 {
   printf("MUL_W a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::DIV>(Machine::Machine& machine, Instructions::Args<Instructions::Code::DIV> args)
+disassemble_args<Instructions::Code::DIV>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::DIV> args)
 {
   printf("DIV a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::DIV_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::DIV_W> args)
+disassemble_args<Instructions::Code::DIV_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::DIV_W> args)
 {
   printf("DIV_W a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::NOT>(Machine::Machine& machine, Instructions::Args<Instructions::Code::NOT> args)
+disassemble_args<Instructions::Code::NOT>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::NOT> args)
 {
   printf("NOT in=%#.4x, result=%#.4x", args.in, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::LSHIFT>(Machine::Machine& machine, Instructions::Args<Instructions::Code::LSHIFT> args)
+disassemble_args<Instructions::Code::LSHIFT>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::LSHIFT> args)
 {
   printf("LSHIFT in=%#.4x, bits=%#.4x, result=%#.4x", args.in, args.bits, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::RSHIFT>(Machine::Machine& machine, Instructions::Args<Instructions::Code::RSHIFT> args)
+disassemble_args<Instructions::Code::RSHIFT>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::RSHIFT> args)
 {
   printf("RSHIFT in=%#.4x, bits=%#.4x, result=%#.4x", args.in, args.bits, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::AND>(Machine::Machine& machine, Instructions::Args<Instructions::Code::AND> args)
+disassemble_args<Instructions::Code::AND>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::AND> args)
 {
   printf("AND a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::OR>(Machine::Machine& machine, Instructions::Args<Instructions::Code::OR> args)
+disassemble_args<Instructions::Code::OR>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::OR> args)
 {
   printf("OR a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::XOR>(Machine::Machine& machine, Instructions::Args<Instructions::Code::XOR> args)
+disassemble_args<Instructions::Code::XOR>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::XOR> args)
 {
   printf("XOR a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::JUMP_V>(Machine::Machine& machine, Instructions::Args<Instructions::Code::JUMP_V> args)
+disassemble_args<Instructions::Code::JUMP_V>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::JUMP_V> args)
 {
   printf("JUMP_V %#.4x", args.addr);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::JUMP>(Machine::Machine& machine, Instructions::Args<Instructions::Code::JUMP> args)
+disassemble_args<Instructions::Code::JUMP>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::JUMP> args)
 {
   printf("JUMP %#.4x", args.addr);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::CJUMP>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CJUMP> args)
+disassemble_args<Instructions::Code::CJUMP>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::CJUMP> args)
 {
   printf("CJUMP a=%#.4x, b=%#.4x, addr=%#.4x", args.a, args.b, args.addr);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::CJUMP_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CJUMP_W> args)
+disassemble_args<Instructions::Code::CJUMP_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::CJUMP_W> args)
 {
   printf("CJUMP_W a=%#.4x, b=%#.4x, addr=%#.4x", args.a, args.b, args.addr);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::CMP>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CMP> args)
+disassemble_args<Instructions::Code::CMP>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::CMP> args)
 {
   printf("CMP a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::CMP_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::CMP_W> args)
+disassemble_args<Instructions::Code::CMP_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::CMP_W> args)
 {
   printf("CMP_W a=%#.4x, b=%#.4x, result=%#.4x", args.a, args.b, args.result);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::SET_V>(Machine::Machine& machine, Instructions::Args<Instructions::Code::SET_V> args)
+disassemble_args<Instructions::Code::SET_V>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::SET_V> args)
 {
   printf("SET_V addr=%#.4x, value=%#.4x", args.addr, args.value);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::SET_VW>(Machine::Machine& machine, Instructions::Args<Instructions::Code::SET_VW> args)
+disassemble_args<Instructions::Code::SET_VW>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::SET_VW> args)
 {
   printf("SET_VW addr=%#.4x, value=%#.4x", args.addr, args.value);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::COPY>(Machine::Machine& machine, Instructions::Args<Instructions::Code::COPY> args)
+disassemble_args<Instructions::Code::COPY>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::COPY> args)
 {
   printf("COPY from=%#.4x, to=%#.4x", args.from, args.to);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::COPY_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::COPY_W> args)
+disassemble_args<Instructions::Code::COPY_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::COPY_W> args)
 {
   printf("COPY_W from=%#.4x, to=%#.4x", args.from, args.to);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::GET>(Machine::Machine& machine, Instructions::Args<Instructions::Code::GET> args)
+disassemble_args<Instructions::Code::GET>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::GET> args)
 {
   printf("GET from_p=%#.4x, to=%#.4x", args.from_p, args.to);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::GET_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::GET_W> args)
+disassemble_args<Instructions::Code::GET_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::GET_W> args)
 {
   printf("GET_W from_p=%#.4x, to=%#.4x", args.from_p, args.to);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::SET>(Machine::Machine& machine, Instructions::Args<Instructions::Code::SET> args)
+disassemble_args<Instructions::Code::SET>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::SET> args)
 {
   printf("SET from=%#.4x, to_p=%#.4x", args.from, args.to_p);
 }
 
 template <>
 void
-disassemble_args<Instructions::Code::SET_W>(Machine::Machine& machine, Instructions::Args<Instructions::Code::SET_W> args)
+disassemble_args<Instructions::Code::SET_W>(Machine::Machine const & machine, Instructions::Args<Instructions::Code::SET_W> args)
 {
   printf("GET_W from=%#.4x, to_p=%#.4x", args.from, args.to_p);
 }
@@ -210,7 +210,7 @@ disassemble_args<Instructions::Code::SET_W>(Machine::Machine& machine, Instructi
 
 template <Instructions::Code Code>
 void
-disassemble_instruction_templated(Machine::Machine& machine, Machine::MemoryAddress& addr)
+disassemble_instruction_templated(Machine::Machine const & machine, Machine::MemoryAddress& addr)
 {
   Instructions::Args<Code> args = Machine::advance_addr<Instructions::Args<Code>>(machine, addr);
 
@@ -221,7 +221,7 @@ disassemble_instruction_templated(Machine::Machine& machine, Machine::MemoryAddr
 
 
 Machine::MemoryAddress
-disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress addr)
+disassemble_instruction(Machine::Machine const & machine, Machine::MemoryAddress addr)
 {
   printf("%#.4x (%lu", addr, sizeof(Instructions::Code));
   Instructions::Code code = Machine::advance_addr<Instructions::Code>(machine, addr);
@@ -296,7 +296,7 @@ disassemble_instruction(Machine::Machine& machine, Machine::MemoryAddress addr)
 
 
 void
-disassemble(Machine::Machine& machine, Machine::MemoryAddress from, Machine::MemoryAddress to)
+disassemble(Machine::Machine const & machine, Machine::MemoryAddress from, Machine::MemoryAddress to)
 {
   Machine::MemoryAddress addr = from;
   while (addr < to)

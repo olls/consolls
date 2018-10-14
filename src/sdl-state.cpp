@@ -10,7 +10,7 @@ namespace SDL_State
 
 
 bool
-init(SDL_State& sdl_state, const char *title, u32 initial_width, u32 initial_height, u32 pixel_format)
+init(SDL_State& sdl_state, char const * title, u32 initial_width, u32 initial_height, u32 pixel_format)
 {
   bool success = true;
 
@@ -49,7 +49,7 @@ init(SDL_State& sdl_state, const char *title, u32 initial_width, u32 initial_hei
 
 
 bool
-set_render_texture(SDL_State& sdl_state, Texture::Texture& texture)
+set_render_texture(SDL_State& sdl_state, Texture::Texture const & texture)
 {
   bool success = true;
 
@@ -62,6 +62,7 @@ set_render_texture(SDL_State& sdl_state, Texture::Texture& texture)
   if (sdl_state.sdl_texture != NULL)
   {
     SDL_DestroyTexture(sdl_state.sdl_texture);
+    sdl_state.sdl_texture = NULL;
   }
 
   sdl_state.sdl_texture = SDL_CreateTexture(sdl_state.sdl_renderer, sdl_state.pixel_format, SDL_TEXTUREACCESS_STREAMING, texture.width, texture.height);
@@ -76,7 +77,7 @@ set_render_texture(SDL_State& sdl_state, Texture::Texture& texture)
 
 
 bool
-render(SDL_State& sdl_state, Texture::Texture& texture)
+render(SDL_State const & sdl_state, Texture::Texture const & texture)
 {
   bool success = true;
 
@@ -94,7 +95,7 @@ render(SDL_State& sdl_state, Texture::Texture& texture)
 
 
 bool
-set_fullscreen(SDL_State& sdl_state, bool on)
+set_fullscreen(SDL_State const & sdl_state, bool on)
 {
   bool success = true;
   success &= 0 == SDL_SetWindowFullscreen(sdl_state.sdl_window, on ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
@@ -103,7 +104,7 @@ set_fullscreen(SDL_State& sdl_state, bool on)
 
 
 bool
-is_fullscreen(SDL_State& sdl_state)
+is_fullscreen(SDL_State const & sdl_state)
 {
   bool result;
   result = SDL_WINDOW_FULLSCREEN_DESKTOP & SDL_GetWindowFlags(sdl_state.sdl_window);
@@ -114,9 +115,9 @@ is_fullscreen(SDL_State& sdl_state)
 void
 destroy(SDL_State& sdl_state)
 {
-  SDL_DestroyWindow(sdl_state.sdl_window);
-  SDL_DestroyTexture(sdl_state.sdl_texture);
-  SDL_DestroyRenderer(sdl_state.sdl_renderer);
+  SDL_DestroyWindow(sdl_state.sdl_window);  sdl_state.sdl_window = NULL;
+  SDL_DestroyTexture(sdl_state.sdl_texture);  sdl_state.sdl_texture = NULL;
+  SDL_DestroyRenderer(sdl_state.sdl_renderer);  sdl_state.sdl_renderer = NULL;
   SDL_Quit();
 }
 

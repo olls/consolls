@@ -8,12 +8,12 @@ namespace Options
 
 struct Args
 {
-  bool debugger = false;
-  bool client = false;
+  bool debugger;
+  bool client;
 };
 
 
 Args
-get_args(s32 argc, char const *argv[]);
+get_args(s32 argc, char const *const argv[]);
 
 } // namespace Options

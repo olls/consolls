@@ -1,6 +1,5 @@
 #include "debugger.h"
 
-#include "debug.h"
 #include "disassembler.h"
 #include "socket.h"
 
@@ -12,17 +11,17 @@ using Machine::MemoryAddress;
 
 
 void
-init(Options::Args args)
+init(Options::Args const & args)
 {
   if (args.debugger)
   {
-    Socket::init(args.client);
+    Socket::init();
   }
 }
 
 
 void
-destroy(Options::Args args)
+destroy(Options::Args const & args)
 {
   if (args.debugger)
   {
@@ -32,7 +31,7 @@ destroy(Options::Args args)
 
 
 void
-advance(Options::Args args, Machine::Machine& machine, bool blit)
+advance(Options::Args const & args, Machine::Machine& machine, bool blit)
 {
   if (args.debugger)
   {
@@ -41,9 +40,9 @@ advance(Options::Args args, Machine::Machine& machine, bool blit)
 
     if (blit)
     {
-      Machine::set<u8>(machine, Machine::Reserved::Blit, 1);
+      Machine::get<u8>(machine, Machine::Reserved::Blit) = 1;
       Socket::advance(args.client, machine);
-      Machine::set<u8>(machine, Machine::Reserved::Blit, 0);
+      Machine::get<u8>(machine, Machine::Reserved::Blit) = 0;
     }
   }
 }
