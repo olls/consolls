@@ -5,7 +5,7 @@ namespace Maths
 {
 
 template <typename T>
-T
+inline T
 min(T const & a, T const & b)
 {
   return (a < b) ? a : b;
@@ -13,7 +13,7 @@ min(T const & a, T const & b)
 
 
 template <typename T>
-T
+inline T
 max(T const & a, T const & b)
 {
   return (a > b) ? a : b;
