@@ -40,7 +40,7 @@ def configure(conf):
 
 def build(bld):
   if not bld.variant:
-    bld.fatal('Must use `{0}_debug` or `{0}_release`'.format(bld.cmd))
+    bld.fatal('Must use `{0}_debug` or `{0}_release or {0}_profile`'.format(bld.cmd))
 
   lib_type = bld.shlib if LIVE_RELOAD else bld.stlib
 
