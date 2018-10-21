@@ -8,18 +8,12 @@ namespace Clock
 
 struct Clock
 {
-  u32 frame_overruns;
-  u32 frame_count;
-  u32 accumulated_frame_dt;
-  u64 last_frame_start;
+  u32 n_instructions;
+  u64 last_reset_us;
 };
 
 
 void
 regulate(Clock& clock);
-
-
-void
-print_report(Clock const & clock);
 
 } // namespace Clock

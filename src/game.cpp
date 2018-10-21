@@ -106,8 +106,6 @@ run(Options::Args args)
 
   Debugger::destroy(args);
 
-  Clock::print_report(state.clock);
-
   SDL_State::destroy(sdl_state);
   return success;
 }

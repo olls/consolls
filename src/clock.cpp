@@ -8,45 +8,28 @@
 namespace Clock
 {
 
-static const u32 CLOCK_RATE_US = 20;
+static const u32 CLOCK_RATE_NS = 5000u;
 
 
 void
 regulate(Clock& clock)
 {
-  u64 now = Time::get_us();
-
-  if (clock.last_frame_start == 0)
+  clock.n_instructions += 1;
+  if (clock.n_instructions > 1000u / CLOCK_RATE_NS)
   {
-    clock.last_frame_start = now;
+    u32 time_needed_us = (clock.n_instructions * CLOCK_RATE_NS) / 1000u;
+    u64 now_us = Time::get_us();
+
+    u32 time_taken_us = now_us - clock.last_reset_us;
+
+    clock.last_reset_us = now_us;
+    clock.n_instructions = 0;
+
+    if (time_taken_us < time_needed_us)
+    {
+      Time::sleep_us(time_needed_us - time_taken_us);
+    }
   }
-
-  u32 frame_dt = now - clock.last_frame_start;
-  clock.accumulated_frame_dt += frame_dt;
-
-  if (CLOCK_RATE_US > frame_dt)
-  {
-    Time::sleep_us(CLOCK_RATE_US - frame_dt);
-  }
-
-  clock.frame_count += 1;
-  if (frame_dt > CLOCK_RATE_US)
-  {
-    clock.frame_overruns += 1;
-#ifdef _DEBUG
-    printf("Missing clock rate by %uus  -  Clock took %uus / %uus\n", frame_dt - CLOCK_RATE_US, frame_dt, CLOCK_RATE_US);
-#endif
-  }
-
-  clock.last_frame_start = Time::get_us();
-}
-
-
-void
-print_report(Clock const & clock)
-{
-  printf("Frame overruns: %u / %u\n", clock.frame_overruns, clock.frame_count);
-  printf("Average frame dt: %f\n", clock.accumulated_frame_dt / (r32)clock.frame_count);
 }
 
 } // namespace Clock
