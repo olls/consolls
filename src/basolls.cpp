@@ -1,9 +1,12 @@
 #include "basolls.h"
 
-#include "debug.h"
-#include "palette.h"
-#include "instructions.h"
+#include "compolls.h"
 #include "disassembler.h"
+#include "instructions.h"
+#include "palette.h"
+#include "debug.h"
+#include "string.h"
+
 #include <cstddef>
 
 
@@ -297,6 +300,8 @@ load_os(Machine::Machine& machine)
 
   Subroutine const demo_program = push_demo_program(machine, addr);
 
+  Compolls::compile(S("add (123, [u8](u16 a, u8 stride){}) MemoryAddress a = [u8](u16 a, u8 stride){}"));
+
   MemoryAddress const os_start = addr;
   push_subroutine_call(machine, addr, demo_program);
 
@@ -308,6 +313,5 @@ load_os(Machine::Machine& machine)
 
   return success;
 }
-
 
 } // namespace Basolls
