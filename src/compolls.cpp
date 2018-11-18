@@ -525,7 +525,7 @@ declarations(Parser& parser, Tree::Node** result)
     if (declaration(parser, &declaration_node))
     {
       Array::add(node.declarations.declarations, declaration_node);
-      declarations_node = NULL;
+      declaration_node = NULL;
     }
     else if (node.declarations.declarations.n_elements == 0)
     {
