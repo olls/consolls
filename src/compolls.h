@@ -3,17 +3,16 @@
 #include "basolls.h"
 #include "machine.h"
 #include "instructions.h"
-#include "string.h"
+#include "tokeniser.h"
+#include "stack.h"
 #include "types.h"
 
 
 namespace Compolls
 {
 
-using Instructions::Code;
-using Instructions::Args;
-using Machine::MemoryAddress;
-
+namespace Parser
+{
 
 enum class SymbolType : u8
 {
@@ -30,6 +29,27 @@ enum class SymbolType : u8
   Identifier,
   Number
 };
+
+
+struct Symbol
+{
+  SymbolType type;
+  Tokeniser::Token token;
+};
+
+
+struct Parser
+{
+  String::String text;
+  Stack::Stack<Tokeniser::Token> tokens;
+
+  Symbol symbol_a;
+  Symbol symbol_b;
+
+  u32 depth;
+};
+
+} // namespace Parser
 
 
 Basolls::Subroutine<void>

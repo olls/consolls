@@ -14,7 +14,7 @@
 namespace Allocate
 {
 
-template<typename X>
+template <typename X>
 X *
 allocate(u32 n_elements)
 {
@@ -26,12 +26,30 @@ allocate(u32 n_elements)
 }
 
 
-template<typename X>
+template <typename X>
+X *
+allocate()
+{
+  return allocate<X>(1);
+}
+
+
+template <typename X>
 inline void
 unallocate(X* & ptr)
 {
   free(ptr);
   ptr = NULL;
+}
+
+
+template <typename X>
+X *
+copy(X const & x)
+{
+  X* result = allocate<X>();
+  memcpy(result, &x, sizeof(X));
+  return result;
 }
 
 } // namespace Allocate

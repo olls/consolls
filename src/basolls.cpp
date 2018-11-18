@@ -300,7 +300,7 @@ load_os(Machine::Machine& machine)
 
   Subroutine const demo_program = push_demo_program(machine, addr);
 
-  Compolls::compile(S("add (123, [u8](u16 a, u8 stride){}) MemoryAddress a = [u8](u16 a, u8 stride){}"));
+  Compolls::compile(S("add (123, [u8](u16 a, u8 stride){MemoryAddress a = [u8](u16 a, u8 stride){}}) MemoryAddress a = [u8](u16 a, u8 stride){}"));
 
   MemoryAddress const os_start = addr;
   push_subroutine_call(machine, addr, demo_program);

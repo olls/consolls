@@ -207,13 +207,12 @@ namespace Array
   void
   free_array(Array<T, dynamic_elem_size, static_size>& array)
   {
-    if (array.elements != array.static_elements &&
-        array.elements != 0)
+    if (array.heap_elements != 0)
     {
-      ARRAY_FREE(array.elements);
+      ARRAY_FREE(array.heap_elements);
       array.array_size = 0;
+      array.heap_elements = 0;
     }
-    array.elements = 0;
     array.n_elements = 0;
   }
 
@@ -321,7 +320,7 @@ namespace Array
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T *
-  add_n(Array<T, dynamic_elem_size, static_size>& array, T *new_elements, u32 n_new_elements)
+  add_n(Array<T, dynamic_elem_size, static_size>& array, T const *new_elements, u32 n_new_elements)
   {
     T *add_position = add_n(array, n_new_elements);
     ARRAY_MEMCPY(add_position, new_elements, n_new_elements*array.element_size);
@@ -332,7 +331,7 @@ namespace Array
   //
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T *
-  add(Array<T, dynamic_elem_size, static_size>& array, Array<T>& other_array)
+  add(Array<T, dynamic_elem_size, static_size>& array, Array<T> const & other_array)
   {
     return add_n(array, other_array.elements, other_array.n_elements);
   }

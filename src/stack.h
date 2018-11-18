@@ -1,3 +1,5 @@
+#pragma once
+
 #include "array.h"
 #include "types.h"
 

@@ -1,8 +1,7 @@
 #include "compolls.h"
 
-#include "tokeniser.h"
-#include "array.h"
-#include "stack.h"
+#include "parse-tree.h"
+#include "string-array.h"
 #include "pair.h"
 
 
@@ -15,23 +14,7 @@ namespace Compolls
 namespace Parser
 {
 
-struct Symbol
-{
-  SymbolType type;
-  Tokeniser::Token token;
-};
-
-
-struct Parser
-{
-  String::String text;
-  Stack::Stack<Tokeniser::Token> tokens;
-
-  Symbol symbol_a;
-  Symbol symbol_b;
-
-  u32 depth;
-};
+#define PARSE_DEBUG_TRACE (0)
 
 
 Symbol
@@ -172,53 +155,86 @@ symbol_string(SymbolType symbol)
 
 template <SymbolType terminal_symbol>
 bool
-terminal(Parser& parser)
+terminal(Parser& parser, Tree::Node** o_token_node = NULL)
 {
   bool result = false;
 
+#if PARSE_DEBUG_TRACE
   printf("%*sWant %.*s got %.*s(%.*s)\n", parser.depth*2, "",
          print_s(symbol_string(terminal_symbol)),
          print_s(symbol_string(parser.symbol_a.type)), print_s(Tokeniser::string(parser.text, parser.symbol_a.token)));
+#endif
+
   if (parser.symbol_a.type == terminal_symbol)
   {
+    if (o_token_node)
+    {
+      *o_token_node = Allocate::allocate<Tree::Node>();
+      (**o_token_node).type = Tree::Node::Terminal;
+      (**o_token_node).terminal.token = parser.symbol_a.token;
+    }
+
     parser.symbol_a = parser.symbol_b;
     parser.symbol_b = advance_terminal(parser);
     result = true;
   }
 
-  assert(parser.depth < 20);
+  assert(parser.depth < 50);
   return result;
 }
 
 
 template <SymbolType terminal_symbol_a, SymbolType terminal_symbol_b>
 bool
-terminal(Parser& parser)
+terminal(Parser& parser, Tree::Node** o_token_node_a = NULL, Tree::Node** o_token_node_b = NULL)
 {
   bool result = false;
 
+#if PARSE_DEBUG_TRACE
   printf("%*sWant %.*s %.*s got %.*s(%.*s) %.*s(%.*s)\n", parser.depth*2, "",
          print_s(symbol_string(terminal_symbol_a)),
          print_s(symbol_string(terminal_symbol_b)),
          print_s(symbol_string(parser.symbol_a.type)), print_s(Tokeniser::string(parser.text, parser.symbol_a.token)),
          print_s(symbol_string(parser.symbol_b.type)), print_s(Tokeniser::string(parser.text, parser.symbol_b.token)));
+#endif
+
   if (parser.symbol_a.type == terminal_symbol_a &&
       parser.symbol_b.type == terminal_symbol_b)
   {
+    if (o_token_node_a)
+    {
+      *o_token_node_a = Allocate::allocate<Tree::Node>();
+      (**o_token_node_a).type = Tree::Node::Terminal;
+      (**o_token_node_a).terminal.token = parser.symbol_a.token;
+    }
+    if (o_token_node_b)
+    {
+      *o_token_node_b = Allocate::allocate<Tree::Node>();
+      (**o_token_node_b).type = Tree::Node::Terminal;
+      (**o_token_node_b).terminal.token = parser.symbol_b.token;
+    }
+
     parser.symbol_a = advance_terminal(parser);
     parser.symbol_b = advance_terminal(parser);
     result = true;
   }
 
-  assert(parser.depth < 20);
+  assert(parser.depth < 50);
   return result;
 }
 
 
-using Production = bool (*)(Parser&);
+using Production = bool (*)(Parser&, Tree::Node**);
+
+struct ProductionLambda
+{
+  Production production;
+  Tree::Node** result = NULL;
+};
+
 
 bool
-accept_sequence(Parser& parser, u32 length, Production productions[])
+accept_sequence(Parser& parser, u32 length, ProductionLambda productions[])
 {
   bool success = true;
 
@@ -226,9 +242,9 @@ accept_sequence(Parser& parser, u32 length, Production productions[])
        production_index < length;
        ++production_index)
   {
-    Production production = productions[production_index];
+    ProductionLambda production = productions[production_index];
 
-    success &= production(parser);
+    success &= production.production(parser, production.result);
 
     if (!success)
     {
@@ -241,33 +257,37 @@ accept_sequence(Parser& parser, u32 length, Production productions[])
 
 
 bool
-declarations(Parser& parser);
+declarations(Parser& parser, Tree::Node** result);
 
 bool
-body(Parser& parser);
+body(Parser& parser, Tree::Node** result);
 
 
 bool
-function(Parser& parser)
+function(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sfunction{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // function <- '[' identifier ']' '(' declarations ')' '{' body '}'
+
+  Tree::Node node = { .type = Tree::Node::Function };
 
   bool matches = terminal<SymbolType::L_Bracket>(parser);
 
   if (matches)
   {
-    Production sequence[] = {
-      terminal<SymbolType::Identifier>,
-      terminal<SymbolType::R_Bracket>,
-      terminal<SymbolType::L_Parenthesis>,
-      declarations,
-      terminal<SymbolType::R_Parenthesis>,
-      terminal<SymbolType::L_Brace>,
-      body,
-      terminal<SymbolType::R_Brace>
+    ProductionLambda sequence[] = {
+      {terminal<SymbolType::Identifier>, &node.function.return_type},
+      {terminal<SymbolType::R_Bracket>},
+      {terminal<SymbolType::L_Parenthesis>},
+      {declarations, &node.function.declarations},
+      {terminal<SymbolType::R_Parenthesis>},
+      {terminal<SymbolType::L_Brace>},
+      {body, &node.function.body},
+      {terminal<SymbolType::R_Brace>}
     };
 
     if (!accept_sequence(parser, LENGTH(sequence), sequence))
@@ -276,51 +296,73 @@ function(Parser& parser)
     }
   }
 
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
+
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-literal(Parser& parser)
+literal(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sliteral{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // literal <- NUMBER
   //          | function
 
-  bool matches = (terminal<SymbolType::Number>(parser) ||
-                  function(parser));
+  Tree::Node node = { .type = Tree::Node::Literal };
+
+  bool matches = ((terminal<SymbolType::Number>(parser, &node.literal.number) ? (node.literal.type = Tree::LiteralNode::Type::Number), true : false) ||
+                  (function(parser, &node.literal.function) ? (node.literal.type = Tree::LiteralNode::Type::Function), true : false));
+
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
 
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-expressions(Parser& parser);
+expressions(Parser& parser, Tree::Node** result);
 
 
 bool
-function_call(Parser& parser)
+function_call(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sfunction_call{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // function_call <- IDENTIFIER '(' expressions ')'
 
-  bool matches = terminal<SymbolType::Identifier, SymbolType::L_Parenthesis>(parser);
+  Tree::Node node = { .type = Tree::Node::FunctionCall };
+
+  bool matches = terminal<SymbolType::Identifier, SymbolType::L_Parenthesis>(parser, &node.function_call.label);
 
   if (matches)
   {
-    Production productions[] = {
-      expressions,
-      terminal<SymbolType::R_Parenthesis>
+    ProductionLambda productions[] = {
+      {expressions, &node.function_call.expressions},
+      {terminal<SymbolType::R_Parenthesis>}
     };
 
     if (!accept_sequence(parser, LENGTH(productions), productions))
@@ -329,37 +371,57 @@ function_call(Parser& parser)
     }
   }
 
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
+
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
   return matches;
 }
 
 
 bool
-expression(Parser& parser)
+expression(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sexpression{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // expression <- literal |
   //               function_call |
   //               IDENTIFIER
 
-  bool matches = (literal(parser) ||
-                  function_call(parser) ||
-                  terminal<SymbolType::Identifier>(parser));
+  Tree::Node node = { .type = Tree::Node::Expression };
+
+  bool matches = ((literal(parser, &node.expression.literal) ? (node.expression.type = Tree::ExpressionNode::Type::Literal), true : false) ||
+                  (function_call(parser, &node.expression.function_call) ? (node.expression.type = Tree::ExpressionNode::Type::FunctionCall), true : false) ||
+                  (terminal<SymbolType::Identifier>(parser, &node.expression.identifier) ? (node.expression.type = Tree::ExpressionNode::Type::Identifier), true : false));
+
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
 
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-expressions(Parser& parser)
+expressions(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sexpressions{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // expressions <- expression { ',' expressions }
@@ -367,45 +429,81 @@ expressions(Parser& parser)
 
   bool matches = true;
 
-  if (expression(parser))
+  Tree::Node node = { .type = Tree::Node::Expressions };
+  Tree::Node* expression_node = NULL;
+
+  if (expression(parser, &expression_node))
   {
+    Array::add(node.expressions.expressions, expression_node);
+    expression_node = NULL;
+
     while (terminal<SymbolType::Comma>(parser))
     {
-      if (!expression(parser))
+      if (expression(parser, &expression_node))
+      {
+        assert(expression_node);
+        Array::add(node.expressions.expressions, expression_node);
+        expression_node = 0;
+      }
+      else
       {
         assert(0 && "error");
       }
     }
   }
 
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
+  else
+  {
+    Array::free_array(node.expressions.expressions);
+  }
+
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-declaration(Parser& parser)
+declaration(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sdeclaration{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // declaration <- IDENTIFIER IDENTIFIER
 
-  bool matches = terminal<SymbolType::Identifier, SymbolType::Identifier>(parser);
+  Tree::Node node = { .type = Tree::Node::Declaration };
+
+  bool matches = terminal<SymbolType::Identifier, SymbolType::Identifier>(parser, &node.declaration.type, &node.declaration.label);
+
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
 
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-declarations(Parser& parser)
+declarations(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sdeclarations{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // declarations <- declaration { ',' declaration }
@@ -413,39 +511,67 @@ declarations(Parser& parser)
 
   bool matches = true;
 
-  if (declaration(parser))
+  Tree::Node node = { .type = Tree::Node::Declarations };
+  Tree::Node* declaration_node = NULL;
+
+  // TODO: Replace with do { DECLARATION; Array::add } while ( COMMA )
+
+  if (declaration(parser, &declaration_node))
   {
+    Array::add(node.declarations.declarations, declaration_node);
+
     while (terminal<SymbolType::Comma>(parser))
     {
-      if (!declaration(parser))
+      if (declaration(parser, &declaration_node))
+      {
+        Array::add(node.declarations.declarations, declaration_node);
+      }
+      else
       {
         assert(0 && "error");
       }
+
+      declaration_node = NULL;
     }
   }
 
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
+  else
+  {
+    Array::free_array(node.declarations.declarations);
+  }
+
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-assignment(Parser& parser)
+assignment(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sassignment{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // assignment <- declaration '=' expression
 
-  bool matches = declaration(parser);
+  Tree::Node node = { .type = Tree::Node::Assignment };
+
+  bool matches = declaration(parser, &node.assignment.declaration);
 
   if (matches)
   {
-    Production productions[] = {
-      terminal<SymbolType::Equals>,
-      expression
+    ProductionLambda productions[] = {
+      {terminal<SymbolType::Equals>},
+      {expression, &node.assignment.expression}
     };
 
     if (!accept_sequence(parser, LENGTH(productions), productions))
@@ -454,64 +580,114 @@ assignment(Parser& parser)
     }
   }
 
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
+
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-statement(Parser& parser)
+statement(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sstatement{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // statement <- assignment |
   //              expression
 
-  bool matches = (assignment(parser) ||
-                  expression(parser));
+  Tree::Node node = { .type = Tree::Node::Statement };
+
+  bool matches = ((assignment(parser, &node.statement.assignment) ? (node.statement.type = Tree::StatementNode::Type::Assignment), true : false) ||
+                  (expression(parser, &node.statement.expression) ? (node.statement.type = Tree::StatementNode::Type::Expression), true : false));
+
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
 
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-body(Parser& parser)
+body(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sbody{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // body <- { statement }
 
+  Tree::Node node = { .type = Tree::Node::Body };
+  Tree::Node* statement_node = NULL;
+
   bool matches = true;
 
-  while (statement(parser))
-  {}
+  while (statement(parser, &statement_node))
+  {
+    assert(statement_node);
+
+    Array::add(node.body.statements, statement_node);
+    statement_node = 0;
+  }
+
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
+  else
+  {
+    Array::free_array(node.body.statements);
+  }
 
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
 
 
 bool
-program(Parser& parser)
+program(Parser& parser, Tree::Node** result)
 {
+#if PARSE_DEBUG_TRACE
   printf("%*sprogram{\n", parser.depth*2, "");
+#endif
   parser.depth += 1;
 
   // program <- body
 
-  bool matches = body(parser);
+  Tree::Node node = { .type = Tree::Node::Program };
+
+  bool matches = body(parser, &node.program.body);
+
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
 
   parser.depth -= 1;
+#if PARSE_DEBUG_TRACE
   printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
 
   return matches;
 }
@@ -584,9 +760,16 @@ compile(String::String text)
 
   bool success = true;
 
-  success &= Parser::program(parser);
+  Parser::Tree::Node* program_node = NULL;
+
+  success &= Parser::program(parser, &program_node);
 
   assert(success);
+
+  StringArray::StringArray parse_tree_text = {};
+  Parser::Tree::string(text, parse_tree_text, program_node);
+  parse_tree_text += S("\n");
+  StringArray::print(parse_tree_text);
 
   return result;
 }
