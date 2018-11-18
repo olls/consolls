@@ -452,25 +452,23 @@ expressions(Parser& parser, Tree::Node** result)
   Tree::Node node = { .type = Tree::Node::Expressions };
   Tree::Node* expression_node = NULL;
 
-  if (expression(parser, &expression_node))
+  do
   {
-    Array::add(node.expressions.expressions, expression_node);
-    expression_node = NULL;
-
-    while (terminal<SymbolType::Comma>(parser))
+    if (expression(parser, &expression_node))
     {
-      if (expression(parser, &expression_node))
-      {
-        assert(expression_node);
-        Array::add(node.expressions.expressions, expression_node);
-        expression_node = 0;
-      }
-      else
-      {
-        assert(0 && "error");
-      }
+      Array::add(node.expressions.expressions, expression_node);
+      expression_node = NULL;
+    }
+    else if (node.expressions.expressions.n_elements == 0)
+    {
+      break;
+    }
+    else
+    {
+      assert(0 && "error");
     }
   }
+  while (terminal<SymbolType::Comma>(parser));
 
   if (matches && result)
   {
@@ -522,26 +520,23 @@ declarations(Parser& parser, Tree::Node** result)
   Tree::Node node = { .type = Tree::Node::Declarations };
   Tree::Node* declaration_node = NULL;
 
-  // TODO: Replace with do { DECLARATION; Array::add } while ( COMMA )
-
-  if (declaration(parser, &declaration_node))
+  do
   {
-    Array::add(node.declarations.declarations, declaration_node);
-
-    while (terminal<SymbolType::Comma>(parser))
+    if (declaration(parser, &declaration_node))
     {
-      if (declaration(parser, &declaration_node))
-      {
-        Array::add(node.declarations.declarations, declaration_node);
-      }
-      else
-      {
-        assert(0 && "error");
-      }
-
-      declaration_node = NULL;
+      Array::add(node.declarations.declarations, declaration_node);
+      declarations_node = NULL;
+    }
+    else if (node.declarations.declarations.n_elements == 0)
+    {
+      break;
+    }
+    else
+    {
+      assert(0 && "error");
     }
   }
+  while (terminal<SymbolType::Comma>(parser));
 
   if (matches && result)
   {
@@ -631,10 +626,8 @@ body(Parser& parser, Tree::Node** result)
 
   while (statement(parser, &statement_node))
   {
-    assert(statement_node);
-
     Array::add(node.body.statements, statement_node);
-    statement_node = 0;
+    statement_node = NULL;
   }
 
   if (matches && result)
