@@ -257,19 +257,67 @@ accept_sequence(Parser& parser, u32 length, ProductionLambda productions[])
 
 
 bool
+function(Parser& parser, Tree::Node** result);
+
+bool
+literal(Parser& parser, Tree::Node** result);
+
+bool
+function_call(Parser& parser, Tree::Node** result);
+
+bool
+expression(Parser& parser, Tree::Node** result);
+
+bool
+expressions(Parser& parser, Tree::Node** result);
+
+bool
+declaration(Parser& parser, Tree::Node** result);
+
+bool
 declarations(Parser& parser, Tree::Node** result);
 
 bool
+assignment(Parser& parser, Tree::Node** result);
+
+bool
+statement(Parser& parser, Tree::Node** result);
+
+bool
 body(Parser& parser, Tree::Node** result);
+
+bool
+program(Parser& parser, Tree::Node** result);
+
+
+#define start_production_debug(parser) _start_production_debug(__FUNCTION__, (parser));
+
+void
+_start_production_debug(const char * production_name, Parser& parser)
+{
+#if PARSE_DEBUG_TRACE
+  printf("%*s%s {\n", parser.depth*2, "", production_name);
+
+  parser.depth += 1;
+#endif
+}
+
+
+void
+end_production_debug(Parser& parser, bool matches)
+{
+#if PARSE_DEBUG_TRACE
+  parser.depth -= 1;
+
+  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+#endif
+}
 
 
 bool
 function(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sfunction{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // function <- '[' identifier ']' '(' declarations ')' '{' body '}'
 
@@ -301,10 +349,7 @@ function(Parser& parser, Tree::Node** result)
     *result = Allocate::copy(node);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
 
   return matches;
 }
@@ -313,10 +358,7 @@ function(Parser& parser, Tree::Node** result)
 bool
 literal(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sliteral{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // literal <- NUMBER
   //          | function
@@ -331,26 +373,16 @@ literal(Parser& parser, Tree::Node** result)
     *result = Allocate::copy(node);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
 
   return matches;
 }
 
 
 bool
-expressions(Parser& parser, Tree::Node** result);
-
-
-bool
 function_call(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sfunction_call{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // function_call <- IDENTIFIER '(' expressions ')'
 
@@ -376,10 +408,7 @@ function_call(Parser& parser, Tree::Node** result)
     *result = Allocate::copy(node);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
   return matches;
 }
 
@@ -387,10 +416,7 @@ function_call(Parser& parser, Tree::Node** result)
 bool
 expression(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sexpression{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // expression <- literal |
   //               function_call |
@@ -407,10 +433,7 @@ expression(Parser& parser, Tree::Node** result)
     *result = Allocate::copy(node);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
 
   return matches;
 }
@@ -419,10 +442,7 @@ expression(Parser& parser, Tree::Node** result)
 bool
 expressions(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sexpressions{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // expressions <- expression { ',' expressions }
   //              | .
@@ -461,10 +481,7 @@ expressions(Parser& parser, Tree::Node** result)
     Array::free_array(node.expressions.expressions);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
 
   return matches;
 }
@@ -473,10 +490,7 @@ expressions(Parser& parser, Tree::Node** result)
 bool
 declaration(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sdeclaration{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // declaration <- IDENTIFIER IDENTIFIER
 
@@ -489,10 +503,7 @@ declaration(Parser& parser, Tree::Node** result)
     *result = Allocate::copy(node);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
 
   return matches;
 }
@@ -501,10 +512,7 @@ declaration(Parser& parser, Tree::Node** result)
 bool
 declarations(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sdeclarations{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // declarations <- declaration { ',' declaration }
   //               | .
@@ -544,10 +552,7 @@ declarations(Parser& parser, Tree::Node** result)
     Array::free_array(node.declarations.declarations);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
 
   return matches;
 }
@@ -556,10 +561,7 @@ declarations(Parser& parser, Tree::Node** result)
 bool
 assignment(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sassignment{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // assignment <- declaration '=' expression
 
@@ -585,10 +587,7 @@ assignment(Parser& parser, Tree::Node** result)
     *result = Allocate::copy(node);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
 
   return matches;
 }
@@ -597,10 +596,7 @@ assignment(Parser& parser, Tree::Node** result)
 bool
 statement(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sstatement{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // statement <- assignment |
   //              expression
@@ -615,10 +611,7 @@ statement(Parser& parser, Tree::Node** result)
     *result = Allocate::copy(node);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
+  end_production_debug(parser, matches);
 
   return matches;
 }
@@ -627,10 +620,7 @@ statement(Parser& parser, Tree::Node** result)
 bool
 body(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sbody{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // body <- { statement }
 
@@ -656,11 +646,7 @@ body(Parser& parser, Tree::Node** result)
     Array::free_array(node.body.statements);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
-
+  end_production_debug(parser, matches);
   return matches;
 }
 
@@ -668,10 +654,7 @@ body(Parser& parser, Tree::Node** result)
 bool
 program(Parser& parser, Tree::Node** result)
 {
-#if PARSE_DEBUG_TRACE
-  printf("%*sprogram{\n", parser.depth*2, "");
-#endif
-  parser.depth += 1;
+  start_production_debug(parser);
 
   // program <- body
 
@@ -684,11 +667,7 @@ program(Parser& parser, Tree::Node** result)
     *result = Allocate::copy(node);
   }
 
-  parser.depth -= 1;
-#if PARSE_DEBUG_TRACE
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
-#endif
-
+  end_production_debug(parser, matches);
   return matches;
 }
 
