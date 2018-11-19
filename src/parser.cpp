@@ -152,34 +152,60 @@ symbol_string(SymbolType symbol)
 }
 
 
+template <u32 length, typename TerminalSymbols>
+bool
+terminal(Parser& parser, Tree::Node** o_token_nodes[])
+{
+  assert(length <= parser.lookahead.lookahead_n);
+
+  bool matches = true;
+
+  for (u32 i = 0; i < length; ++i)
+  {
+    if (parser.lookahead.symbols[i].type != TerminalSymbols::Get(i))
+    {
+      matches = false;
+      break;
+    }
+  }
+
+  if (matches)
+  {
+    for (u32 i = 0; i < length; ++i)
+    {
+      Tree::Node** o_token_node = o_token_nodes[i];
+
+      if (o_token_node)
+      {
+        *o_token_node = Allocate::allocate<Tree::Node>();
+        (**o_token_node).type = Tree::Node::Terminal;
+        (**o_token_node).terminal.token = parser.lookahead.symbols[i].token;
+      }
+    }
+
+    for (u32 i = 0; i < parser.lookahead.lookahead_n; ++i)
+    {
+      if (i+length < parser.lookahead.lookahead_n)
+      {
+        parser.lookahead.symbols[i] = parser.lookahead.symbols[i+length];
+      }
+      else
+      {
+        parser.lookahead.symbols[i] = advance_terminal(parser);
+      }
+    }
+  }
+
+  assert(parser.depth < 50);
+  return matches;
+}
+
+
 template <SymbolType terminal_symbol>
 bool
 terminal(Parser& parser, Tree::Node** o_token_node = NULL)
 {
-  bool result = false;
-
-#if PARSE_DEBUG_TRACE
-  printf("%*sWant %.*s got %.*s(%.*s)\n", parser.depth*2, "",
-         print_s(symbol_string(terminal_symbol)),
-         print_s(symbol_string(parser.symbol_a.type)), print_s(Tokeniser::string(parser.text, parser.symbol_a.token)));
-#endif
-
-  if (parser.symbol_a.type == terminal_symbol)
-  {
-    if (o_token_node)
-    {
-      *o_token_node = Allocate::allocate<Tree::Node>();
-      (**o_token_node).type = Tree::Node::Terminal;
-      (**o_token_node).terminal.token = parser.symbol_a.token;
-    }
-
-    parser.symbol_a = parser.symbol_b;
-    parser.symbol_b = advance_terminal(parser);
-    result = true;
-  }
-
-  assert(parser.depth < 50);
-  return result;
+  return terminal<1, Meta::List1<SymbolType, terminal_symbol>>(parser, &o_token_node);
 }
 
 
@@ -187,39 +213,8 @@ template <SymbolType terminal_symbol_a, SymbolType terminal_symbol_b>
 bool
 terminal(Parser& parser, Tree::Node** o_token_node_a = NULL, Tree::Node** o_token_node_b = NULL)
 {
-  bool result = false;
-
-#if PARSE_DEBUG_TRACE
-  printf("%*sWant %.*s %.*s got %.*s(%.*s) %.*s(%.*s)\n", parser.depth*2, "",
-         print_s(symbol_string(terminal_symbol_a)),
-         print_s(symbol_string(terminal_symbol_b)),
-         print_s(symbol_string(parser.symbol_a.type)), print_s(Tokeniser::string(parser.text, parser.symbol_a.token)),
-         print_s(symbol_string(parser.symbol_b.type)), print_s(Tokeniser::string(parser.text, parser.symbol_b.token)));
-#endif
-
-  if (parser.symbol_a.type == terminal_symbol_a &&
-      parser.symbol_b.type == terminal_symbol_b)
-  {
-    if (o_token_node_a)
-    {
-      *o_token_node_a = Allocate::allocate<Tree::Node>();
-      (**o_token_node_a).type = Tree::Node::Terminal;
-      (**o_token_node_a).terminal.token = parser.symbol_a.token;
-    }
-    if (o_token_node_b)
-    {
-      *o_token_node_b = Allocate::allocate<Tree::Node>();
-      (**o_token_node_b).type = Tree::Node::Terminal;
-      (**o_token_node_b).terminal.token = parser.symbol_b.token;
-    }
-
-    parser.symbol_a = advance_terminal(parser);
-    parser.symbol_b = advance_terminal(parser);
-    result = true;
-  }
-
-  assert(parser.depth < 50);
-  return result;
+  Tree::Node** o_token_nodes[2] = {o_token_node_a, o_token_node_b};
+  return terminal<2, Meta::List2<SymbolType, terminal_symbol_a, terminal_symbol_b>>(parser, o_token_nodes);
 }
 
 

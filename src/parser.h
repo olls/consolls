@@ -37,14 +37,20 @@ struct Symbol
 };
 
 
+template <u32 t_lookahead_n>
+struct SymbolLookahead
+{
+  static u32 const lookahead_n = t_lookahead_n;
+  Symbol symbols[lookahead_n];
+};
+
+
 struct Parser
 {
   String::String text;
   Stack::Stack<Tokeniser::Token> tokens;
 
-  // Two token lookahead
-  Symbol symbol_a;
-  Symbol symbol_b;
+  SymbolLookahead<2> lookahead;
 
   u32 depth;
 };

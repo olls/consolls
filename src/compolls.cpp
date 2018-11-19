@@ -29,8 +29,8 @@ compile(String::String text)
   parser.tokens.elements = tokens;
   parser.text = text;
 
-  parser.symbol_a = advance_terminal(parser);
-  parser.symbol_b = advance_terminal(parser);
+  parser.lookahead.symbols[0] = advance_terminal(parser);
+  parser.lookahead.symbols[1] = advance_terminal(parser);
 
   bool success = true;
 
