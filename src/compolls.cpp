@@ -1,5 +1,6 @@
 #include "compolls.h"
 
+#include "parse-tree-visitor.h"
 #include "parser.h"
 #include "parse-tree.h"
 #include "string-array.h"
@@ -41,7 +42,7 @@ compile(String::String text)
   assert(success);
 
   StringArray::StringArray parse_tree_text = {};
-  Parser::Tree::string(text, parse_tree_text, program_node);
+  Parser::Tree::string(text, program_node, parse_tree_text);
   parse_tree_text += S("\n");
   StringArray::print(parse_tree_text);
 

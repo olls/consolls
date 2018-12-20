@@ -156,44 +156,8 @@ struct Node
 };
 
 
-void
-string(String::String const & text, StringArray::StringArray& result, Node const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, ProgramNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, StatementNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, BodyNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, AssignmentNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, DeclarationNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, ExpressionNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, LiteralNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, FunctionCallNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, FunctionNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, ExpressionsNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, DeclarationsNode const * node, u32 depth = 0);
-
-void
-string(String::String const & text, StringArray::StringArray& result, TerminalNode const * node, u32 depth = 0);
+bool
+string(String::String const & text, Node *node, StringArray::StringArray& result);
 
 } // namespace Tree
 
