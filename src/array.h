@@ -329,13 +329,13 @@ namespace Array
     return add_position;
   }
 
-  // This procedure adds all the elements from another (different) array with the same element type
+  // Adds all the elements from another array with the same element type
   //
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T *
   add(Array<T, dynamic_elem_size, static_size>& array, Array<T> const & other_array)
   {
-    return add_n(array, other_array.elements, other_array.n_elements);
+    return add_n(array, other_array.elements(), other_array.n_elements);
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
