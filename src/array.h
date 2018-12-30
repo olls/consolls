@@ -89,16 +89,18 @@ namespace Array
       return *get(*this, index);
     }
 
-    void
-    operator+=(Array<T>& other)
+    Array<T, dynamic_elem_size, static_size>&
+    operator+=(Array<T> const & other)
     {
       add(*this, other);
+      return *this;
     }
 
-    void
-    operator+=(T element)
+    Array<T, dynamic_elem_size, static_size>&
+    operator+=(T const element)
     {
       add(*this, element);
+      return *this;
     }
   };
 
