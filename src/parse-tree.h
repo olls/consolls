@@ -123,6 +123,9 @@ struct TerminalNode
 
 struct Node
 {
+  u32 text_start;
+  u32 text_end;
+
   enum Type {
     Program,
     Statement,

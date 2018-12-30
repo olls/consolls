@@ -298,13 +298,37 @@ _start_production_debug(const char * production_name, Parser& parser)
 
 
 void
-end_production_debug(Parser& parser, bool matches)
+end_production_debug(Parser& parser, bool matches, Tree::Node const * node)
 {
 #if PARSE_DEBUG_TRACE
   parser.depth -= 1;
 
-  printf("%*s} %s\n", parser.depth*2, "", matches ? "true" : "false");
+  printf("%*s}", parser.depth*2, "");
+  if (node != NULL)
+  {
+    String::String string = Tokeniser::string(parser.text, {node->text_start, node->text_end});
+    printf("  \"%.*s\"", print_s(string));
+  }
+  printf("  %s\n", matches ? "true" : "false");
 #endif
+}
+
+
+u32
+current_text_position(Parser const & parser)
+{
+  u32 result;
+
+  if (parser.lookahead.symbols[0].type == SymbolType::Error)
+  {
+    result = parser.text.length;
+  }
+  else
+  {
+    result = parser.lookahead.symbols[0].token.start;
+  }
+
+  return result;
 }
 
 
@@ -315,7 +339,7 @@ function(Parser& parser, Tree::Node** result)
 
   // function <- '[' identifier ']' '(' declarations ')' '{' body '}'
 
-  Tree::Node node = { .type = Tree::Node::Function };
+  Tree::Node node = { .type = Tree::Node::Function, .text_start = current_text_position(parser) };
 
   bool matches = terminal<SymbolType::L_Bracket>(parser);
 
@@ -334,17 +358,19 @@ function(Parser& parser, Tree::Node** result)
 
     if (!accept_sequence(parser, LENGTH(sequence), sequence))
     {
-      assert(0 && "error");
+      // TODO: More descriptive error message
+      assert(0 && "Error while parsing function definition");
     }
   }
+
+  node.text_end = current_text_position(parser);
 
   if (matches && result)
   {
     *result = Allocate::copy(node);
   }
 
-  end_production_debug(parser, matches);
-
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -357,18 +383,19 @@ literal(Parser& parser, Tree::Node** result)
   // literal <- NUMBER
   //          | function
 
-  Tree::Node node = { .type = Tree::Node::Literal };
+  Tree::Node node = { .type = Tree::Node::Literal, .text_start = current_text_position(parser) };
 
   bool matches = ((terminal<SymbolType::Number>(parser, &node.literal.number) ? (node.literal.type = Tree::LiteralNode::Type::Number), true : false) ||
                   (function(parser, &node.literal.function) ? (node.literal.type = Tree::LiteralNode::Type::Function), true : false));
+
+  node.text_end = current_text_position(parser);
 
   if (matches && result)
   {
     *result = Allocate::copy(node);
   }
 
-  end_production_debug(parser, matches);
-
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -380,7 +407,7 @@ function_call(Parser& parser, Tree::Node** result)
 
   // function_call <- IDENTIFIER '(' expressions ')'
 
-  Tree::Node node = { .type = Tree::Node::FunctionCall };
+  Tree::Node node = { .type = Tree::Node::FunctionCall, .text_start = current_text_position(parser) };
 
   bool matches = terminal<SymbolType::Identifier, SymbolType::L_Parenthesis>(parser, &node.function_call.label);
 
@@ -397,12 +424,14 @@ function_call(Parser& parser, Tree::Node** result)
     }
   }
 
+  node.text_end = current_text_position(parser);
+
   if (matches && result)
   {
     *result = Allocate::copy(node);
   }
 
-  end_production_debug(parser, matches);
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -416,19 +445,20 @@ expression(Parser& parser, Tree::Node** result)
   //               function_call |
   //               IDENTIFIER
 
-  Tree::Node node = { .type = Tree::Node::Expression };
+  Tree::Node node = { .type = Tree::Node::Expression, .text_start = current_text_position(parser) };
 
   bool matches = ((literal(parser, &node.expression.literal) ? (node.expression.type = Tree::ExpressionNode::Type::Literal), true : false) ||
                   (function_call(parser, &node.expression.function_call) ? (node.expression.type = Tree::ExpressionNode::Type::FunctionCall), true : false) ||
                   (terminal<SymbolType::Identifier>(parser, &node.expression.identifier) ? (node.expression.type = Tree::ExpressionNode::Type::Identifier), true : false));
+
+  node.text_end = current_text_position(parser);
 
   if (matches && result)
   {
     *result = Allocate::copy(node);
   }
 
-  end_production_debug(parser, matches);
-
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -443,7 +473,7 @@ expressions(Parser& parser, Tree::Node** result)
 
   bool matches = true;
 
-  Tree::Node node = { .type = Tree::Node::Expressions };
+  Tree::Node node = { .type = Tree::Node::Expressions, .text_start = current_text_position(parser) };
   Tree::Node* expression_node = NULL;
 
   do
@@ -464,6 +494,8 @@ expressions(Parser& parser, Tree::Node** result)
   }
   while (terminal<SymbolType::Comma>(parser));
 
+  node.text_end = current_text_position(parser);
+
   if (matches && result)
   {
     *result = Allocate::copy(node);
@@ -473,8 +505,7 @@ expressions(Parser& parser, Tree::Node** result)
     Array::free_array(node.expressions.expressions);
   }
 
-  end_production_debug(parser, matches);
-
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -486,17 +517,18 @@ declaration(Parser& parser, Tree::Node** result)
 
   // declaration <- IDENTIFIER IDENTIFIER
 
-  Tree::Node node = { .type = Tree::Node::Declaration };
+  Tree::Node node = { .type = Tree::Node::Declaration, .text_start = current_text_position(parser) };
 
   bool matches = terminal<SymbolType::Identifier, SymbolType::Identifier>(parser, &node.declaration.type, &node.declaration.label);
+
+  node.text_end = current_text_position(parser);
 
   if (matches && result)
   {
     *result = Allocate::copy(node);
   }
 
-  end_production_debug(parser, matches);
-
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -511,7 +543,7 @@ declarations(Parser& parser, Tree::Node** result)
 
   bool matches = true;
 
-  Tree::Node node = { .type = Tree::Node::Declarations };
+  Tree::Node node = { .type = Tree::Node::Declarations, .text_start = current_text_position(parser) };
   Tree::Node* declaration_node = NULL;
 
   do
@@ -532,6 +564,8 @@ declarations(Parser& parser, Tree::Node** result)
   }
   while (terminal<SymbolType::Comma>(parser));
 
+  node.text_end = current_text_position(parser);
+
   if (matches && result)
   {
     *result = Allocate::copy(node);
@@ -541,8 +575,7 @@ declarations(Parser& parser, Tree::Node** result)
     Array::free_array(node.declarations.declarations);
   }
 
-  end_production_debug(parser, matches);
-
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -554,7 +587,7 @@ assignment(Parser& parser, Tree::Node** result)
 
   // assignment <- declaration '=' expression
 
-  Tree::Node node = { .type = Tree::Node::Assignment };
+  Tree::Node node = { .type = Tree::Node::Assignment, .text_start = current_text_position(parser) };
 
   bool matches = declaration(parser, &node.assignment.declaration);
 
@@ -571,13 +604,14 @@ assignment(Parser& parser, Tree::Node** result)
     }
   }
 
+  node.text_end = current_text_position(parser);
+
   if (matches && result)
   {
     *result = Allocate::copy(node);
   }
 
-  end_production_debug(parser, matches);
-
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -590,18 +624,19 @@ statement(Parser& parser, Tree::Node** result)
   // statement <- assignment |
   //              expression
 
-  Tree::Node node = { .type = Tree::Node::Statement };
+  Tree::Node node = { .type = Tree::Node::Statement, .text_start = current_text_position(parser) };
 
   bool matches = ((assignment(parser, &node.statement.assignment) ? (node.statement.type = Tree::StatementNode::Type::Assignment), true : false) ||
                   (expression(parser, &node.statement.expression) ? (node.statement.type = Tree::StatementNode::Type::Expression), true : false));
+
+  node.text_end = current_text_position(parser);
 
   if (matches && result)
   {
     *result = Allocate::copy(node);
   }
 
-  end_production_debug(parser, matches);
-
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -613,7 +648,7 @@ body(Parser& parser, Tree::Node** result)
 
   // body <- { statement }
 
-  Tree::Node node = { .type = Tree::Node::Body };
+  Tree::Node node = { .type = Tree::Node::Body, .text_start = current_text_position(parser) };
   Tree::Node* statement_node = NULL;
 
   bool matches = true;
@@ -624,6 +659,8 @@ body(Parser& parser, Tree::Node** result)
     statement_node = NULL;
   }
 
+  node.text_end = current_text_position(parser);
+
   if (matches && result)
   {
     *result = Allocate::copy(node);
@@ -633,7 +670,7 @@ body(Parser& parser, Tree::Node** result)
     Array::free_array(node.body.statements);
   }
 
-  end_production_debug(parser, matches);
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
@@ -645,16 +682,18 @@ program(Parser& parser, Tree::Node** result)
 
   // program <- body
 
-  Tree::Node node = { .type = Tree::Node::Program };
+  Tree::Node node = { .type = Tree::Node::Program, .text_start = current_text_position(parser) };
 
   bool matches = body(parser, &node.program.body);
+
+  node.text_end = current_text_position(parser);
 
   if (matches && result)
   {
     *result = Allocate::copy(node);
   }
 
-  end_production_debug(parser, matches);
+  end_production_debug(parser, matches, *result);
   return matches;
 }
 
