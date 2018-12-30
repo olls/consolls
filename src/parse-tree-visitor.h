@@ -13,29 +13,30 @@ namespace Parser
 namespace Tree
 {
 
+enum VisitorEvent
+{
+  Enter,
+  Leave
+};
+
+
 template <typename State>
 struct Visitor
 {
-  enum Event
-  {
-    Begin,
-    End
-  };
+  bool (*generic_func)       (State&, VisitorEvent, Node*);
 
-  bool (*generic_func)       (State&, Event, Node*);
-
-  bool (*program_func)       (State&, Event, ProgramNode*);
-  bool (*statement_func)     (State&, Event, StatementNode*);
-  bool (*body_func)          (State&, Event, BodyNode*);
-  bool (*assignment_func)    (State&, Event, AssignmentNode*);
-  bool (*declaration_func)   (State&, Event, DeclarationNode*);
-  bool (*expression_func)    (State&, Event, ExpressionNode*);
-  bool (*literal_func)       (State&, Event, LiteralNode*);
-  bool (*function_call_func) (State&, Event, FunctionCallNode*);
-  bool (*function_func)      (State&, Event, FunctionNode*);
-  bool (*expressions_func)   (State&, Event, ExpressionsNode*);
-  bool (*declarations_func)  (State&, Event, DeclarationsNode*);
-  bool (*terminal_func)      (State&, Event, TerminalNode*);
+  bool (*program_func)       (State&, VisitorEvent, ProgramNode*);
+  bool (*statement_func)     (State&, VisitorEvent, StatementNode*);
+  bool (*body_func)          (State&, VisitorEvent, BodyNode*);
+  bool (*assignment_func)    (State&, VisitorEvent, AssignmentNode*);
+  bool (*declaration_func)   (State&, VisitorEvent, DeclarationNode*);
+  bool (*expression_func)    (State&, VisitorEvent, ExpressionNode*);
+  bool (*literal_func)       (State&, VisitorEvent, LiteralNode*);
+  bool (*function_call_func) (State&, VisitorEvent, FunctionCallNode*);
+  bool (*function_func)      (State&, VisitorEvent, FunctionNode*);
+  bool (*expressions_func)   (State&, VisitorEvent, ExpressionsNode*);
+  bool (*declarations_func)  (State&, VisitorEvent, DeclarationsNode*);
+  bool (*terminal_func)      (State&, VisitorEvent, TerminalNode*);
 };
 
 
@@ -94,85 +95,85 @@ visit(State& state, Visitor<State>& visitor, Node* node)
 {
   bool success = true;
 
-  success &= (visitor.generic_func != NULL) && visitor.generic_func(state, Visitor<State>::Begin, node);
+  success &= (visitor.generic_func == NULL) || visitor.generic_func(state, VisitorEvent::Enter, node);
 
   switch (node->type)
   {
     case (Parser::Tree::Node::Program):
     {
-      success &= (visitor.program_func != NULL) && visitor.program_func(state, Visitor<State>::Begin, &node->program);
+      success &= (visitor.program_func == NULL) || visitor.program_func(state, VisitorEvent::Enter, &node->program);
       success &= visit(state, visitor, &node->program);
-      success &= (visitor.program_func != NULL) && visitor.program_func(state, Visitor<State>::End, &node->program);
+      success &= (visitor.program_func == NULL) || visitor.program_func(state, VisitorEvent::Leave, &node->program);
     } break;
     case (Parser::Tree::Node::Statement):
     {
-      success &= (visitor.statement_func != NULL) && visitor.statement_func(state, Visitor<State>::Begin, &node->statement);
+      success &= (visitor.statement_func == NULL) || visitor.statement_func(state, VisitorEvent::Enter, &node->statement);
       success &= visit(state, visitor, &node->statement);
-      success &= (visitor.statement_func != NULL) && visitor.statement_func(state, Visitor<State>::End, &node->statement);
+      success &= (visitor.statement_func == NULL) || visitor.statement_func(state, VisitorEvent::Leave, &node->statement);
     } break;
     case (Parser::Tree::Node::Body):
     {
-      success &= (visitor.body_func != NULL) && visitor.body_func(state, Visitor<State>::Begin, &node->body);
+      success &= (visitor.body_func == NULL) || visitor.body_func(state, VisitorEvent::Enter, &node->body);
       success &= visit(state, visitor, &node->body);
-      success &= (visitor.body_func != NULL) && visitor.body_func(state, Visitor<State>::End, &node->body);
+      success &= (visitor.body_func == NULL) || visitor.body_func(state, VisitorEvent::Leave, &node->body);
     } break;
     case (Parser::Tree::Node::Assignment):
     {
-      success &= (visitor.assignment_func != NULL) && visitor.assignment_func(state, Visitor<State>::Begin, &node->assignment);
+      success &= (visitor.assignment_func == NULL) || visitor.assignment_func(state, VisitorEvent::Enter, &node->assignment);
       success &= visit(state, visitor, &node->assignment);
-      success &= (visitor.assignment_func != NULL) && visitor.assignment_func(state, Visitor<State>::End, &node->assignment);
+      success &= (visitor.assignment_func == NULL) || visitor.assignment_func(state, VisitorEvent::Leave, &node->assignment);
     } break;
     case (Parser::Tree::Node::Declaration):
     {
-      success &= (visitor.declaration_func != NULL) && visitor.declaration_func(state, Visitor<State>::Begin, &node->declaration);
+      success &= (visitor.declaration_func == NULL) || visitor.declaration_func(state, VisitorEvent::Enter, &node->declaration);
       success &= visit(state, visitor, &node->declaration);
-      success &= (visitor.declaration_func != NULL) && visitor.declaration_func(state, Visitor<State>::End, &node->declaration);
+      success &= (visitor.declaration_func == NULL) || visitor.declaration_func(state, VisitorEvent::Leave, &node->declaration);
     } break;
     case (Parser::Tree::Node::Expression):
     {
-      success &= (visitor.expression_func != NULL) && visitor.expression_func(state, Visitor<State>::Begin, &node->expression);
+      success &= (visitor.expression_func == NULL) || visitor.expression_func(state, VisitorEvent::Enter, &node->expression);
       success &= visit(state, visitor, &node->expression);
-      success &= (visitor.expression_func != NULL) && visitor.expression_func(state, Visitor<State>::End, &node->expression);
+      success &= (visitor.expression_func == NULL) || visitor.expression_func(state, VisitorEvent::Leave, &node->expression);
     } break;
     case (Parser::Tree::Node::Literal):
     {
-      success &= (visitor.literal_func != NULL) && visitor.literal_func(state, Visitor<State>::Begin, &node->literal);
+      success &= (visitor.literal_func == NULL) || visitor.literal_func(state, VisitorEvent::Enter, &node->literal);
       success &= visit(state, visitor, &node->literal);
-      success &= (visitor.literal_func != NULL) && visitor.literal_func(state, Visitor<State>::End, &node->literal);
+      success &= (visitor.literal_func == NULL) || visitor.literal_func(state, VisitorEvent::Leave, &node->literal);
     } break;
     case (Parser::Tree::Node::FunctionCall):
     {
-      success &= (visitor.function_call_func != NULL) && visitor.function_call_func(state, Visitor<State>::Begin, &node->function_call);
+      success &= (visitor.function_call_func == NULL) || visitor.function_call_func(state, VisitorEvent::Enter, &node->function_call);
       success &= visit(state, visitor, &node->function_call);
-      success &= (visitor.function_call_func != NULL) && visitor.function_call_func(state, Visitor<State>::End, &node->function_call);
+      success &= (visitor.function_call_func == NULL) || visitor.function_call_func(state, VisitorEvent::Leave, &node->function_call);
     } break;
     case (Parser::Tree::Node::Function):
     {
-      success &= (visitor.function_func != NULL) && visitor.function_func(state, Visitor<State>::Begin, &node->function);
+      success &= (visitor.function_func == NULL) || visitor.function_func(state, VisitorEvent::Enter, &node->function);
       success &= visit(state, visitor, &node->function);
-      success &= (visitor.function_func != NULL) && visitor.function_func(state, Visitor<State>::End, &node->function);
+      success &= (visitor.function_func == NULL) || visitor.function_func(state, VisitorEvent::Leave, &node->function);
     } break;
     case (Parser::Tree::Node::Expressions):
     {
-      success &= (visitor.expressions_func != NULL) && visitor.expressions_func(state, Visitor<State>::Begin, &node->expressions);
+      success &= (visitor.expressions_func == NULL) || visitor.expressions_func(state, VisitorEvent::Enter, &node->expressions);
       success &= visit(state, visitor, &node->expressions);
-      success &= (visitor.expressions_func != NULL) && visitor.expressions_func(state, Visitor<State>::End, &node->expressions);
+      success &= (visitor.expressions_func == NULL) || visitor.expressions_func(state, VisitorEvent::Leave, &node->expressions);
     } break;
     case (Parser::Tree::Node::Declarations):
     {
-      success &= (visitor.declarations_func != NULL) && visitor.declarations_func(state, Visitor<State>::Begin, &node->declarations);
+      success &= (visitor.declarations_func == NULL) || visitor.declarations_func(state, VisitorEvent::Enter, &node->declarations);
       success &= visit(state, visitor, &node->declarations);
-      success &= (visitor.declarations_func != NULL) && visitor.declarations_func(state, Visitor<State>::End, &node->declarations);
+      success &= (visitor.declarations_func == NULL) || visitor.declarations_func(state, VisitorEvent::Leave, &node->declarations);
     } break;
     case (Parser::Tree::Node::Terminal):
     {
-      success &= (visitor.terminal_func != NULL) && visitor.terminal_func(state, Visitor<State>::Begin, &node->terminal);
+      success &= (visitor.terminal_func == NULL) || visitor.terminal_func(state, VisitorEvent::Enter, &node->terminal);
       success &= visit(state, visitor, &node->terminal);
-      success &= (visitor.terminal_func != NULL) && visitor.terminal_func(state, Visitor<State>::End, &node->terminal);
+      success &= (visitor.terminal_func == NULL) || visitor.terminal_func(state, VisitorEvent::Leave, &node->terminal);
     } break;
   }
 
-  success &= (visitor.generic_func != NULL) && visitor.generic_func(state, Visitor<State>::End, node);
+  success &= (visitor.generic_func == NULL) || visitor.generic_func(state, VisitorEvent::Leave, node);
 
   return success;
 }

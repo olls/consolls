@@ -34,9 +34,6 @@ node_name(Node::Type node_type)
 }
 
 
-#define INDENT(sb) { for (u32 i = 0; i < (sb).depth; ++i) { *(sb).result += S("  "); } }
-
-
 struct StringBuilder
 {
   String::String const* text;
@@ -45,28 +42,38 @@ struct StringBuilder
 };
 
 
+void
+indent(StringBuilder& string_builder)
+{
+  for (u32 i = 0; i < string_builder.depth; ++i)
+  {
+    *string_builder.result += S("  ");
+  }
+}
+
+
 bool
-string(StringBuilder& string_builder, Visitor<StringBuilder>::Event event, Node* node)
+string(StringBuilder& string_builder, VisitorEvent event, Node* node)
 {
   bool success = true;
 
   switch (event)
   {
-    case (Visitor<StringBuilder>::Event::Begin):
+    case (VisitorEvent::Enter):
     {
       assert(node);
 
-      INDENT(string_builder);
+      indent(string_builder);
       string_builder.depth += 1;
 
       *string_builder.result += node_name(node->type);
       *string_builder.result += S(" {\n");
     } break;
 
-    case (Visitor<StringBuilder>::Event::End):
+    case (VisitorEvent::Leave):
     {
       string_builder.depth -= 1;
-      INDENT(string_builder);
+      indent(string_builder);
       *string_builder.result += S("}\n");
     } break;
   }
@@ -76,14 +83,17 @@ string(StringBuilder& string_builder, Visitor<StringBuilder>::Event event, Node*
 
 
 bool
-terminal_string(StringBuilder& string_builder, Visitor<StringBuilder>::Event event, TerminalNode* terminal_node)
+terminal_string(StringBuilder& string_builder, VisitorEvent event, TerminalNode* terminal_node)
 {
   bool success = true;
 
-  INDENT(string_builder);
-  *string_builder.result += S("\"");
-  *string_builder.result += Tokeniser::string(*string_builder.text, terminal_node->token);
-  *string_builder.result += S("\"\n");
+  if (event == VisitorEvent::Enter)
+  {
+    indent(string_builder);
+    *string_builder.result += S("\"");
+    *string_builder.result += Tokeniser::string(*string_builder.text, terminal_node->token);
+    *string_builder.result += S("\"\n");
+  }
 
   return success;
 }
