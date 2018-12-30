@@ -403,19 +403,28 @@ namespace Array
   // All elements beyond deleted item are shifted up one place
   template<typename T, bool dynamic_elem_size, u32 static_size>
   void
-  remove_ordered(Array<T, dynamic_elem_size, static_size>& array, u32 remove_at_index)
+  remove_ordered(Array<T, dynamic_elem_size, static_size>& array, u32 remove_at_index, u32 remove_n = 1)
   {
-    for (u32 index = remove_at_index;
+    ARRAY_ASSERT(remove_at_index + remove_n <= array.n_elements);
+
+    for (u32 index = remove_at_index + remove_n;
          index < array.n_elements - 1;
          ++index)
     {
-      T *to_move = get(array, index+1);
-      T *new_position = get(array, index);
+      T *to_move = get(array, index);
+      T *new_position = get(array, index - remove_n);
 
       *new_position = *to_move;
     }
 
     array.n_elements -= 1;
+  }
+
+  template<typename T, bool dynamic_elem_size, u32 static_size>
+  void
+  truncate(Array<T, dynamic_elem_size, static_size>& array, u32 remove_at_index)
+  {
+    remove_ordered(array, remove_at_index, array.n_elements - remove_at_index);
   }
 
 }  // Namespace Array
