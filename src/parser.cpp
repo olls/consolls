@@ -180,6 +180,8 @@ terminal(Parser& parser, Tree::Node** o_token_nodes[])
         *o_token_node = Allocate::allocate<Tree::Node>();
         (**o_token_node).type = Tree::Node::Terminal;
         (**o_token_node).terminal.token = parser.lookahead.symbols[i].token;
+        (**o_token_node).text_start = parser.lookahead.symbols[i].token.start;
+        (**o_token_node).text_end = parser.lookahead.symbols[i].token.end;
       }
     }
 
