@@ -49,6 +49,10 @@ struct String
 };
 
 
+String
+string_f(char const * format...)  __attribute__((format(printf, 1, 2)));
+
+
 bool
 starts_with(String const & string, String const & substring);
 

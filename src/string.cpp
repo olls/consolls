@@ -1,8 +1,43 @@
 #include "string.h"
 
+#include "allocate.h"
+#include "assert.h"
+
 
 namespace String
 {
+
+String
+string_f(char const * format...)
+{
+  String result = {};
+
+  va_list args, args2;
+  va_start(args, format);
+  va_copy(args2, args);
+
+  char* buffer = 0;
+
+  s32 length = vsnprintf(NULL, 0, format, args);
+  if (length >= 0)
+  {
+    buffer = Allocate::allocate<char>(length);
+
+    if (vsprintf(buffer, format, args2) == length)
+    {
+      result.start = buffer;
+      result.length = length;
+    }
+    else
+    {
+      assert(0);
+    }
+  }
+
+  va_end(args);
+
+  return result;
+}
 
 bool
 starts_with(String const & string, String const & substring)
@@ -26,7 +61,7 @@ starts_with(String const & string, String const & substring)
 
 
 bool
-equals(String const & a, String const & b)
+equals(String const& a, String const& b)
 {
   bool result = true;
 
