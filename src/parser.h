@@ -3,7 +3,7 @@
 #include "parse-tree.h"
 #include "tokeniser.h"
 #include "string.h"
-#include "stack.h"
+#include "fifo.h"
 #include "types.h"
 
 
@@ -48,7 +48,7 @@ struct SymbolLookahead
 struct Parser
 {
   String::String text;
-  Stack::Stack<Tokeniser::Token> tokens;
+  Fifo::Fifo<Tokeniser::Token> tokens;
 
   SymbolLookahead<2> lookahead;
 

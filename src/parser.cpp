@@ -79,9 +79,9 @@ advance_terminal(Parser& parser)
     .token = {}
   };
 
-  if (!Stack::empty(parser.tokens))
+  if (!Fifo::empty(parser.tokens))
   {
-    Tokeniser::Token token = Stack::pop(parser.tokens);
+    Tokeniser::Token token = Fifo::pop(parser.tokens);
     result = token_to_symbol(parser.text, token);
   }
 
@@ -284,7 +284,7 @@ bool
 program(Parser& parser, Tree::Node** result);
 
 
-#define start_production_debug(parser) _start_production_debug(__FUNCTION__, (parser));
+#define start_production_debug(parser) _start_production_debug(__FUNCTION__, (parser))
 
 void
 _start_production_debug(const char * production_name, Parser& parser)
