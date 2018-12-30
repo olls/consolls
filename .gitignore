@@ -34,8 +34,12 @@
 .build_results
 .listener_PID
 .lock-*
-.waf-*
+.waf*
 build/
 *.sublime-project
 *.sublime-workspace
 *.bin
+.owncloud*
+callgrind*
+.floo*
+._sync_*
