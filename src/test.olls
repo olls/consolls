@@ -1,0 +1,8 @@
+u16 b = 3
+u16 a = add16(1, b)
+
+Func sub16 = [u16] (u16 a, u16 b) {
+  add16(a, neg16(b))
+}
+
+u16 r = sub16(1, 4)

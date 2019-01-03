@@ -42,14 +42,20 @@ def build(bld):
   if not bld.variant:
     bld.fatal('Must use `{0}_debug` or `{0}_release or {0}_profile`'.format(bld.cmd))
 
+  main_src = 'src/main.cpp'
+  compiler_src = 'src/compiler-frontend.cpp'
+
   lib_type = bld.shlib if LIVE_RELOAD else bld.stlib
 
-  lib_type(source = bld.path.ant_glob('src/**/*.cpp'),
+  lib_type(source = bld.path.ant_glob('src/**/*.cpp', excl=[main_src, compiler_src]),
            target = 'game')
 
-  bld.program(source = bld.path.ant_glob('src/main.cpp'),
+  bld.program(source = bld.path.ant_glob(main_src, excl=compiler_src),
               target = APPNAME,
               use = 'game')
+
+  bld.program(source = bld.path.ant_glob('src/**/*.cpp', excl=main_src),
+              target = 'compolls')
 
 
 def init(ctx):
