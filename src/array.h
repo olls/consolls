@@ -249,7 +249,7 @@ namespace Array
   //
   template<typename T, bool dynamic_elem_size, u32 static_size>
   s32
-  get_element_index(Array<T, dynamic_elem_size, static_size>& array, T& element)
+  get_element_index(Array<T, dynamic_elem_size, static_size> const & array, T const & element)
   {
     s32 result = -1;
 
@@ -266,6 +266,27 @@ namespace Array
       }
     }
 
+    return result;
+  }
+
+  template <typename T>
+  using FindFirstFunc = bool (*)(T const &, void *);
+
+  template<typename T, bool dynamic_elem_size, u32 static_size>
+  T *
+  find_first(Array<T, dynamic_elem_size, static_size> const & array, FindFirstFunc<T> condition, void *user)
+  {
+    T *result = NULL;
+
+    for (u32 i = 0; i < array.n_elements; ++i)
+    {
+      T* item = get(array, i);
+      if (condition(*item, user))
+      {
+        result = item;
+        break;
+      }
+    }
     return result;
   }
 
