@@ -8,7 +8,7 @@
 namespace Compolls
 {
 
-Basolls::Subroutine<void>
-compile(String::String text);
+bool
+compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& addr, Basolls::Subroutine<void>& result);
 
 } // namespace Compolls

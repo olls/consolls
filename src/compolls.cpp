@@ -1,5 +1,8 @@
 #include "compolls.h"
 
+#include "ast-visitor.h"
+#include "ast-string.h"
+#include "ast.h"
 #include "parse-tree-visitor.h"
 #include "parser.h"
 #include "parse-tree.h"
@@ -9,22 +12,16 @@
 namespace Compolls
 {
 
-Basolls::Subroutine<void>
-compile(String::String text)
+bool
+compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& addr, Basolls::Subroutine<void>& result)
 {
-  Basolls::Subroutine<void> result = {};
+  result = {};
 
   printf("Compiling:  \"%.*s\"\n\n", text.length, text.start);
 
   Array::Array<Tokeniser::Token> tokens = Tokeniser::tokenise(text);
 
-  for (u32 token_index = 0;
-       token_index < tokens.n_elements;
-       ++token_index)
-  {
-    printf("\"%.*s\", ", print_s(Tokeniser::string(text, tokens[token_index])));
-  }
-  printf("\n");
+  Tokeniser::print(text, tokens);
 
   Parser::Parser parser = {};
   parser.tokens.elements = tokens;
@@ -38,15 +35,36 @@ compile(String::String text)
   Parser::Tree::Node* program_node = NULL;
 
   success &= Parser::program(parser, &program_node);
-
-  assert(success);
+  printf("\n\n");
 
   StringArray::StringArray parse_tree_text = {};
   Parser::Tree::string(text, program_node, parse_tree_text);
   parse_tree_text += S("\n");
   StringArray::print(parse_tree_text);
 
-  return result;
+  if (!success)
+  {
+    printf("\nParsing error.\n");
+  }
+  else
+  {
+    AST::AST ast = {};
+    success &= AST::make_ast(text, ast, program_node);
+
+    if (!success)
+    {
+      printf("\nAST error.\n");
+    }
+    else
+    {
+      StringArray::StringArray ast_text = {};
+      AST::string(text, ast, ast_text);
+      ast_text += S("\n");
+      StringArray::print(ast_text);
+    }
+  }
+
+  return success;
 }
 
 } // namespace Compolls

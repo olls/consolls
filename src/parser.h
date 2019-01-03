@@ -45,6 +45,38 @@ struct SymbolLookahead
 };
 
 
+template <u32 n>
+inline bool
+lookahead_empty(SymbolLookahead<n> const & lookahead)
+{
+  bool result = false;
+  for (u32 i = 0;
+       i < n;
+       ++i)
+  {
+    result &= lookahead.symbols[i].type == SymbolType::Error;
+  }
+  return result;
+}
+
+
+template <u32 n>
+inline void
+print_lookahead(String::String const & text, SymbolLookahead<n> const & lookahead)
+{
+  for (u32 i = 0;
+       i < n;
+       ++i)
+  {
+    if (lookahead.symbols[i].type != SymbolType::Error)
+    {
+      printf("\"%.*s\", ", print_s(Tokeniser::string(text, lookahead.symbols[i].token)));
+    }
+  }
+  printf("\n\n");
+}
+
+
 struct Parser
 {
   String::String text;
