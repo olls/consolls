@@ -13,18 +13,18 @@ namespace Tree
 {
 
 static const String::String NODE_NAMES[] = {
-  S("Program"),
-  S("Statement"),
-  S("Body"),
-  S("Assignment"),
-  S("Declaration"),
-  S("Expression"),
-  S("Literal"),
-  S("FunctionCall"),
-  S("Function"),
-  S("Expressions"),
-  S("Declarations"),
-  S("Terminal")
+  "Program",
+  "Statement",
+  "Body",
+  "Assignment",
+  "Declaration",
+  "Expression",
+  "Literal",
+  "FunctionCall",
+  "Function",
+  "Expressions",
+  "Declarations",
+  "Terminal"
 };
 
 String::String
@@ -47,7 +47,7 @@ indent(StringBuilder& string_builder)
 {
   for (u32 i = 0; i < string_builder.depth; ++i)
   {
-    *string_builder.result += S("  ");
+    *string_builder.result += "  ";
   }
 }
 
@@ -67,14 +67,14 @@ string(StringBuilder& string_builder, VisitorEvent event, Node* node)
       string_builder.depth += 1;
 
       *string_builder.result += node_name(node->type);
-      *string_builder.result += S(" {\n");
+      *string_builder.result += " {\n";
     } break;
 
     case (VisitorEvent::Leave):
     {
       string_builder.depth -= 1;
       indent(string_builder);
-      *string_builder.result += S("}\n");
+      *string_builder.result += "}\n";
     } break;
   }
 
@@ -90,9 +90,9 @@ terminal_string(StringBuilder& string_builder, VisitorEvent event, TerminalNode*
   if (event == VisitorEvent::Enter)
   {
     indent(string_builder);
-    *string_builder.result += S("\"");
+    *string_builder.result += "\"";
     *string_builder.result += Tokeniser::string(*string_builder.text, terminal_node->token);
-    *string_builder.result += S("\"\n");
+    *string_builder.result += "\"\n";
   }
 
   return success;

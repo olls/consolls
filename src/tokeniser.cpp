@@ -59,8 +59,8 @@ String::String
 string(String::String const & text, Token const & token)
 {
   String::String result = {
-    .start = text.start + token.start,
-    .length = token.end - token.start
+    text.start + token.start,
+    token.end - token.start
   };
   return result;
 }

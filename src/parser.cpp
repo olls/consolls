@@ -27,17 +27,17 @@ token_to_symbol(String::String const & text, Tokeniser::Token token)
   String::String token_text = Tokeniser::string(text, token);
 
   static Pair<String::String, SymbolType> const string_to_symbol[] = {
-    {S(" "), SymbolType::Whitespace},
-    {S("\t"), SymbolType::Whitespace},
-    {S("\n"), SymbolType::Whitespace},
-    {S("("), SymbolType::L_Parenthesis},
-    {S(")"), SymbolType::R_Parenthesis},
-    {S("{"), SymbolType::L_Brace},
-    {S("}"), SymbolType::R_Brace},
-    {S("["), SymbolType::L_Bracket},
-    {S("]"), SymbolType::R_Bracket},
-    {S("="), SymbolType::Equals},
-    {S(","), SymbolType::Comma}
+    {" ", SymbolType::Whitespace},
+    {"\t", SymbolType::Whitespace},
+    {"\n", SymbolType::Whitespace},
+    {"(", SymbolType::L_Parenthesis},
+    {")", SymbolType::R_Parenthesis},
+    {"{", SymbolType::L_Brace},
+    {"}", SymbolType::R_Brace},
+    {"[", SymbolType::L_Bracket},
+    {"]", SymbolType::R_Bracket},
+    {"=", SymbolType::Equals},
+    {",", SymbolType::Comma}
   };
 
   for (u32 i = 0; i < LENGTH(string_to_symbol); ++i)

@@ -10,9 +10,9 @@ namespace TypeSystem
 void
 init_built_in_symbols(Types& types, BuiltInTypes& built_in_types, Symbols::Table& symbols)
 {
-  built_in_types.u8_symbol = Symbols::add(symbols, S("u8"));
-  built_in_types.u16_symbol = Symbols::add(symbols, S("u16"));
-  built_in_types.func_symbol = Symbols::add(symbols, S("Func"));
+  built_in_types.u8_symbol = Symbols::add(symbols, "u8");
+  built_in_types.u16_symbol = Symbols::add(symbols, "u16");
+  built_in_types.func_symbol = Symbols::add(symbols, "Func");
 
   built_in_types.u8_type = add(types, built_in_types, built_in_types.u8_symbol);
   built_in_types.u16_type = add(types, built_in_types, built_in_types.u16_symbol);
@@ -130,15 +130,15 @@ string(Type const & type)
   {
     case (Type::BuiltIn::U8):
     {
-      result += S("u8");
+      result += "u8";
     } break;
     case (Type::BuiltIn::U16):
     {
-      result += S("u16");
+      result += "u16";
     } break;
     case (Type::BuiltIn::Func):
     {
-      result += S("Func");
+      result += "Func";
     } break;
   }
 

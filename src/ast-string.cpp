@@ -26,7 +26,7 @@ indent(StringBuilder& state, u32 plus = 0)
 {
   for (u32 i = 0; i < (state.depth + plus); ++i)
   {
-    *state.result += S("  ");
+    *state.result += "  ";
   }
 }
 
@@ -47,7 +47,7 @@ node_func(StringBuilder& state, VisitorEvent event)
     {
       state.depth -= 1;
       indent(state);
-      *state.result += S("}\n");
+      *state.result += "}\n";
     } break;
   }
 
@@ -58,10 +58,10 @@ node_func(StringBuilder& state, VisitorEvent event)
 void
 symbol_string(StringArray::StringArray& result, Symbols::Table const & symbols, Symbols::ID symbol)
 {
-  result += S("symbol: ");
+  result += "symbol: ";
   result += String::string_f("%d, \"", symbol);
   result += Symbols::get(symbols, symbol);
-  result += S("\"");
+  result += "\"";
 }
 
 
@@ -72,7 +72,7 @@ string(StringBuilder& state, VisitorEvent event, Program*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Program {\n");
+    *state.result += "Program {\n";
   }
 
   return success;
@@ -85,17 +85,17 @@ string(StringBuilder& state, VisitorEvent event, Body* body)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Body {\n");
-    indent(state);  *state.result += S("types: {  ");
+    *state.result += "Body {\n";
+    indent(state);  *state.result += "types: {  ";
     for (u32 type_index = 0;
          type_index < body->scope.types.n_elements;
          ++type_index)
     {
       TypeSystem::Type type = body->scope.types[type_index];
       *state.result += TypeSystem::string(type);
-      *state.result += S("  ");
+      *state.result += "  ";
     }
-    *state.result += S("}\n");
+    *state.result += "}\n";
   }
 
   return success;
@@ -108,7 +108,7 @@ string(StringBuilder& state, VisitorEvent event, Statement*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Statement {\n");
+    *state.result += "Statement {\n";
   }
 
   return success;
@@ -121,7 +121,7 @@ string(StringBuilder& state, VisitorEvent event, Assignment*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Assignment {\n");
+    *state.result += "Assignment {\n";
   }
 
   return success;
@@ -134,7 +134,7 @@ string(StringBuilder& state, VisitorEvent event, Declaration*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Declaration {\n");
+    *state.result += "Declaration {\n";
   }
 
   return success;
@@ -147,7 +147,7 @@ string(StringBuilder& state, VisitorEvent event, Expression*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Expression {\n");
+    *state.result += "Expression {\n";
   }
 
   return success;
@@ -160,7 +160,7 @@ string(StringBuilder& state, VisitorEvent event, FunctionCall*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("FunctionCall {\n");
+    *state.result += "FunctionCall {\n";
   }
 
   return success;
@@ -173,7 +173,7 @@ string(StringBuilder& state, VisitorEvent event, Literal*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Literal {\n");
+    *state.result += "Literal {\n";
   }
 
   return success;
@@ -186,7 +186,7 @@ string(StringBuilder& state, VisitorEvent event, Function*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Function {\n");
+    *state.result += "Function {\n";
   }
 
   return success;
@@ -199,13 +199,13 @@ string(StringBuilder& state, VisitorEvent event, Number* number)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Number {\n");
+    *state.result += "Number {\n";
     indent(state);
-    *state.result += S("text: \"");
+    *state.result += "text: \"";
     *state.result += number->text;
-    *state.result += S("\"\n");
+    *state.result += "\"\n";
     indent(state);
-    *state.result += S("number: ");
+    *state.result += "number: ";
     *state.result += String::string_f("%u\n", number->number);
   }
 
@@ -219,7 +219,7 @@ string(StringBuilder& state, VisitorEvent event, Declarations*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Declarations {\n");
+    *state.result += "Declarations {\n";
   }
 
   return success;
@@ -232,7 +232,7 @@ string(StringBuilder& state, VisitorEvent event, Expressions*)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Expressions {\n");
+    *state.result += "Expressions {\n";
   }
 
   return success;
@@ -245,11 +245,11 @@ string(StringBuilder& state, VisitorEvent event, Type* type)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Type {\n");
+    *state.result += "Type {\n";
 
     indent(state);
     symbol_string(*state.result, state.ast->symbols, type->label);
-    *state.result += S("\n");
+    *state.result += "\n";
 
     indent(state);
     *state.result += String::string_f("type: %u\n", type->type);
@@ -265,11 +265,11 @@ string(StringBuilder& state, VisitorEvent event, Identifier* identifier)
 
   if (event == VisitorEvent::Enter)
   {
-    *state.result += S("Identifier {\n");
+    *state.result += "Identifier {\n";
 
     indent(state);
     symbol_string(*state.result, state.ast->symbols, identifier->label);
-    *state.result += S("\n");
+    *state.result += "\n";
 
     indent(state);
     *state.result += String::string_f("identifier_id: %u\n", identifier->identifier);

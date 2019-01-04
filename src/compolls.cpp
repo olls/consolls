@@ -39,7 +39,7 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
 
   StringArray::StringArray parse_tree_text = {};
   Parser::Tree::string(text, program_node, parse_tree_text);
-  parse_tree_text += S("\n");
+  parse_tree_text += "\n";
   StringArray::print(parse_tree_text);
 
   if (!success)
@@ -59,7 +59,7 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
     {
       StringArray::StringArray ast_text = {};
       AST::string(text, ast, ast_text);
-      ast_text += S("\n");
+      ast_text += "\n";
       StringArray::print(ast_text);
     }
   }

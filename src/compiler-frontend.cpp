@@ -28,10 +28,7 @@ main(s32 argc, char const * argv[])
     }
     else
     {
-      String::String file_string = {
-        .start = file.read_ptr,
-        .length = (u32)file.size
-      };
+      String::String file_string = { file.read_ptr, (u32)file.size };
 
       Machine::Machine machine = {};
       Machine::MemoryAddress addr = Machine::Reserved::UserStart;

@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-#define S(c_string) ((String::String){.length=(u32)strlen(c_string), .start=(c_string)})
+#include <string.h>
 
 #define print_s(string) ((string).length), ((string).start)
 
@@ -46,6 +46,20 @@ struct String
 {
   u32 length;
   char const * start;
+
+  String() = default;
+
+  String(char const * start)
+  {
+    this->start = start;
+    this->length = strlen(start);
+  }
+
+  String(char const * start, u32 length)
+  {
+    this->start = start;
+    this->length = length;
+  }
 };
 
 

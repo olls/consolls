@@ -266,11 +266,11 @@ literal_type_string(Tree::LiteralNode::Type const & type)
   {
     case (Tree::LiteralNode::Type::Number):
     {
-      result = S("Number");
+      result = "Number";
     } break;
     case (Tree::LiteralNode::Type::Function):
     {
-      result = S("Function");
+      result = "Function";
     } break;
   }
   return result;

@@ -25,7 +25,7 @@ add16_built_in(Identifiers& identifiers, Symbols::Table& symbols, TypeSystem::Ty
   TypeSystem::add(types, type);
 
   Identifier identifier = {};
-  identifier.symbol = Symbols::add(symbols, S("add16"));
+  identifier.symbol = Symbols::add(symbols, "add16");
   identifier.type = type_id;
 
   Array::add(identifiers, identifier);
@@ -48,7 +48,7 @@ add8_built_in(Identifiers& identifiers, Symbols::Table& symbols, TypeSystem::Typ
   TypeSystem::add(types, type);
 
   Identifier identifier = {};
-  identifier.symbol = Symbols::add(symbols, S("add8"));
+  identifier.symbol = Symbols::add(symbols, "add8");
   identifier.type = type_id;
 
   Array::add(identifiers, identifier);
@@ -70,7 +70,7 @@ neg8_built_in(Identifiers& identifiers, Symbols::Table& symbols, TypeSystem::Typ
   TypeSystem::add(types, type);
 
   Identifier identifier = {};
-  identifier.symbol = Symbols::add(symbols, S("neg8"));
+  identifier.symbol = Symbols::add(symbols, "neg8");
   identifier.type = type_id;
 
   Array::add(identifiers, identifier);
@@ -92,7 +92,7 @@ neg16_built_in(Identifiers& identifiers, Symbols::Table& symbols, TypeSystem::Ty
   TypeSystem::add(types, type);
 
   Identifier identifier = {};
-  identifier.symbol = Symbols::add(symbols, S("neg16"));
+  identifier.symbol = Symbols::add(symbols, "neg16");
   identifier.type = type_id;
 
   Array::add(identifiers, identifier);
