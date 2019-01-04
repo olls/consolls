@@ -1,7 +1,6 @@
 #pragma once
 
 #include "parse-tree.h"
-#include "collection-stack.h"
 #include "symbols.h"
 #include "string-array.h"
 #include "types.h"
