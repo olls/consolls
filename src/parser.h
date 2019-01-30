@@ -82,7 +82,8 @@ struct Parser
   String::String text;
   Fifo::Fifo<Tokeniser::Token> tokens;
 
-  SymbolLookahead<2> lookahead;
+  using SymbolLookaheadType = SymbolLookahead<2>;
+  SymbolLookaheadType lookahead;
 
   u32 depth;
 };

@@ -2,7 +2,6 @@
 
 #include "pair.h"
 #include "allocate.h"
-#include "meta-list.h"
 
 #define LENGTH(array) sizeof((array))/sizeof((array)[0])
 
@@ -152,17 +151,24 @@ symbol_string(SymbolType symbol)
 }
 
 
-template <u32 length, typename TerminalSymbols>
+template <SymbolType... t_symbols>
 bool
-terminal(Parser& parser, Tree::Node** o_token_nodes[])
+terminal(Parser& parser, Tree::Node** o_token_nodes[sizeof...(t_symbols)])
 {
-  assert(length <= parser.lookahead.lookahead_n);
+  static u32 const n_symbols = sizeof...(t_symbols);
+  static SymbolType const symbols[n_symbols] = {t_symbols...};
+
+  static_assert(n_symbols <= Parser::SymbolLookaheadType::lookahead_n);
+
+  // Test all symbols match the lookahead
 
   bool matches = true;
 
-  for (u32 i = 0; i < length; ++i)
+  for (u32 i = 0; i < n_symbols; ++i)
   {
-    if (parser.lookahead.symbols[i].type != TerminalSymbols::Get(i))
+    SymbolType symbol = symbols[i];
+    // printf("Matching terminal %.*s\n", print_s(symbol_string(symbol)));
+    if (parser.lookahead.symbols[i].type != symbol)
     {
       matches = false;
       break;
@@ -171,25 +177,29 @@ terminal(Parser& parser, Tree::Node** o_token_nodes[])
 
   if (matches)
   {
-    for (u32 i = 0; i < length; ++i)
+    // Assign symbols to output
+
+    for (u32 i = 0; i < n_symbols; ++i)
     {
       Tree::Node** o_token_node = o_token_nodes[i];
 
       if (o_token_node)
       {
         *o_token_node = Allocate::allocate<Tree::Node>();
-        (**o_token_node).type = Tree::Node::Terminal;
-        (**o_token_node).terminal.token = parser.lookahead.symbols[i].token;
-        (**o_token_node).text_start = parser.lookahead.symbols[i].token.start;
-        (**o_token_node).text_end = parser.lookahead.symbols[i].token.end;
+        (*o_token_node)->type = Tree::Node::Terminal;
+        (*o_token_node)->terminal.token = parser.lookahead.symbols[i].token;
+        (*o_token_node)->text_start = parser.lookahead.symbols[i].token.start;
+        (*o_token_node)->text_end = parser.lookahead.symbols[i].token.end;
       }
     }
 
+    // Advance lookahead
+
     for (u32 i = 0; i < parser.lookahead.lookahead_n; ++i)
     {
-      if (i+length < parser.lookahead.lookahead_n)
+      if (i+n_symbols < parser.lookahead.lookahead_n)
       {
-        parser.lookahead.symbols[i] = parser.lookahead.symbols[i+length];
+        parser.lookahead.symbols[i] = parser.lookahead.symbols[i+n_symbols];
       }
       else
       {
@@ -207,16 +217,7 @@ template <SymbolType terminal_symbol>
 bool
 terminal(Parser& parser, Tree::Node** o_token_node = NULL)
 {
-  return terminal<1, Meta::List1<SymbolType, terminal_symbol>>(parser, &o_token_node);
-}
-
-
-template <SymbolType terminal_symbol_a, SymbolType terminal_symbol_b>
-bool
-terminal(Parser& parser, Tree::Node** o_token_node_a = NULL, Tree::Node** o_token_node_b = NULL)
-{
-  Tree::Node** o_token_nodes[2] = {o_token_node_a, o_token_node_b};
-  return terminal<2, Meta::List2<SymbolType, terminal_symbol_a, terminal_symbol_b>>(parser, o_token_nodes);
+  return terminal<terminal_symbol>(parser, &o_token_node);
 }
 
 
@@ -411,7 +412,8 @@ function_call(Parser& parser, Tree::Node** result)
 
   Tree::Node node = { .type = Tree::Node::FunctionCall, .text_start = current_text_position(parser) };
 
-  bool matches = terminal<SymbolType::Identifier, SymbolType::L_Parenthesis>(parser, &node.function_call.label);
+  Tree::Node** node_addrs[2] = {&node.function_call.label, NULL};
+  bool matches = terminal<SymbolType::Identifier, SymbolType::L_Parenthesis>(parser, node_addrs);
 
   if (matches)
   {
@@ -521,7 +523,8 @@ declaration(Parser& parser, Tree::Node** result)
 
   Tree::Node node = { .type = Tree::Node::Declaration, .text_start = current_text_position(parser) };
 
-  bool matches = terminal<SymbolType::Identifier, SymbolType::Identifier>(parser, &node.declaration.type, &node.declaration.label);
+  Tree::Node** node_addrs[2] = {&node.declaration.type, &node.declaration.label};
+  bool matches = terminal<SymbolType::Identifier, SymbolType::Identifier>(parser, node_addrs);
 
   node.text_end = current_text_position(parser);
 
