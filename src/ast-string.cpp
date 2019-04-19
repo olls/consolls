@@ -56,11 +56,11 @@ node_func(StringBuilder& state, VisitorEvent event)
 
 
 void
-symbol_string(StringArray::StringArray& result, Symbols::Table const & symbols, Symbols::ID symbol)
+string_string(StringArray::StringArray& result, Strings::Table const & strings, Strings::ID string)
 {
-  result += "symbol: ";
-  result += String::string_f("%d, \"", symbol);
-  result += Symbols::get(symbols, symbol);
+  result += "string: ";
+  result += String::string_f("%d, \"", string);
+  result += Strings::get(strings, string);
   result += "\"";
 }
 
@@ -248,7 +248,7 @@ string(StringBuilder& state, VisitorEvent event, Type* type)
     *state.result += "Type {\n";
 
     indent(state);
-    symbol_string(*state.result, state.ast->symbols, type->label);
+    string_string(*state.result, state.ast->strings, type->label);
     *state.result += "\n";
 
     indent(state);
@@ -268,7 +268,7 @@ string(StringBuilder& state, VisitorEvent event, Identifier* identifier)
     *state.result += "Identifier {\n";
 
     indent(state);
-    symbol_string(*state.result, state.ast->symbols, identifier->label);
+    string_string(*state.result, state.ast->strings, identifier->label);
     *state.result += "\n";
 
     indent(state);

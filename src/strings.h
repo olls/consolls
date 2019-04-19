@@ -5,10 +5,7 @@
 #include "types.h"
 
 
-namespace Compolls
-{
-
-namespace Symbols
+namespace Strings
 {
 
 using ID = s32;
@@ -21,12 +18,10 @@ struct Table
 
 
 ID
-add(Table& symbols, String::String symbol);
+add(Table& strings, String::String symbol);
 
 
 String::String&
-get(Table const & symbols, ID id);
+get(Table const & strings, ID id);
 
-} // namespace Symbols
-
-} // namespace Compolls
+} // namespace Strings

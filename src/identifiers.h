@@ -1,7 +1,7 @@
 #pragma once
 
 #include "type-system.h"
-#include "symbols.h"
+#include "strings.h"
 #include "array.h"
 #include "types.h"
 
@@ -18,7 +18,7 @@ static ID const InvalidID = (u32)-1;
 
 struct Identifier
 {
-  Symbols::ID symbol;
+  Strings::ID string;
   TypeSystem::ID type;
 };
 
@@ -26,11 +26,11 @@ using Identifiers = Array::Array<Identifier>;
 
 
 void
-init_built_in_identifiers(Identifiers& identifiers, Symbols::Table & symbols, TypeSystem::Types & types, TypeSystem::BuiltInTypes const & built_in_types);
+init_built_in_identifiers(Identifiers& identifiers, Strings::Table & strings, TypeSystem::Types & types, TypeSystem::BuiltInTypes const & built_in_types);
 
 
 ID
-find(Identifiers const & identifiers, Symbols::ID symbol);
+find(Identifiers const & identifiers, Strings::ID string);
 
 } // namespace Identifiers
 

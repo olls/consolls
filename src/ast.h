@@ -2,7 +2,7 @@
 
 #include "identifiers.h"
 #include "type-system.h"
-#include "symbols.h"
+#include "strings.h"
 #include "parse-tree.h"
 #include "string.h"
 #include "types.h"
@@ -39,14 +39,14 @@ struct Identifier;
 
 struct Identifier
 {
-  Symbols::ID label;
+  Strings::ID label;
   Identifiers::ID identifier;
 };
 
 
 struct Type
 {
-  Symbols::ID label;
+  Strings::ID label;
   TypeSystem::ID type;
 };
 
@@ -115,7 +115,7 @@ struct Expression
     Identifier identifier;
   };
 
-  Symbols::ID return_type;
+  Strings::ID return_type;
 };
 
 
@@ -167,7 +167,7 @@ struct AST
 {
   Program program;
 
-  Symbols::Table symbols;
+  Strings::Table strings;
 
   TypeSystem::BuiltInTypes built_in_types;
 };

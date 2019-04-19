@@ -1,8 +1,10 @@
 #include "compolls.h"
 
+#include "strings.h"
 #include "ast-visitor.h"
 #include "ast-string.h"
 #include "ast.h"
+#include "code-generator.h"
 #include "parse-tree-visitor.h"
 #include "parser.h"
 #include "parse-tree.h"
@@ -15,27 +17,28 @@ namespace Compolls
 bool
 compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& addr, Basolls::Subroutine<void>& result)
 {
+  bool success = true;
   result = {};
 
   printf("Compiling:  \"%.*s\"\n\n", text.length, text.start);
 
-  Array::Array<Tokeniser::Token> tokens = Tokeniser::tokenise(text);
+  Strings::Table strings = {};
+  Array::Array<Tokeniser::Token> tokens = Tokeniser::tokenise(text, strings);
 
   Tokeniser::print(text, tokens);
 
-  Parser::Parser parser = {};
-  parser.tokens.elements = tokens;
-  parser.text = text;
-
-  parser.lookahead.symbols[0] = advance_terminal(parser);
-  parser.lookahead.symbols[1] = advance_terminal(parser);
-
-  bool success = true;
-
   Parser::Tree::Node* program_node = NULL;
+  {
+    Parser::Parser parser = {};
+    parser.tokens.elements = tokens;
+    parser.text = text;
 
-  success &= Parser::program(parser, &program_node);
-  printf("\n\n");
+    parser.lookahead.symbols[0] = advance_terminal(parser);
+    parser.lookahead.symbols[1] = advance_terminal(parser);
+
+    success &= Parser::program(parser, &program_node);
+    printf("\n\n");
+  }
 
   StringArray::StringArray parse_tree_text = {};
   Parser::Tree::string(text, program_node, parse_tree_text);

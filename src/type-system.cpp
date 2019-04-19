@@ -8,15 +8,15 @@ namespace TypeSystem
 {
 
 void
-init_built_in_symbols(Types& types, BuiltInTypes& built_in_types, Symbols::Table& symbols)
+init_built_in_strings(Types& types, BuiltInTypes& built_in_types, Strings::Table& strings)
 {
-  built_in_types.u8_symbol = Symbols::add(symbols, "u8");
-  built_in_types.u16_symbol = Symbols::add(symbols, "u16");
-  built_in_types.func_symbol = Symbols::add(symbols, "Func");
+  built_in_types.u8_string = Strings::add(strings, "u8");
+  built_in_types.u16_string = Strings::add(strings, "u16");
+  built_in_types.func_string = Strings::add(strings, "Func");
 
-  built_in_types.u8_type = add(types, built_in_types, built_in_types.u8_symbol);
-  built_in_types.u16_type = add(types, built_in_types, built_in_types.u16_symbol);
-  built_in_types.func_type = add(types, built_in_types, built_in_types.func_symbol);
+  built_in_types.u8_type = add(types, built_in_types, built_in_types.u8_string);
+  built_in_types.u16_type = add(types, built_in_types, built_in_types.u16_string);
+  built_in_types.func_type = add(types, built_in_types, built_in_types.func_string);
 }
 
 
@@ -26,7 +26,7 @@ add(Types& types, Type const & type)
   ID result = types.n_elements;
   Array::add(types, type);
 
-  printf("Type(%u), symbol(%u)", result, type.symbol);
+  printf("Type(%u), string(%u)", result, type.string);
   printf(", type: ");
   switch (type.type)
   {
@@ -49,21 +49,21 @@ add(Types& types, Type const & type)
 
 
 ID
-add(Types& types, BuiltInTypes const & built_in_types, Symbols::ID type_symbol)
+add(Types& types, BuiltInTypes const & built_in_types, Strings::ID type_string)
 {
   ID result;
 
-  Type type = { .symbol = type_symbol };
+  Type type = { .string = type_string };
 
-  if (type_symbol == built_in_types.u8_symbol)
+  if (type_string == built_in_types.u8_string)
   {
     type.type = Type::BuiltIn::U8;
   }
-  else if (type_symbol == built_in_types.u16_symbol)
+  else if (type_string == built_in_types.u16_string)
   {
     type.type = Type::BuiltIn::U16;
   }
-  else if (type_symbol == built_in_types.func_symbol)
+  else if (type_string == built_in_types.func_string)
   {
     type.type = Type::BuiltIn::Func;
   }
@@ -79,16 +79,16 @@ add(Types& types, BuiltInTypes const & built_in_types, Symbols::ID type_symbol)
 
 
 ID
-find(Types const & types, Symbols::ID type_symbol)
+find(Types const & types, Strings::ID type_string)
 {
   ID result = TypeSystem::InvalidID;
 
-  Array::FindFirstFunc<Type> find_func = [](Type const & t, void* user){ return t.symbol == *(Symbols::ID*)user; };
-  Type const* type = Array::find_first(types, find_func, &type_symbol);
+  Array::FindFirstFunc<Type> find_func = [](Type const & t, void* user){ return t.string == *(Strings::ID*)user; };
+  Type const* type = Array::find_first(types, find_func, &type_string);
 
   if (type != NULL)
   {
-    result = type->symbol;
+    result = type->string;
   }
 
   return result;
@@ -142,7 +142,7 @@ string(Type const & type)
     } break;
   }
 
-  result += String::string_f("(%u)", type.symbol);
+  result += String::string_f("(%u)", type.string);
 
   return result;
 }

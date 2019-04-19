@@ -33,7 +33,7 @@ print_scope(ScopeInfo const & scope)
   for (u32 i = 0; i < scope.identifiers.n_elements; ++i)
   {
     Identifiers::Identifier const & identifier = scope.identifiers[i];
-    printf("%u/%u  ", identifier.symbol, identifier.type);
+    printf("%u/%u  ", identifier.string, identifier.type);
   }
   printf("}\n");
 }
@@ -111,7 +111,7 @@ get_type(String::String const & text, AST& ast, ScopeInfo& scope, Type& type_res
   Tree::TerminalNode const * terminal = &node->terminal;
 
   String::String label = Tokeniser::string(text, terminal->token);
-  type_result.label = Symbols::add(ast.symbols, label);
+  type_result.label = Strings::add(ast.strings, label);
 
   type_result.type = TypeSystem::find(scope.types, type_result.label);
 
@@ -176,7 +176,7 @@ get_function(String::String const & text, AST& ast, ScopeInfo& scope, Function& 
 
   TypeSystem::Type type = {
     .type = TypeSystem::Type::BuiltIn::Func,
-    .symbol = ast.built_in_types.func_symbol,
+    .string = ast.built_in_types.func_string,
     .function.return_type = function_result.return_type.type
   };
 
@@ -339,7 +339,7 @@ get_identifier(String::String const & text, AST& ast, ScopeInfo& scope, Identifi
   Tree::TerminalNode const * terminal = &node->terminal;
 
   String::String label = Tokeniser::string(text, terminal->token);
-  identifier_result.label = Symbols::add(ast.symbols, label);
+  identifier_result.label = Strings::add(ast.strings, label);
 
   Identifiers::ID identifier_id = Identifiers::find(scope.identifiers, identifier_result.label);
   if (identifier_id == Identifiers::InvalidID)
@@ -347,7 +347,7 @@ get_identifier(String::String const & text, AST& ast, ScopeInfo& scope, Identifi
     if (create)
     {
       Identifiers::Identifier identifier = {};
-      identifier.symbol = identifier_result.label;
+      identifier.string = identifier_result.label;
       identifier.type = type;
 
       identifier_result.identifier = scope.identifiers.n_elements;
@@ -363,7 +363,6 @@ get_identifier(String::String const & text, AST& ast, ScopeInfo& scope, Identifi
   {
     identifier_result.identifier = identifier_id;
     Identifiers::Identifier const& identifier = scope.identifiers[identifier_id];
-
 
     if (type != TypeSystem::InvalidID &&
         identifier.type != type)
@@ -410,7 +409,7 @@ get_function_call(String::String const & text, AST& ast, ScopeInfo& scope, Funct
       if (expected_type != TypeSystem::InvalidID &&
           func_type.function.return_type != expected_type)
       {
-        printf("Function %u return type %u does not match expected %u\n", identifier.symbol, func_type.function.return_type, expected_type);
+        printf("Function %u return type %u does not match expected %u\n", identifier.string, func_type.function.return_type, expected_type);
         success &= false;
       }
       else
@@ -647,16 +646,16 @@ make_ast(String::String const & text, AST& result, Tree::Node *const node)
 {
   bool success = true;
 
-  result.symbols = {};
+  result.strings = {};
 
   result.built_in_types = {};
 
   ScopeInfo global_scope = {};
   global_scope.types = {};
-  TypeSystem::init_built_in_symbols(global_scope.types, result.built_in_types, result.symbols);
+  TypeSystem::init_built_in_strings(global_scope.types, result.built_in_types, result.strings);
 
   global_scope.identifiers = {};
-  Identifiers::init_built_in_identifiers(global_scope.identifiers, result.symbols, global_scope.types, result.built_in_types);
+  Identifiers::init_built_in_identifiers(global_scope.identifiers, result.strings, global_scope.types, result.built_in_types);
 
   success &= get_program(text, result, global_scope, result.program, node);
 

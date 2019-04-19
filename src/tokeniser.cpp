@@ -4,14 +4,26 @@
 namespace Tokeniser
 {
 
+void
+add_token(String::String text, Array::Array<Token>& tokens, Strings::Table& strings, u32 start, u32 end)
+{
+  Token token = {
+    .start = start,
+    .end = end,
+    .symbol = Strings::add(strings, String::String(text.start + start, end - start))
+  };
+
+  Array::add(tokens, token);
+}
+
+
 Array::Array<Token>
-tokenise(String::String text)
+tokenise(String::String text, Strings::Table& strings)
 {
   Array::Array<Token> result = {};
 
   bool in_token = false;
   u32 token_start;
-  Token token = {};
 
   char c = '\0';
 
@@ -29,8 +41,7 @@ tokenise(String::String text)
           !String::is_alpha_num(c))
       {
         in_token = false;
-        token.end = character_index;
-        Array::add(result, token);
+        add_token(text, result, strings, token_start, character_index);
       }
     }
 
@@ -39,7 +50,7 @@ tokenise(String::String text)
       if (!String::is_whitespace(c))
       {
         in_token = true;
-        token.start = character_index;
+        token_start = character_index;
       }
     }
   }
@@ -47,8 +58,7 @@ tokenise(String::String text)
   if (in_token)
   {
     in_token = false;
-    token.end = text.length;
-    Array::add(result, token);
+    add_token(text, result, strings, token_start, text.length);
   }
 
   return result;

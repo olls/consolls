@@ -1,7 +1,7 @@
 #pragma once
 
 #include "parse-tree.h"
-#include "symbols.h"
+#include "strings.h"
 #include "string-array.h"
 #include "types.h"
 
@@ -37,7 +37,7 @@ struct Type
     } function;
   };
 
-  Symbols::ID symbol;
+  Strings::ID string;
 };
 
 
@@ -46,17 +46,17 @@ using Types = Array::Array<Type>;
 
 struct BuiltInTypes
 {
-  Symbols::ID u8_symbol;
+  Strings::ID u8_string;
   ID u8_type;
-  Symbols::ID u16_symbol;
+  Strings::ID u16_string;
   ID u16_type;
-  Symbols::ID func_symbol;
+  Strings::ID func_string;
   ID func_type;
 };
 
 
 void
-init_built_in_symbols(Types& types, BuiltInTypes& built_in_types, Symbols::Table& symbols);
+init_built_in_strings(Types& types, BuiltInTypes& built_in_types, Strings::Table& strings);
 
 
 ID
@@ -64,11 +64,11 @@ add(Types& types, Type const & type);
 
 
 ID
-add(Types& types, BuiltInTypes const & built_in_types, Symbols::ID type_symbol);
+add(Types& types, BuiltInTypes const & built_in_types, Strings::ID type_string);
 
 
 ID
-find(Types const & types, Symbols::ID type_symbol);
+find(Types const & types, Strings::ID type_string);
 
 
 bool

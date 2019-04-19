@@ -1,5 +1,6 @@
 #pragma once
 
+#include "strings.h"
 #include "string.h"
 #include "array.h"
 #include "types.h"
@@ -12,11 +13,12 @@ struct Token
 {
   u32 start;
   u32 end;
+  Strings::ID symbol;
 };
 
 
 Array::Array<Token>
-tokenise(String::String text);
+tokenise(String::String text, Strings::Table& strings);
 
 
 String::String
