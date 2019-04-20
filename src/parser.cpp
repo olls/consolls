@@ -12,45 +12,58 @@ namespace Compolls
 namespace Parser
 {
 
-#define PARSE_DEBUG_TRACE (0)
+#define PARSE_DEBUG_TRACE (1)
 
 
 Symbol
-token_to_symbol(String::String const & text, Tokeniser::Token token)
+token_to_symbol(Strings::Table& strings, Tokeniser::Token token)
 {
   Symbol result = {
     .type = SymbolType::Error,
     .token = token
   };
 
-  String::String token_text = Tokeniser::string(text, token);
-
-  static Pair<String::String, SymbolType> const string_to_symbol[] = {
-    {" ", SymbolType::Whitespace},
-    {"\t", SymbolType::Whitespace},
-    {"\n", SymbolType::Whitespace},
-    {"(", SymbolType::L_Parenthesis},
-    {")", SymbolType::R_Parenthesis},
-    {"{", SymbolType::L_Brace},
-    {"}", SymbolType::R_Brace},
-    {"[", SymbolType::L_Bracket},
-    {"]", SymbolType::R_Bracket},
-    {"=", SymbolType::Equals},
-    {",", SymbolType::Comma}
-  };
-
-  for (u32 i = 0; i < LENGTH(string_to_symbol); ++i)
+  if (Strings::add(strings, "(") == token.string)
   {
-    if (String::equals(token_text, string_to_symbol[i].first))
-    {
-      result.type = string_to_symbol[i].second;
-
-      break;
-    }
+    result.type = SymbolType::L_Parenthesis;
+  }
+  else if (Strings::add(strings, ")") == token.string)
+  {
+    result.type = SymbolType::R_Parenthesis;
+  }
+  else if (Strings::add(strings, "{") == token.string)
+  {
+    result.type = SymbolType::L_Brace;
+  }
+  else if (Strings::add(strings, "}") == token.string)
+  {
+    result.type = SymbolType::R_Brace;
+  }
+  else if (Strings::add(strings, "[") == token.string)
+  {
+    result.type = SymbolType::L_Bracket;
+  }
+  else if (Strings::add(strings, "]") == token.string)
+  {
+    result.type = SymbolType::R_Bracket;
+  }
+  else if (Strings::add(strings, "=") == token.string)
+  {
+    result.type = SymbolType::Equals;
+  }
+  else if (Strings::add(strings, ",") == token.string)
+  {
+    result.type = SymbolType::Comma;
+  }
+  else if (Strings::add(strings, "Func") == token.string)
+  {
+    result.type = SymbolType::Func;
   }
 
   if (result.type == SymbolType::Error)
   {
+    String::String token_text = Strings::get(strings, token.string);
+
     if (String::all(token_text, String::is_num))
     {
       result.type = SymbolType::Number;
@@ -81,7 +94,7 @@ advance_terminal(Parser& parser)
   if (!Fifo::empty(parser.tokens))
   {
     Tokeniser::Token token = Fifo::pop(parser.tokens);
-    result = token_to_symbol(parser.text, token);
+    result = token_to_symbol(*parser.strings, token);
   }
 
   return result;
@@ -98,10 +111,6 @@ symbol_string(SymbolType symbol)
     case (SymbolType::Error):
     {
       result.start = "Error";
-    } break;
-    case (SymbolType::Whitespace):
-    {
-      result.start = "Whitespace";
     } break;
     case (SymbolType::L_Parenthesis):
     {
@@ -138,6 +147,10 @@ symbol_string(SymbolType symbol)
     case (SymbolType::Identifier):
     {
       result.start = "Identifier";
+    } break;
+    case (SymbolType::Func):
+    {
+      result.start = "Func";
     } break;
     case (SymbolType::Number):
     {
@@ -254,6 +267,12 @@ accept_sequence(Parser& parser, u32 length, ProductionLambda productions[])
 
 
 bool
+type_definition(Parser& parser, Tree::Node** result);
+
+bool
+function_signature(Parser& parser, Tree::Node** result);
+
+bool
 function(Parser& parser, Tree::Node** result);
 
 bool
@@ -336,24 +355,58 @@ current_text_position(Parser const & parser)
 
 
 bool
-function(Parser& parser, Tree::Node** result)
+function_signature(Parser& parser, Tree::Node** result)
 {
   start_production_debug(parser);
 
-  // function <- '[' identifier ']' '(' declarations ')' '{' body '}'
+  // function_signature <- '[' IDENTIFIER ']' '(' declarations ')'
 
-  Tree::Node node = { .type = Tree::Node::Function, .text_start = current_text_position(parser) };
+  Tree::Node node = { .type = Tree::Node::FunctionSignature, .text_start = current_text_position(parser) };
 
-  bool matches = terminal<SymbolType::L_Bracket>(parser);
+  Tree::Node** nodes[] = {NULL, &node.function_signature.return_type, NULL, NULL};
+  bool matches = terminal<SymbolType::L_Bracket, SymbolType::Identifier, SymbolType::R_Bracket, SymbolType::L_Parenthesis>(parser, nodes);
 
   if (matches)
   {
     ProductionLambda sequence[] = {
-      {terminal<SymbolType::Identifier>, &node.function.return_type},
-      {terminal<SymbolType::R_Bracket>},
-      {terminal<SymbolType::L_Parenthesis>},
-      {declarations, &node.function.declarations},
-      {terminal<SymbolType::R_Parenthesis>},
+      {declarations, &node.function_signature.declarations},
+      {terminal<SymbolType::R_Parenthesis>}
+    };
+
+    if (!accept_sequence(parser, LENGTH(sequence), sequence))
+    {
+      // TODO: More descriptive error message
+      printf("Error while parsing function signature\n");
+      matches &= false;
+    }
+  }
+
+  node.text_end = current_text_position(parser);
+
+  if (matches && result)
+  {
+    *result = Allocate::copy(node);
+  }
+
+  end_production_debug(parser, matches, *result);
+  return matches;
+}
+
+
+bool
+function(Parser& parser, Tree::Node** result)
+{
+  start_production_debug(parser);
+
+  // function <- function_signature '{' body '}'
+
+  Tree::Node node = { .type = Tree::Node::Function, .text_start = current_text_position(parser) };
+
+  bool matches = function_signature(parser, &node.function.function_signature);
+
+  if (matches)
+  {
+    ProductionLambda sequence[] = {
       {terminal<SymbolType::L_Brace>},
       {body, &node.function.body},
       {terminal<SymbolType::R_Brace>}
@@ -362,7 +415,8 @@ function(Parser& parser, Tree::Node** result)
     if (!accept_sequence(parser, LENGTH(sequence), sequence))
     {
       // TODO: More descriptive error message
-      assert(0 && "Error while parsing function definition");
+      printf("Error while parsing function definition\n");
+      matches &= false;
     }
   }
 
@@ -519,12 +573,34 @@ declaration(Parser& parser, Tree::Node** result)
 {
   start_production_debug(parser);
 
-  // declaration <- IDENTIFIER IDENTIFIER
+  // declaration <- `Func` function_signature IDENTIFIER
+  //              | IDENTIFIER IDENTIFIER
 
   Tree::Node node = { .type = Tree::Node::Declaration, .text_start = current_text_position(parser) };
 
-  Tree::Node** node_addrs[2] = {&node.declaration.type, &node.declaration.label};
-  bool matches = terminal<SymbolType::Identifier, SymbolType::Identifier>(parser, node_addrs);
+  bool matches = true;
+
+  if (terminal<SymbolType::Func>(parser))
+  {
+    node.declaration.type = Tree::DeclarationNode::Type::FunctionSignature;
+
+    matches &= function_signature(parser, &node.declaration.function_signature);
+    matches &= terminal<SymbolType::Identifier>(parser, &node.declaration.label);
+
+    assert(matches);
+  }
+  else if (terminal<SymbolType::Identifier>(parser, &node.declaration.identifier))
+  {
+    node.declaration.type = Tree::DeclarationNode::Type::Identifier;
+
+    matches &= terminal<SymbolType::Identifier>(parser, &node.declaration.label);
+
+    assert(matches);
+  }
+  else
+  {
+    matches = false;
+  }
 
   node.text_end = current_text_position(parser);
 
@@ -721,7 +797,10 @@ program(Parser& parser, Tree::Node** result)
 //
 // assignment <- declaration '=' expression
 //
-// declaration <- IDENTIFIER IDENTIFIER
+// function_signature <- '[' IDENTIFIER ']' '(' declarations ')'
+//
+// declaration <- `Func` function_signature IDENTIFIER
+//              | IDENTIFIER IDENTIFIER
 //
 // expression <- literal
 //             | function_call
@@ -732,7 +811,7 @@ program(Parser& parser, Tree::Node** result)
 //
 // function_call <- IDENTIFIER '(' expressions ')'
 //
-// function <- '[' IDENTIFIER ']' '(' declarations ')' '{' body '}'
+// function <- function_signature '{' body '}'
 //
 // expressions <- expression { ',' expressions }
 //              | .

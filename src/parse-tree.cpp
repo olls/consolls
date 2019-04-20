@@ -2,6 +2,9 @@
 
 #include "parse-tree-visitor.h"
 
+// TODO: Put this somewhere sensible
+#define array_size(a) (sizeof(a)/sizeof(a[0]))
+
 
 namespace Compolls
 {
@@ -11,7 +14,6 @@ namespace Parser
 
 namespace Tree
 {
-
 static const String::String NODE_NAMES[] = {
   "Program",
   "Statement",
@@ -21,11 +23,13 @@ static const String::String NODE_NAMES[] = {
   "Expression",
   "Literal",
   "FunctionCall",
+  "FunctionSignature",
   "Function",
   "Expressions",
   "Declarations",
   "Terminal"
 };
+static_assert(array_size(NODE_NAMES) == Node::TypeCount);
 
 String::String
 node_name(Node::Type node_type)

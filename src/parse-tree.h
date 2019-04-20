@@ -37,7 +37,8 @@ struct ProgramNode
 
 struct StatementNode
 {
-  enum class Type {
+  enum class Type
+  {
     Assignment,
     Expression
   } type;
@@ -61,13 +62,23 @@ struct AssignmentNode
 
 struct DeclarationNode
 {
-  Node* type;
+  enum class Type
+  {
+    Identifier,
+    FunctionSignature
+  } type;
+  union
+  {
+    Node* identifier;
+    Node* function_signature;
+  };
   Node* label;
 };
 
 struct ExpressionNode
 {
-  enum class Type {
+  enum class Type
+  {
     Literal,
     FunctionCall,
     Identifier
@@ -82,7 +93,8 @@ struct ExpressionNode
 
 struct LiteralNode
 {
-  enum class Type {
+  enum class Type
+  {
     Number,
     Function
   } type;
@@ -99,10 +111,15 @@ struct FunctionCallNode
   Node* expressions;
 };
 
-struct FunctionNode
+struct FunctionSignatureNode
 {
   Node* return_type;
   Node* declarations;
+};
+
+struct FunctionNode
+{
+  Node* function_signature;
   Node* body;
 };
 
@@ -126,7 +143,8 @@ struct Node
   u32 text_start;
   u32 text_end;
 
-  enum Type {
+  enum Type
+  {
     Program,
     Statement,
     Body,
@@ -135,11 +153,13 @@ struct Node
     Expression,
     Literal,
     FunctionCall,
+    FunctionSignature,
     Function,
     Expressions,
     Declarations,
     Terminal
   } type;
+  enum { TypeCount = Type::Terminal + 1 };
 
   union
   {
@@ -151,6 +171,7 @@ struct Node
     ExpressionNode expression;
     LiteralNode literal;
     FunctionCallNode function_call;
+    FunctionSignatureNode function_signature;
     FunctionNode function;
     ExpressionsNode expressions;
     DeclarationsNode declarations;

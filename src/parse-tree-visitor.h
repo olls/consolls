@@ -23,20 +23,21 @@ enum VisitorEvent
 template <typename State>
 struct Visitor
 {
-  bool (*generic_func)       (State&, VisitorEvent, Node*);
+  bool (*generic_func)            (State&, VisitorEvent, Node*);
 
-  bool (*program_func)       (State&, VisitorEvent, ProgramNode*);
-  bool (*statement_func)     (State&, VisitorEvent, StatementNode*);
-  bool (*body_func)          (State&, VisitorEvent, BodyNode*);
-  bool (*assignment_func)    (State&, VisitorEvent, AssignmentNode*);
-  bool (*declaration_func)   (State&, VisitorEvent, DeclarationNode*);
-  bool (*expression_func)    (State&, VisitorEvent, ExpressionNode*);
-  bool (*literal_func)       (State&, VisitorEvent, LiteralNode*);
-  bool (*function_call_func) (State&, VisitorEvent, FunctionCallNode*);
-  bool (*function_func)      (State&, VisitorEvent, FunctionNode*);
-  bool (*expressions_func)   (State&, VisitorEvent, ExpressionsNode*);
-  bool (*declarations_func)  (State&, VisitorEvent, DeclarationsNode*);
-  bool (*terminal_func)      (State&, VisitorEvent, TerminalNode*);
+  bool (*program_func)            (State&, VisitorEvent, ProgramNode*);
+  bool (*statement_func)          (State&, VisitorEvent, StatementNode*);
+  bool (*body_func)               (State&, VisitorEvent, BodyNode*);
+  bool (*assignment_func)         (State&, VisitorEvent, AssignmentNode*);
+  bool (*declaration_func)        (State&, VisitorEvent, DeclarationNode*);
+  bool (*expression_func)         (State&, VisitorEvent, ExpressionNode*);
+  bool (*literal_func)            (State&, VisitorEvent, LiteralNode*);
+  bool (*function_call_func)      (State&, VisitorEvent, FunctionCallNode*);
+  bool (*function_signature_func) (State&, VisitorEvent, FunctionSignatureNode*);
+  bool (*function_func)           (State&, VisitorEvent, FunctionNode*);
+  bool (*expressions_func)        (State&, VisitorEvent, ExpressionsNode*);
+  bool (*declarations_func)       (State&, VisitorEvent, DeclarationsNode*);
+  bool (*terminal_func)           (State&, VisitorEvent, TerminalNode*);
 };
 
 
@@ -71,6 +72,10 @@ visit(State& state, Visitor<State>& visitor, LiteralNode* literal_node);
 template <typename State>
 bool
 visit(State& state, Visitor<State>& visitor, FunctionCallNode* function_call_node);
+
+template <typename State>
+bool
+visit(State& state, Visitor<State>& visitor, FunctionSignatureNode* function_signature_node);
 
 template <typename State>
 bool
@@ -146,6 +151,12 @@ visit(State& state, Visitor<State>& visitor, Node* node)
       success &= (visitor.function_call_func == NULL) || visitor.function_call_func(state, VisitorEvent::Enter, &node->function_call);
       success &= visit(state, visitor, &node->function_call);
       success &= (visitor.function_call_func == NULL) || visitor.function_call_func(state, VisitorEvent::Leave, &node->function_call);
+    } break;
+    case (Parser::Tree::Node::FunctionSignature):
+    {
+      success &= (visitor.function_signature_func == NULL) || visitor.function_signature_func(state, VisitorEvent::Enter, &node->function_signature);
+      success &= visit(state, visitor, &node->function_signature);
+      success &= (visitor.function_signature_func == NULL) || visitor.function_signature_func(state, VisitorEvent::Leave, &node->function_signature);
     } break;
     case (Parser::Tree::Node::Function):
     {
@@ -249,7 +260,18 @@ visit(State& state, Visitor<State>& visitor, DeclarationNode* declaration_node)
 {
   bool success = true;
 
-  success &= visit(state, visitor, declaration_node->type);
+  switch (declaration_node->type)
+  {
+    case (DeclarationNode::Type::Identifier):
+    {
+      success &= visit(state, visitor, declaration_node->identifier);
+    } break;
+    case (DeclarationNode::Type::FunctionSignature):
+    {
+      success &= visit(state, visitor, declaration_node->function_signature);
+    } break;
+  }
+
   success &= visit(state, visitor, declaration_node->label);
 
   return success;
@@ -319,12 +341,24 @@ visit(State& state, Visitor<State>& visitor, FunctionCallNode* function_call_nod
 
 template <typename State>
 bool
+visit(State& state, Visitor<State>& visitor, FunctionSignatureNode* function_signature_node)
+{
+  bool success = true;
+
+  success &= visit(state, visitor, function_signature_node->return_type);
+  success &= visit(state, visitor, function_signature_node->declarations);
+
+  return success;
+}
+
+
+template <typename State>
+bool
 visit(State& state, Visitor<State>& visitor, FunctionNode* function_node)
 {
   bool success = true;
 
-  success &= visit(state, visitor, function_node->return_type);
-  success &= visit(state, visitor, function_node->declarations);
+  success &= visit(state, visitor, function_node->function_signature);
   success &= visit(state, visitor, function_node->body);
 
   return success;
