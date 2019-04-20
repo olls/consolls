@@ -12,7 +12,7 @@ namespace Compolls
 namespace Parser
 {
 
-#define PARSE_DEBUG_TRACE (1)
+#define PARSE_DEBUG_TRACE (0)
 
 
 Symbol
@@ -319,19 +319,22 @@ _start_production_debug(const char * production_name, Parser& parser)
 }
 
 
+#define end_production_debug(parser, matches, node) _end_production_debug(__FUNCTION__, (parser), (matches), (node))
 void
-end_production_debug(Parser& parser, bool matches, Tree::Node const * node)
+_end_production_debug(const char* production_name, Parser& parser, bool matches, Tree::Node const * node)
 {
 #if PARSE_DEBUG_TRACE
   parser.depth -= 1;
 
-  printf("%*s}", parser.depth*2, "");
+  printf("%*s} %s", parser.depth*2, "", production_name);
   if (node != NULL)
   {
     String::String string = Tokeniser::string(parser.text, {node->text_start, node->text_end});
     printf("  \"%.*s\"", print_s(string));
   }
   printf("  %s\n", matches ? "true" : "false");
+
+  print_lookahead(*parser.strings, parser.lookahead);
 #endif
 }
 
@@ -589,17 +592,17 @@ declaration(Parser& parser, Tree::Node** result)
 
     assert(matches);
   }
-  else if (terminal<SymbolType::Identifier>(parser, &node.declaration.identifier))
-  {
-    node.declaration.type = Tree::DeclarationNode::Type::Identifier;
-
-    matches &= terminal<SymbolType::Identifier>(parser, &node.declaration.label);
-
-    assert(matches);
-  }
   else
   {
-    matches = false;
+    Tree::Node** arg_types[] = {&node.declaration.identifier, &node.declaration.label};
+    if (terminal<SymbolType::Identifier, SymbolType::Identifier>(parser, arg_types))
+    {
+      node.declaration.type = Tree::DeclarationNode::Type::Identifier;
+    }
+    else
+    {
+      matches = false;
+    }
   }
 
   node.text_end = current_text_position(parser);

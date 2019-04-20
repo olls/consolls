@@ -1,8 +1,5 @@
-u16 b = 3
-u16 a = add16(1, b)
-
-Func sub16 = [u16] (u16 a, u16 b) {
-  add16(a, neg16(b))
+Func[u8](u8 x, u8 y, Func[u8](u8 a, u8 b) op) apply =
+  [u8](u8 x, u8 y, Func[u8](u8 a, u8 b) op)
+{
+  op(x, y)
 }
-
-u16 r = sub16(1, 4)

@@ -36,7 +36,6 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
     parser.strings = &strings;
 
     Parser::prime_lookahead(parser);
-    Parser::print_lookahead(strings, parser.lookahead);
 
     success &= Parser::program(parser, &program_node);
     printf("\n\n");
