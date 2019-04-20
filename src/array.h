@@ -234,6 +234,15 @@ namespace Array
   // Getters
   //
 
+  // No bounds checking!
+  template<typename T, bool dynamic_elem_size, u32 static_size>
+  T *
+  get_(Array<T, dynamic_elem_size, static_size> const & array, const u32 index)
+  {
+    // Have to do indexing in bytes to deal with dynamic element size
+    return (T *)((u8 *)array.elements() + (index * array.element_size));
+  }
+
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T *
   get(Array<T, dynamic_elem_size, static_size> const & array, const u32 index)
@@ -241,8 +250,7 @@ namespace Array
     ARRAY_ASSERT(index < array.n_elements);
     ARRAY_ASSERT(array.element_size != 0);
 
-    // Have to do indexing in bytes to deal with dynamic element size
-    return (T *)((u8 *)array.elements() + (index * array.element_size));
+    return get_(array, index);
   }
 
   // Searches the array for the index of the first element equal to the given element
@@ -273,17 +281,36 @@ namespace Array
   using FindFirstFunc = bool (*)(T const &, void *);
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
+  s32
   find_first(Array<T, dynamic_elem_size, static_size> const & array, FindFirstFunc<T> condition, void *user)
   {
-    T *result = NULL;
+    s32 result = -1;
 
     for (u32 i = 0; i < array.n_elements; ++i)
     {
       T* item = get(array, i);
       if (condition(*item, user))
       {
-        result = item;
+        result = i;
+        break;
+      }
+    }
+    return result;
+  }
+
+
+  template<typename T, bool dynamic_elem_size, u32 static_size>
+  s32
+  find_first(Array<T, dynamic_elem_size, static_size> const & array, T const& element)
+  {
+    s32 result = -1;
+
+    for (u32 i = 0; i < array.n_elements; ++i)
+    {
+      T const& item = array[i];
+      if (item == element)
+      {
+        result = i;
         break;
       }
     }
@@ -345,8 +372,12 @@ namespace Array
   T *
   add_n(Array<T, dynamic_elem_size, static_size>& array, T const *new_elements, u32 n_new_elements)
   {
-    T *add_position = add_n(array, n_new_elements);
-    ARRAY_MEMCPY(add_position, new_elements, n_new_elements*array.element_size);
+    T *add_position = NULL;
+    if (n_new_elements > 0)
+    {
+      add_position = add_n(array, n_new_elements);
+      ARRAY_MEMCPY(add_position, new_elements, n_new_elements*array.element_size);
+    }
     return add_position;
   }
 
@@ -448,6 +479,19 @@ namespace Array
     remove_ordered(array, remove_at_index, array.n_elements - remove_at_index);
   }
 
+  template<typename T, bool dynamic_elem_size, u32 static_size>
+  T const*
+  begin(Array<T, dynamic_elem_size, static_size> const& array)
+  {
+    return get_(array, 0);
+  }
+
+  template<typename T, bool dynamic_elem_size, u32 static_size>
+  T const*
+  end(Array<T, dynamic_elem_size, static_size> const& array)
+  {
+    return get_(array, array.n_elements);
+  }
 }  // Namespace Array
 
 
