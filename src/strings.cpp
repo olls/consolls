@@ -5,7 +5,7 @@ namespace Strings
 {
 
 ID
-add(Table& strings, String::String symbol)
+add(Table& strings, String::String string)
 {
   ID result = -1;
 
@@ -13,7 +13,7 @@ add(Table& strings, String::String symbol)
        i < strings.table.n_elements;
        ++i)
   {
-    if (String::equals(strings.table[i], symbol))
+    if (String::equals(strings.table[i], string))
     {
       result = i;
       break;
@@ -23,8 +23,8 @@ add(Table& strings, String::String symbol)
   if (result == -1)
   {
     result = strings.table.n_elements;
-    Array::add(strings.table, symbol);
-    printf("Symbol: \"%.*s\" %d\n", print_s(symbol), result);
+    Array::add(strings.table, string);
+    // printf("String: \"%.*s\" %d\n", print_s(string), result);
   }
 
   return result;

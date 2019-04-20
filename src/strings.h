@@ -18,7 +18,7 @@ struct Table
 
 
 ID
-add(Table& strings, String::String symbol);
+add(Table& strings, String::String string);
 
 
 String::String&

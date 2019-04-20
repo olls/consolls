@@ -10,7 +10,7 @@ add_token(String::String text, Array::Array<Token>& tokens, Strings::Table& stri
   Token token = {
     .start = start,
     .end = end,
-    .symbol = Strings::add(strings, String::String(text.start + start, end - start))
+    .string = Strings::add(strings, String::String(text.start + start, end - start))
   };
 
   Array::add(tokens, token);

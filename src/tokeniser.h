@@ -13,7 +13,7 @@ struct Token
 {
   u32 start;
   u32 end;
-  Strings::ID symbol;
+  Strings::ID string;
 };
 
 

@@ -20,30 +20,34 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
   bool success = true;
   result = {};
 
-  printf("Compiling:  \"%.*s\"\n\n", text.length, text.start);
+  printf("Compiling:  \"%.*s\"\n", text.length, text.start);
 
   Strings::Table strings = {};
   Array::Array<Tokeniser::Token> tokens = Tokeniser::tokenise(text, strings);
 
-  Tokeniser::print(text, tokens);
+  printf("Tokens: ");
+  Tokeniser::print(strings, tokens);
 
   Parser::Tree::Node* program_node = NULL;
   {
     Parser::Parser parser = {};
     parser.tokens.elements = tokens;
     parser.text = text;
+    parser.strings = &strings;
 
-    parser.lookahead.symbols[0] = advance_terminal(parser);
-    parser.lookahead.symbols[1] = advance_terminal(parser);
+    Parser::prime_lookahead(parser);
+    Parser::print_lookahead(strings, parser.lookahead);
 
     success &= Parser::program(parser, &program_node);
     printf("\n\n");
   }
 
-  StringArray::StringArray parse_tree_text = {};
-  Parser::Tree::string(text, program_node, parse_tree_text);
-  parse_tree_text += "\n";
-  StringArray::print(parse_tree_text);
+  {
+    StringArray::StringArray parse_tree_text = {};
+    Parser::Tree::string(text, program_node, parse_tree_text);
+    parse_tree_text += "\n";
+    StringArray::print(parse_tree_text);
+  }
 
   if (!success)
   {
@@ -51,6 +55,13 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
   }
   else
   {
+    {
+      StringArray::StringArray strings_text = {};
+      Strings::string(strings, strings_text);
+      strings_text += "\n";
+      StringArray::print(strings_text);
+    }
+
     AST::AST ast = {};
     success &= AST::make_ast(text, ast, program_node);
 
