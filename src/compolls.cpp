@@ -62,7 +62,7 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
     }
 
     AST::AST ast = {};
-    success &= AST::make_ast(text, ast, program_node);
+    success &= AST::make_ast(text, strings, ast, program_node);
 
     if (!success)
     {
@@ -70,10 +70,12 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
     }
     else
     {
-      StringArray::StringArray ast_text = {};
-      AST::string(text, ast, ast_text);
-      ast_text += "\n";
-      StringArray::print(ast_text);
+      {
+        StringArray::StringArray ast_text = {};
+        AST::string(text, ast, ast_text);
+        ast_text += "\n";
+        StringArray::print(ast_text);
+      }
     }
   }
 

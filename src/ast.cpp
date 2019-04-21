@@ -3,6 +3,7 @@
 #include "number-parser.h"
 #include "tokeniser.h"
 #include "allocate.h"
+#include "strings.h"
 #include "string.h"
 #include "debug.h"
 
@@ -40,91 +41,116 @@ print_scope(ScopeInfo const & scope)
 
 
 bool
-get_number(String::String const & text, AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const * node);
+get_number(AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const * node);
 
 bool
-get_type(String::String const & text, AST& ast, ScopeInfo& scope, Type& type_result, Tree::Node const * node);
+get_declarations(AST& ast, ScopeInfo& scope, Declarations& declarations_result, Tree::Node const * node);
 
 bool
-get_declarations(String::String const & text, AST& ast, ScopeInfo& scope, Declarations& declarations_result, Tree::Node const * node);
+get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Tree::Node const * node);
 
 bool
-get_function(String::String const & text, AST& ast, ScopeInfo& scope, Function& function_result, Tree::Node const * node);
+get_function(AST& ast, ScopeInfo& scope, Function& function_result, Tree::Node const * node);
 
 bool
-get_expressions(String::String const & text, AST& ast, ScopeInfo& scope, Expressions& expressions_result, Tree::Node const * node, u32 n_expression_types, TypeSystem::ID const * expression_types);
+get_expressions(AST& ast, ScopeInfo& scope, Expressions& expressions_result, Tree::Node const * node, u32 n_expression_types, TypeSystem::ID const * expression_types);
 
 bool
-get_literal(String::String const & text, AST& ast, ScopeInfo& scope, Literal& literal_result, Tree::Node const * node, TypeSystem::ID type, TypeSystem::ID& result_type);
+get_literal(AST& ast, ScopeInfo& scope, Literal& literal_result, Tree::Node const * node, TypeSystem::ID type, TypeSystem::ID& result_type);
 
 bool
-get_identifier(String::String const & text, AST& ast, ScopeInfo& scope, Identifier& identifier_result, Tree::Node const * node, TypeSystem::ID type, bool create);
+get_identifier(AST& ast, ScopeInfo& scope, Identifier& identifier_result, Tree::Node const * node, TypeSystem::ID type, bool create);
 
 bool
-get_function_call(String::String const & text, AST& ast, ScopeInfo& scope, FunctionCall& function_call_result, Tree::Node const * node, TypeSystem::ID expected_type);
+get_function_call(AST& ast, ScopeInfo& scope, FunctionCall& function_call_result, Tree::Node const * node, TypeSystem::ID expected_type);
 
 bool
-get_declaration(String::String const & text, AST& ast, ScopeInfo& scope, Declaration& declaration_result, Tree::Node const * node);
+get_declaration(AST& ast, ScopeInfo& scope, Declaration& declaration_result, Tree::Node const * node);
 
 bool
-get_expression(String::String const & text, AST& ast, ScopeInfo& scope, Expression& expression_result, Tree::Node const * node, TypeSystem::ID expected_type, TypeSystem::ID& result_type);
+get_expression(AST& ast, ScopeInfo& scope, Expression& expression_result, Tree::Node const * node, TypeSystem::ID expected_type, TypeSystem::ID& result_type);
 
 bool
-get_assignment(String::String const & text, AST& ast, ScopeInfo& scope, Assignment& assignment_result, Tree::Node const * node);
+get_assignment(AST& ast, ScopeInfo& scope, Assignment& assignment_result, Tree::Node const * node);
 
 bool
-get_statement(String::String const & text, AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Node const * node, TypeSystem::ID type);
+get_statement(AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Node const * node, TypeSystem::ID type);
 
 bool
-get_body(String::String const & text, AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node, TypeSystem::ID type);
+get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node, TypeSystem::ID type);
 
 bool
-get_program(String::String const & text, AST& ast, ScopeInfo& scope, Program& program_result, Tree::Node const * node);
+get_program(AST& ast, ScopeInfo& scope, Program& program_result, Tree::Node const * node);
 
 
 bool
-get_number(String::String const & text, AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const * node)
+get_number(AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const * node)
 {
   bool success = true;
 
   assert(node->type == Tree::Node::Type::Terminal);
   Tree::TerminalNode const * terminal = &node->terminal;
 
-  number_result.text = Tokeniser::string(text, terminal->token);
+  number_result.text = Tokeniser::string(*ast.text, terminal->token);
   success &= NumberParser::parse_u32(number_result.text, number_result.number);
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
 }
 
-
 bool
-get_type(String::String const & text, AST& ast, ScopeInfo& scope, Type& type_result, Tree::Node const * node)
+get_type_identifier(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Tree::Node const * node)
 {
-  bool success = true;
+  type_result = TypeSystem::InvalidID;
 
   assert(node->type == Tree::Node::Type::Terminal);
   Tree::TerminalNode const * terminal = &node->terminal;
 
-  String::String label = Tokeniser::string(text, terminal->token);
-  type_result.label = Strings::add(ast.strings, label);
+  Strings::ID const& type_string = terminal->token.string;
 
-  type_result.type = TypeSystem::find(scope.types, type_result.label);
+  // TODO: There is no way to define user 'identifier' types yet
 
-  if (type_result.type == TypeSystem::InvalidID)
-  {
-    success &= false;
-
-    printf("Unrecognised type \"%.*s\"\n", print_s(label));
-  }
+  type_result = TypeSystem::find(scope.types, type_string);
+  bool success = (type_result != TypeSystem::InvalidID);
 
   if (!success)
   {
-    error(text, node);
+    printf("Cannot determine type name: %.*s", print_s(Strings::get(*ast.strings, type_string)));
+    error(*ast.text, node);
+  }
+
+  return success;
+}
+
+bool
+get_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Tree::Node const * node)
+{
+  type_result = TypeSystem::InvalidID;
+
+  assert(node->type == Tree::Node::Type::TypeName);
+  Tree::TypeNameNode const * type_name = &node->type_name;
+
+  switch (type_name->type)
+  {
+    case (Tree::TypeNameNode::Type::Identifier):
+    {
+      get_type_identifier(ast, scope, type_result, type_name->identifier);
+    } break;
+    case (Tree::TypeNameNode::Type::FunctionSignature):
+    {
+      get_function_signature_type(ast, scope, type_result, type_name->function_signature);
+    } break;
+  }
+
+  bool success = (type_result != TypeSystem::InvalidID);
+
+  if (!success)
+  {
+    error(*ast.text, node);
   }
 
   return success;
@@ -132,7 +158,7 @@ get_type(String::String const & text, AST& ast, ScopeInfo& scope, Type& type_res
 
 
 bool
-get_declarations(String::String const & text, AST& ast, ScopeInfo& scope, Declarations& declarations_result, Tree::Node const * node)
+get_declarations(AST& ast, ScopeInfo& scope, Declarations& declarations_result, Tree::Node const * node)
 {
   bool success = true;
 
@@ -148,12 +174,12 @@ get_declarations(String::String const & text, AST& ast, ScopeInfo& scope, Declar
   {
     Tree::Node const * declaration = declarations->declarations[declaration_index];
 
-    success &= get_declaration(text, ast, scope, declarations_result.declarations[declaration_index], declaration);
+    success &= get_declaration(ast, scope, declarations_result.declarations[declaration_index], declaration);
   }
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -161,39 +187,75 @@ get_declarations(String::String const & text, AST& ast, ScopeInfo& scope, Declar
 
 
 bool
-get_function(String::String const & text, AST& ast, ScopeInfo& scope, Function& function_result, Tree::Node const * node, TypeSystem::ID& result_type)
+get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Tree::Node const * node)
+{
+  type_result = TypeSystem::InvalidID;
+
+  assert(node->type == Tree::Node::Type::FunctionSignature);
+  Tree::FunctionSignatureNode const * function_signature = &node->function_signature;
+
+  TypeSystem::ID return_type;
+  if (get_type(ast, scope, return_type, function_signature->return_type))
+  {
+    // TODO: When using this function for a function value, we will need to store the declaration, so we know the parameter identifiers!
+
+    Declarations declarations;
+    if (get_declarations(ast, scope, declarations, function_signature->declarations))
+    {
+      String::String node_string = String::sub_string(*ast.text, node->text_start, node->text_end);
+      Strings::ID node_string_id = Strings::add(*ast.strings, node_string);
+
+      TypeSystem::Type type = {
+        .type = TypeSystem::Type::BuiltIn::Func,
+        .string = node_string_id,
+        .function.return_type = return_type,
+        .function.n_arg_types = declarations.n,
+        .function.arg_types = Allocate::allocate<TypeSystem::ID>(type.function.n_arg_types)
+      };
+
+      for (u32 index = 0;
+           index < type.function.n_arg_types;
+           ++index)
+      {
+        type.function.arg_types[index] = declarations.declarations[index].type;
+      }
+
+      type_result = TypeSystem::add(scope.types, type);
+    }
+  }
+
+  bool success = (type_result != TypeSystem::InvalidID);
+  if (!success)
+  {
+    error(*ast.text, node);
+  }
+
+  return success;
+}
+
+
+bool
+get_function(AST& ast, ScopeInfo& scope, Function& function_result, Tree::Node const * node)
 {
   bool success = true;
 
   assert(node->type == Tree::Node::Type::Function);
   Tree::FunctionNode const * function = &node->function;
 
-  success &= get_type(text, ast, scope, function_result.return_type, function->return_type);
-  success &= get_declarations(text, ast, scope, function_result.declarations, function->declarations);
+  success &= get_function_signature_type(ast, scope, function_result.type, function->function_signature);
 
-  function_result.body = Allocate::allocate<Body>();
-  success &= get_body(text, ast, scope, *function_result.body, function->body, function_result.return_type.type);
-
-  TypeSystem::Type type = {
-    .type = TypeSystem::Type::BuiltIn::Func,
-    .string = ast.built_in_types.func_string,
-    .function.return_type = function_result.return_type.type
-  };
-
-  type.function.n_arg_types = function_result.declarations.n;
-  type.function.arg_types = Allocate::allocate<TypeSystem::ID>(type.function.n_arg_types);
-  for (u32 index = 0;
-       index < type.function.n_arg_types;
-       ++index)
+  if (success)
   {
-    type.function.arg_types[index] = function_result.declarations.declarations[index].type.type;
-  }
+    TypeSystem::Type const& type = scope.types.types[function_result.type];
+    assert(type.type == TypeSystem::Type::BuiltIn::Func);
 
-  result_type = TypeSystem::add(scope.types, type);
+    function_result.body = Allocate::allocate<Body>();
+    success &= get_body(ast, scope, *function_result.body, function->body, type.function.return_type);
+  }
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -201,7 +263,7 @@ get_function(String::String const & text, AST& ast, ScopeInfo& scope, Function& 
 
 
 bool
-get_expressions(String::String const & text, AST& ast, ScopeInfo& scope, Expressions& expressions_result, Tree::Node const * node, u32 n_expression_types, TypeSystem::ID const * expression_types)
+get_expressions(AST& ast, ScopeInfo& scope, Expressions& expressions_result, Tree::Node const * node, u32 n_expression_types, TypeSystem::ID const * expression_types)
 {
   bool success = true;
 
@@ -239,7 +301,7 @@ get_expressions(String::String const & text, AST& ast, ScopeInfo& scope, Express
       }
 
       TypeSystem::ID result_type;
-      success &= get_expression(text, ast, scope, expressions_result.expressions[expression_index], expression, expected_type, result_type);
+      success &= get_expression(ast, scope, expressions_result.expressions[expression_index], expression, expected_type, result_type);
       if (result_type != expected_type)
       {
         printf("result_type(%u) != expected_type(%u)\n", result_type, expected_type);
@@ -251,7 +313,7 @@ get_expressions(String::String const & text, AST& ast, ScopeInfo& scope, Express
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -278,7 +340,7 @@ literal_type_string(Tree::LiteralNode::Type const & type)
 
 
 bool
-get_literal(String::String const & text, AST& ast, ScopeInfo& scope, Literal& literal_result, Tree::Node const * node, TypeSystem::ID type, TypeSystem::ID& result_type)
+get_literal(AST& ast, ScopeInfo& scope, Literal& literal_result, Tree::Node const * node, TypeSystem::ID type, TypeSystem::ID& result_type)
 {
   bool success = true;
 
@@ -287,12 +349,8 @@ get_literal(String::String const & text, AST& ast, ScopeInfo& scope, Literal& li
 
   if (type != TypeSystem::InvalidID)
   {
-    Tree::LiteralNode::Type expected_symbol;
-    if (!TypeSystem::resolve_literal_symbol_type(scope.types, ast.built_in_types, type, &expected_symbol))
-    {
-      success &= false;
-    }
-    else if (expected_symbol != literal->type)
+    Tree::LiteralNode::Type expected_symbol = TypeSystem::get_symbol_type(scope.types, type);
+    if (expected_symbol != literal->type)
     {
       printf("Type mismatch in literal!  Expecting symbol type of \"%.*s\" (%u), got \"%.*s\"\n",
              print_s(literal_type_string(expected_symbol)), type,
@@ -311,19 +369,31 @@ get_literal(String::String const & text, AST& ast, ScopeInfo& scope, Literal& li
         result_type = type;
 
         literal_result.type = Literal::Type::Number;
-        success &= get_number(text, ast, scope, literal_result.number, literal->number);
+        success &= get_number(ast, scope, literal_result.number, literal->number);
       } break;
       case (Tree::LiteralNode::Type::Function):
       {
         literal_result.type = Literal::Type::Function;
-        success &= get_function(text, ast, scope, literal_result.function, literal->function, result_type);
+        success &= get_function(ast, scope, literal_result.function, literal->function);
+        if (success)
+        {
+          success &= (literal_result.function.type == type);
+          if (!success)
+          {
+            printf("Function literal type %u does not match expected type %u.\n", literal_result.function.type, type);
+          }
+          else
+          {
+            result_type = literal_result.function.type;
+          }
+        }
       } break;
     }
   }
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -331,15 +401,15 @@ get_literal(String::String const & text, AST& ast, ScopeInfo& scope, Literal& li
 
 
 bool
-get_identifier(String::String const & text, AST& ast, ScopeInfo& scope, Identifier& identifier_result, Tree::Node const * node, TypeSystem::ID type, bool create)
+get_identifier(AST& ast, ScopeInfo& scope, Identifier& identifier_result, Tree::Node const * node, TypeSystem::ID type, bool create)
 {
   bool success = true;
 
   assert(node->type == Tree::Node::Type::Terminal);
   Tree::TerminalNode const * terminal = &node->terminal;
 
-  String::String label = Tokeniser::string(text, terminal->token);
-  identifier_result.label = Strings::add(ast.strings, label);
+  String::String label = Tokeniser::string(*ast.text, terminal->token);
+  identifier_result.label = Strings::add(*ast.strings, label);
 
   Identifiers::ID identifier_id = Identifiers::find(scope.identifiers, identifier_result.label);
   if (identifier_id == Identifiers::InvalidID)
@@ -374,7 +444,7 @@ get_identifier(String::String const & text, AST& ast, ScopeInfo& scope, Identifi
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -382,14 +452,14 @@ get_identifier(String::String const & text, AST& ast, ScopeInfo& scope, Identifi
 
 
 bool
-get_function_call(String::String const & text, AST& ast, ScopeInfo& scope, FunctionCall& function_call_result, Tree::Node const * node, TypeSystem::ID expected_type)
+get_function_call(AST& ast, ScopeInfo& scope, FunctionCall& function_call_result, Tree::Node const * node, TypeSystem::ID expected_type)
 {
   bool success = true;
 
   assert(node->type == Tree::Node::Type::FunctionCall);
   Tree::FunctionCallNode const * function_call = &node->function_call;
 
-  success &= get_identifier(text, ast, scope, function_call_result.identifier, function_call->label, TypeSystem::InvalidID, false);
+  success &= get_identifier(ast, scope, function_call_result.identifier, function_call->label, TypeSystem::InvalidID, false);
 
   if (success)
   {
@@ -397,7 +467,7 @@ get_function_call(String::String const & text, AST& ast, ScopeInfo& scope, Funct
 
     Identifiers::ID identifier_id = function_call_result.identifier.identifier;
     Identifiers::Identifier const & identifier = scope.identifiers[identifier_id];
-    TypeSystem::Type func_type = scope.types[identifier.type];
+    TypeSystem::Type func_type = scope.types.types[identifier.type];
 
     if (func_type.type != TypeSystem::Type::BuiltIn::Func)
     {
@@ -409,12 +479,18 @@ get_function_call(String::String const & text, AST& ast, ScopeInfo& scope, Funct
       if (expected_type != TypeSystem::InvalidID &&
           func_type.function.return_type != expected_type)
       {
-        printf("Function %u return type %u does not match expected %u\n", identifier.string, func_type.function.return_type, expected_type);
+        String::String name = Strings::get(*ast.strings, identifier.string);
+        String::String return_type = TypeSystem::string(scope.types, func_type.function.return_type);
+        String::String expected_type_string = TypeSystem::string(scope.types, expected_type);
+        printf("Function %.*s return type %.*s does not match expected %.*s\n",
+               name.length, name.start,
+               return_type.length, return_type.start,
+               expected_type_string.length, expected_type_string.start);
         success &= false;
       }
       else
       {
-        success &= get_expressions(text, ast, scope, function_call_result.expressions, function_call->expressions, func_type.function.n_arg_types, func_type.function.arg_types);
+        success &= get_expressions(ast, scope, function_call_result.expressions, function_call->expressions, func_type.function.n_arg_types, func_type.function.arg_types);
       }
     }
 
@@ -426,7 +502,7 @@ get_function_call(String::String const & text, AST& ast, ScopeInfo& scope, Funct
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -434,24 +510,23 @@ get_function_call(String::String const & text, AST& ast, ScopeInfo& scope, Funct
 
 
 bool
-get_declaration(String::String const & text, AST& ast, ScopeInfo& scope, Declaration& declaration_result, Tree::Node const * node)
+get_declaration(AST& ast, ScopeInfo& scope, Declaration& declaration_result, Tree::Node const * node)
 {
   bool success = true;
 
   assert(node->type == Tree::Node::Type::Declaration);
   Tree::DeclarationNode const * declaration = &node->declaration;
 
-  success &= get_type(text, ast, scope, declaration_result.type, declaration->type);
+  success &= get_type(ast, scope, declaration_result.type, declaration->type_name);
 
   if (success)
   {
-    TypeSystem::ID type = declaration_result.type.type;
-    success &= get_identifier(text, ast, scope, declaration_result.identifier, declaration->label, type, true);
+    success &= get_identifier(ast, scope, declaration_result.identifier, declaration->label, declaration_result.type, true);
   }
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -459,7 +534,7 @@ get_declaration(String::String const & text, AST& ast, ScopeInfo& scope, Declara
 
 
 bool
-get_expression(String::String const & text, AST& ast, ScopeInfo& scope, Expression& expression_result, Tree::Node const * node, TypeSystem::ID expected_type, TypeSystem::ID& result_type)
+get_expression(AST& ast, ScopeInfo& scope, Expression& expression_result, Tree::Node const * node, TypeSystem::ID expected_type, TypeSystem::ID& result_type)
 {
   bool success = true;
 
@@ -471,13 +546,13 @@ get_expression(String::String const & text, AST& ast, ScopeInfo& scope, Expressi
     case (Tree::ExpressionNode::Type::Literal):
     {
       expression_result.type = Expression::Type::Literal;
-      success &= get_literal(text, ast, scope, expression_result.literal, expression->literal, expected_type, result_type);
+      success &= get_literal(ast, scope, expression_result.literal, expression->literal, expected_type, result_type);
     } break;
 
     case (Tree::ExpressionNode::Type::FunctionCall):
     {
       expression_result.type = Expression::Type::FunctionCall;
-      success &= get_function_call(text, ast, scope, expression_result.function_call, expression->function_call, expected_type);
+      success &= get_function_call(ast, scope, expression_result.function_call, expression->function_call, expected_type);
 
       result_type = expected_type;
     } break;
@@ -485,7 +560,7 @@ get_expression(String::String const & text, AST& ast, ScopeInfo& scope, Expressi
     case (Tree::ExpressionNode::Type::Identifier):
     {
       expression_result.type = Expression::Type::Identifier;
-      success &= get_identifier(text, ast, scope, expression_result.identifier, expression->identifier, expected_type, false);
+      success &= get_identifier(ast, scope, expression_result.identifier, expression->identifier, expected_type, false);
 
       result_type = expected_type;
     } break;
@@ -493,7 +568,7 @@ get_expression(String::String const & text, AST& ast, ScopeInfo& scope, Expressi
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -501,28 +576,28 @@ get_expression(String::String const & text, AST& ast, ScopeInfo& scope, Expressi
 
 
 bool
-get_assignment(String::String const & text, AST& ast, ScopeInfo& scope, Assignment& assignment_result, Tree::Node const * node)
+get_assignment(AST& ast, ScopeInfo& scope, Assignment& assignment_result, Tree::Node const * node)
 {
   bool success = true;
 
   assert(node->type == Tree::Node::Type::Assignment);
   Tree::AssignmentNode const * assignment = &node->assignment;
 
-  success &= get_declaration(text, ast, scope, assignment_result.declaration, assignment->declaration);
+  success &= get_declaration(ast, scope, assignment_result.declaration, assignment->declaration);
 
   if (success)
   {
-    TypeSystem::ID declaration_type = assignment_result.declaration.type.type;
+    TypeSystem::ID declaration_type = assignment_result.declaration.type;
     TypeSystem::ID result_type;
-    success &= get_expression(text, ast, scope, assignment_result.expression, assignment->expression, declaration_type, result_type);
-    assignment_result.declaration.type.type = result_type;
+    success &= get_expression(ast, scope, assignment_result.expression, assignment->expression, declaration_type, result_type);
+    assignment_result.declaration.type = result_type;  // TOOD: This seems dodgy...
     Identifiers::Identifier& identifier = scope.identifiers[assignment_result.declaration.identifier.identifier];
     identifier.type = result_type;
   }
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -530,7 +605,7 @@ get_assignment(String::String const & text, AST& ast, ScopeInfo& scope, Assignme
 
 
 bool
-get_statement(String::String const & text, AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Node const * node, TypeSystem::ID type)
+get_statement(AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Node const * node, TypeSystem::ID type)
 {
   bool success = true;
 
@@ -543,13 +618,13 @@ get_statement(String::String const & text, AST& ast, ScopeInfo& scope, Statement
     {
       if (type != TypeSystem::InvalidID)
       {
-        printf("Cannot specify statement return type when statement is an assignment\n");
+        printf("Assignment statement does not return a value.\n");
         success &= false;
       }
       else
       {
         statement_result.type = Statement::Type::Assignment;
-        success &= get_assignment(text, ast, scope, statement_result.assignment, statement->assignment);
+        success &= get_assignment(ast, scope, statement_result.assignment, statement->assignment);
       }
     } break;
 
@@ -558,7 +633,7 @@ get_statement(String::String const & text, AST& ast, ScopeInfo& scope, Statement
       statement_result.type = Statement::Type::Expression;
 
       TypeSystem::ID return_type;
-      success &= get_expression(text, ast, scope, statement_result.expression, statement->expression, type, return_type);
+      success &= get_expression(ast, scope, statement_result.expression, statement->expression, type, return_type);
 
       assert(type == TypeSystem::InvalidID ||
              type == return_type);
@@ -567,7 +642,7 @@ get_statement(String::String const & text, AST& ast, ScopeInfo& scope, Statement
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -575,7 +650,7 @@ get_statement(String::String const & text, AST& ast, ScopeInfo& scope, Statement
 
 
 bool
-get_body(String::String const & text, AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node, TypeSystem::ID type)
+get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node, TypeSystem::ID type)
 {
   bool success = true;
 
@@ -585,9 +660,11 @@ get_body(String::String const & text, AST& ast, ScopeInfo& scope, Body& body_res
   body_result.scope = {};
 
   // Initialise scope with copy of current scope
+  // TODO: Set up proper copy-constructors for the arrays?
   body_result.scope = {};
-
-  body_result.scope.types += scope.types;
+  body_result.scope.types.built_in = scope.types.built_in;
+  body_result.scope.types.strings = scope.types.strings;
+  body_result.scope.types.types += scope.types.types;
   body_result.scope.identifiers += scope.identifiers;
 
   body_result.n = body->statements.n_elements;
@@ -605,7 +682,7 @@ get_body(String::String const & text, AST& ast, ScopeInfo& scope, Body& body_res
       statement_type = type;
     }
 
-    success &= get_statement(text, ast, body_result.scope, body_result.statements[statement_index], statement, statement_type);
+    success &= get_statement(ast, body_result.scope, body_result.statements[statement_index], statement, statement_type);
 
     if (!success)
     {
@@ -613,9 +690,17 @@ get_body(String::String const & text, AST& ast, ScopeInfo& scope, Body& body_res
     }
   }
 
+  if (0)
+  {
+    StringArray::StringArray types_text = {};
+    TypeSystem::string(body_result.scope.types, types_text);
+    types_text += "\n";
+    StringArray::print(types_text);
+  }
+
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -623,18 +708,18 @@ get_body(String::String const & text, AST& ast, ScopeInfo& scope, Body& body_res
 
 
 bool
-get_program(String::String const & text, AST& ast, ScopeInfo& scope, Program& program_result, Tree::Node const * node)
+get_program(AST& ast, ScopeInfo& scope, Program& program_result, Tree::Node const * node)
 {
   bool success = true;
 
   assert(node->type == Tree::Node::Type::Program);
   Tree::ProgramNode const * program = &node->program;
 
-  success &= get_body(text, ast, scope, program_result.body, program->body, TypeSystem::InvalidID);
+  success &= get_body(ast, scope, program_result.body, program->body, TypeSystem::InvalidID);
 
   if (!success)
   {
-    error(text, node);
+    error(*ast.text, node);
   }
 
   return success;
@@ -642,22 +727,22 @@ get_program(String::String const & text, AST& ast, ScopeInfo& scope, Program& pr
 
 
 bool
-make_ast(String::String const & text, AST& result, Tree::Node *const node)
+make_ast(String::String const & text, Strings::Table& strings, AST& result, Tree::Node *const node)
 {
   bool success = true;
 
-  result.strings = {};
-
-  result.built_in_types = {};
+  result.text = &text;
+  result.strings = &strings;
 
   ScopeInfo global_scope = {};
   global_scope.types = {};
-  TypeSystem::init_built_in_strings(global_scope.types, result.built_in_types, result.strings);
+  global_scope.types.strings = &strings;
+  TypeSystem::init_built_in_types(global_scope.types);
 
   global_scope.identifiers = {};
-  Identifiers::init_built_in_identifiers(global_scope.identifiers, result.strings, global_scope.types, result.built_in_types);
+  Identifiers::init_built_in_identifiers(global_scope.identifiers, *result.strings, global_scope.types);
 
-  success &= get_program(text, result, global_scope, result.program, node);
+  success &= get_program(result, global_scope, result.program, node);
 
   return success;
 }

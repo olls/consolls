@@ -33,7 +33,6 @@ struct Function;
 struct Number;
 struct Declarations;
 struct Expressions;
-struct Type;
 struct Identifier;
 
 
@@ -41,13 +40,6 @@ struct Identifier
 {
   Strings::ID label;
   Identifiers::ID identifier;
-};
-
-
-struct Type
-{
-  Strings::ID label;
-  TypeSystem::ID type;
 };
 
 
@@ -74,8 +66,7 @@ struct Number
 
 struct Function
 {
-  Type return_type;
-  Declarations declarations;
+  TypeSystem::ID type;
   Body* body;
 };
 
@@ -114,14 +105,12 @@ struct Expression
     FunctionCall function_call;
     Identifier identifier;
   };
-
-  Strings::ID return_type;
 };
 
 
 struct Declaration
 {
-  Type type;
+  TypeSystem::ID type;
   Identifier identifier;
 };
 
@@ -167,14 +156,13 @@ struct AST
 {
   Program program;
 
-  Strings::Table strings;
-
-  TypeSystem::BuiltInTypes built_in_types;
+  String::String const* text;
+  Strings::Table* strings;
 };
 
 
 bool
-make_ast(String::String const & text, AST& result, Parser::Tree::Node *const node);
+make_ast(String::String const & text, Strings::Table& strings, AST& result, Parser::Tree::Node *const node);
 
 } // namespace AST
 

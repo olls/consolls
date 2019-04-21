@@ -3,6 +3,7 @@
 #include "ast-visitor.h"
 #include "type-system.h"
 #include "string-array.h"
+#include "strings.h"
 #include "string.h"
 
 
@@ -15,7 +16,7 @@ namespace AST
 struct StringBuilder
 {
   AST const* ast;
-  String::String const* text;
+  ScopeInfo const* curr_scope;
   StringArray::StringArray* result;
   u32 depth;
 };
@@ -66,7 +67,7 @@ string_string(StringArray::StringArray& result, Strings::Table const & strings, 
 
 
 bool
-string(StringBuilder& state, VisitorEvent event, Program*)
+string(StringBuilder& state, VisitorEvent event, void* user, Program*)
 {
   bool success = true;
 
@@ -79,30 +80,34 @@ string(StringBuilder& state, VisitorEvent event, Program*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Body* body)
+string(StringBuilder& state, VisitorEvent event, void* user, Body* body)
 {
   bool success = true;
 
   if (event == VisitorEvent::Enter)
   {
+    // Save the state.curr_scope in the user void* so we can revert the new scope on exit of this body node.
+    user = (void*)state.curr_scope;
+    state.curr_scope = &body->scope;
+
     *state.result += "Body {\n";
-    indent(state);  *state.result += "types: {  ";
-    for (u32 type_index = 0;
-         type_index < body->scope.types.n_elements;
-         ++type_index)
-    {
-      TypeSystem::Type type = body->scope.types[type_index];
-      *state.result += TypeSystem::string(type);
-      *state.result += "  ";
-    }
-    *state.result += "}\n";
+
+    // indent(state);
+    // *state.result += "types: {\n";
+    // TypeSystem::string(state.curr_scope->types, *state.result);
+    // *state.result += "\n}\n";
+  }
+
+  if (event == VisitorEvent::Leave)
+  {
+    state.curr_scope = (ScopeInfo const*)user;
   }
 
   return success;
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Statement*)
+string(StringBuilder& state, VisitorEvent event, void* user, Statement*)
 {
   bool success = true;
 
@@ -115,7 +120,7 @@ string(StringBuilder& state, VisitorEvent event, Statement*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Assignment*)
+string(StringBuilder& state, VisitorEvent event, void* user, Assignment*)
 {
   bool success = true;
 
@@ -128,20 +133,23 @@ string(StringBuilder& state, VisitorEvent event, Assignment*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Declaration*)
+string(StringBuilder& state, VisitorEvent event, void* user, Declaration* declaration)
 {
   bool success = true;
 
   if (event == VisitorEvent::Enter)
   {
     *state.result += "Declaration {\n";
+    indent(state);
+    TypeSystem::string(state.curr_scope->types, declaration->type, *state.result);
+    *state.result += "\n";
   }
 
   return success;
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Expression*)
+string(StringBuilder& state, VisitorEvent event, void* user, Expression*)
 {
   bool success = true;
 
@@ -154,7 +162,7 @@ string(StringBuilder& state, VisitorEvent event, Expression*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, FunctionCall*)
+string(StringBuilder& state, VisitorEvent event, void* user, FunctionCall*)
 {
   bool success = true;
 
@@ -167,7 +175,7 @@ string(StringBuilder& state, VisitorEvent event, FunctionCall*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Literal*)
+string(StringBuilder& state, VisitorEvent event, void* user, Literal*)
 {
   bool success = true;
 
@@ -180,20 +188,23 @@ string(StringBuilder& state, VisitorEvent event, Literal*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Function*)
+string(StringBuilder& state, VisitorEvent event, void* user, Function* function)
 {
   bool success = true;
 
   if (event == VisitorEvent::Enter)
   {
     *state.result += "Function {\n";
+    indent(state);
+    TypeSystem::string(state.curr_scope->types, function->type, *state.result);
+    *state.result += "\n";
   }
 
   return success;
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Number* number)
+string(StringBuilder& state, VisitorEvent event, void* user, Number* number)
 {
   bool success = true;
 
@@ -213,7 +224,7 @@ string(StringBuilder& state, VisitorEvent event, Number* number)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Declarations*)
+string(StringBuilder& state, VisitorEvent event, void* user, Declarations*)
 {
   bool success = true;
 
@@ -226,7 +237,7 @@ string(StringBuilder& state, VisitorEvent event, Declarations*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Expressions*)
+string(StringBuilder& state, VisitorEvent event, void* user, Expressions*)
 {
   bool success = true;
 
@@ -239,27 +250,7 @@ string(StringBuilder& state, VisitorEvent event, Expressions*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, Type* type)
-{
-  bool success = true;
-
-  if (event == VisitorEvent::Enter)
-  {
-    *state.result += "Type {\n";
-
-    indent(state);
-    string_string(*state.result, state.ast->strings, type->label);
-    *state.result += "\n";
-
-    indent(state);
-    *state.result += String::string_f("type: %u\n", type->type);
-  }
-
-  return success;
-}
-
-bool
-string(StringBuilder& state, VisitorEvent event, Identifier* identifier)
+string(StringBuilder& state, VisitorEvent event, void* user, Identifier* identifier)
 {
   bool success = true;
 
@@ -268,7 +259,7 @@ string(StringBuilder& state, VisitorEvent event, Identifier* identifier)
     *state.result += "Identifier {\n";
 
     indent(state);
-    string_string(*state.result, state.ast->strings, identifier->label);
+    string_string(*state.result, *state.ast->strings, identifier->label);
     *state.result += "\n";
 
     indent(state);
@@ -296,12 +287,10 @@ string(String::String const & text, AST& ast, StringArray::StringArray& result)
   visitor.number_func = string;
   visitor.declarations_func = string;
   visitor.expressions_func = string;
-  visitor.type_func = string;
   visitor.identifier_func = string;
 
   StringBuilder string_builder = {};
   string_builder.ast = &ast;
-  string_builder.text = &text;
   string_builder.result = &result;
   string_builder.depth = 0;
 
