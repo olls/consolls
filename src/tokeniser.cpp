@@ -64,15 +64,4 @@ tokenise(String::String text, Strings::Table& strings)
   return result;
 }
 
-
-String::String
-string(String::String const & text, Token const & token)
-{
-  String::String result = {
-    text.start + token.start,
-    token.end - token.start
-  };
-  return result;
-}
-
 } // namespace Tokeniser

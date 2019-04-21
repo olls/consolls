@@ -21,19 +21,32 @@ Array::Array<Token>
 tokenise(String::String text, Strings::Table& strings);
 
 
+// Depricated
+inline
 String::String
-string(String::String const & text, Token const & token);
+string(String::String const & text, Token const & token)
+{
+  return String::sub_string(text, token.start, token.end);
+}
+
+
+inline
+String::String
+string(Strings::Table const & strings, Token const & token)
+{
+  return Strings::get(strings, token.string);
+}
 
 
 inline
 void
-print(String::String const & text, Array::Array<Token> const & tokens, u32 start_pos = 0)
+print(Strings::Table const & strings, Array::Array<Token> const & tokens, u32 start_pos = 0)
 {
   for (u32 token_index = start_pos;
        token_index < tokens.n_elements;
        ++token_index)
   {
-    printf("\"%.*s\", ", print_s(string(text, tokens[token_index])));
+    printf("\"%.*s\", ", print_s(string(strings, tokens[token_index])));
   }
   printf("\n");
 }
