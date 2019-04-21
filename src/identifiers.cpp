@@ -10,18 +10,18 @@ namespace Identifiers
 {
 
 void
-add16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types, TypeSystem::BuiltInTypes const & built_in_types)
+add16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types)
 {
   TypeSystem::Type type = {};
   type.type = TypeSystem::Type::BuiltIn::Func;
-  type.string = built_in_types.func_string;
-  type.function.return_type = built_in_types.u16_type;
+  type.string = Strings::add(strings, "add16sig");
+  type.function.return_type = types.built_in.u16_type;
   type.function.n_arg_types = 2;
   type.function.arg_types = Allocate::allocate<TypeSystem::ID>(type.function.n_arg_types);
-  type.function.arg_types[0] = built_in_types.u16_type;
-  type.function.arg_types[1] = built_in_types.u16_type;
+  type.function.arg_types[0] = types.built_in.u16_type;
+  type.function.arg_types[1] = types.built_in.u16_type;
 
-  TypeSystem::ID type_id = types.n_elements;
+  TypeSystem::ID type_id = types.types.n_elements;
   TypeSystem::add(types, type);
 
   Identifier identifier = {};
@@ -33,18 +33,18 @@ add16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Ty
 
 
 void
-add8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types, TypeSystem::BuiltInTypes const & built_in_types)
+add8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types)
 {
   TypeSystem::Type type = {};
   type.type = TypeSystem::Type::BuiltIn::Func;
-  type.string = built_in_types.func_string;
-  type.function.return_type = built_in_types.u8_type;
+  type.string = Strings::add(strings, "add8sig");
+  type.function.return_type = types.built_in.u8_type;
   type.function.n_arg_types = 2;
   type.function.arg_types = Allocate::allocate<TypeSystem::ID>(type.function.n_arg_types);
-  type.function.arg_types[0] = built_in_types.u8_type;
-  type.function.arg_types[1] = built_in_types.u8_type;
+  type.function.arg_types[0] = types.built_in.u8_type;
+  type.function.arg_types[1] = types.built_in.u8_type;
 
-  TypeSystem::ID type_id = types.n_elements;
+  TypeSystem::ID type_id = types.types.n_elements;
   TypeSystem::add(types, type);
 
   Identifier identifier = {};
@@ -56,17 +56,17 @@ add8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Typ
 
 
 void
-neg8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types, TypeSystem::BuiltInTypes const & built_in_types)
+neg8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types)
 {
   TypeSystem::Type type = {};
   type.type = TypeSystem::Type::BuiltIn::Func;
-  type.string = built_in_types.func_string;
-  type.function.return_type = built_in_types.u8_type;
+  type.string = Strings::add(strings, "neg8sig");
+  type.function.return_type = types.built_in.u8_type;
   type.function.n_arg_types = 1;
   type.function.arg_types = Allocate::allocate<TypeSystem::ID>(type.function.n_arg_types);
-  type.function.arg_types[0] = built_in_types.u8_type;
+  type.function.arg_types[0] = types.built_in.u8_type;
 
-  TypeSystem::ID type_id = types.n_elements;
+  TypeSystem::ID type_id = types.types.n_elements;
   TypeSystem::add(types, type);
 
   Identifier identifier = {};
@@ -78,17 +78,17 @@ neg8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Typ
 
 
 void
-neg16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types, TypeSystem::BuiltInTypes const & built_in_types)
+neg16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types)
 {
   TypeSystem::Type type = {};
   type.type = TypeSystem::Type::BuiltIn::Func;
-  type.string = built_in_types.func_string;
-  type.function.return_type = built_in_types.u16_type;
+  type.string = Strings::add(strings, "neg16sig");
+  type.function.return_type = types.built_in.u16_type;
   type.function.n_arg_types = 1;
   type.function.arg_types = Allocate::allocate<TypeSystem::ID>(type.function.n_arg_types);
-  type.function.arg_types[0] = built_in_types.u16_type;
+  type.function.arg_types[0] = types.built_in.u16_type;
 
-  TypeSystem::ID type_id = types.n_elements;
+  TypeSystem::ID type_id = types.types.n_elements;
   TypeSystem::add(types, type);
 
   Identifier identifier = {};
@@ -100,12 +100,12 @@ neg16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Ty
 
 
 void
-init_built_in_identifiers(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types, TypeSystem::BuiltInTypes const & built_in_types)
+init_built_in_identifiers(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types)
 {
-  add8_built_in(identifiers, strings, types, built_in_types);
-  add16_built_in(identifiers, strings, types, built_in_types);
-  neg8_built_in(identifiers, strings, types, built_in_types);
-  neg16_built_in(identifiers, strings, types, built_in_types);
+  add8_built_in(identifiers, strings, types);
+  add16_built_in(identifiers, strings, types);
+  neg8_built_in(identifiers, strings, types);
+  neg16_built_in(identifiers, strings, types);
 }
 
 

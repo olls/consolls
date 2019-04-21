@@ -26,7 +26,7 @@ using Identifiers = Array::Array<Identifier>;
 
 
 void
-init_built_in_identifiers(Identifiers& identifiers, Strings::Table & strings, TypeSystem::Types & types, TypeSystem::BuiltInTypes const & built_in_types);
+init_built_in_identifiers(Identifiers& identifiers, Strings::Table & strings, TypeSystem::Types & types);
 
 
 ID
