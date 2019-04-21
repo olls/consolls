@@ -212,9 +212,9 @@ namespace Array
     if (array.heap_elements != 0)
     {
       ARRAY_FREE(array.heap_elements);
-      array.array_size = 0;
-      array.heap_elements = 0;
     }
+    array.array_size = 0;
+    array.heap_elements = 0;
     array.n_elements = 0;
   }
 
@@ -501,19 +501,20 @@ namespace Array
 void
 array_demo()
 {
+  u32 const n = 20;
   Array::Array<u32> test_array;
 
-  // Generate and print first 20 numbers in Fibonacci sequence
+  // Generate and print first n numbers in Fibonacci sequence
   Array::add(test_array, 0u);
   Array::add(test_array, 1u);
   for (u32 i = 0;
-       i < 20-2;
+       i < n-2;
        ++i)
   {
     u32 next = test_array[i] + test_array[i+1];
     Array::add(test_array, next);
   }
-  printf("20 Fibonacci numbers: ");
+  printf("n Fibonacci numbers: ");
   for (u32 i = 0;
        i < test_array.n_elements;
        ++i)
