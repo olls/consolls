@@ -119,7 +119,6 @@ string(String::String const & text, Node *node, StringArray::StringArray& result
   return visit<StringBuilder>(string_builder, visitor, node);
 }
 
-
 } // namespace Tree
 
 } // namespace Parser

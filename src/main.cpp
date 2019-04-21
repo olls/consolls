@@ -17,6 +17,7 @@ main(s32 argc, char const *const argv[])
 #endif
 
   assert(game_run);
+
   success &= game_run(Options::get_args(argc, argv));
 
   return success ? 0 : 1;
