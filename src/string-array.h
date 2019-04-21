@@ -10,6 +10,10 @@ namespace StringArray
 using StringArray = Array::Array<String::String>;
 
 
+String::String
+concat(StringArray const & strings);
+
+
 void
 print(StringArray strings);
 

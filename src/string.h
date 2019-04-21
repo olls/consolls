@@ -78,4 +78,13 @@ equals(String const & a, String const & b);
 bool
 all(String const & string, bool(*condition)(char));
 
+
+inline
+String
+sub_string(String const& text, u32 start, u32 end)
+{
+  String result(text.start + start, end - start);
+  return result;
+}
+
 } // namespace String
