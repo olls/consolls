@@ -88,6 +88,8 @@ struct Parser
   using SymbolLookaheadType = SymbolLookahead<4>;
   SymbolLookaheadType lookahead;
 
+  u32 last_symbol_end_position;
+
   u32 depth;
 };
 

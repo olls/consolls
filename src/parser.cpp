@@ -206,6 +206,13 @@ terminal(Parser& parser, Tree::Node** o_token_nodes[sizeof...(t_symbols)])
       }
     }
 
+    if (n_symbols > 0 && parser.lookahead.symbols[0].type != SymbolType::Error)
+    {
+      // Record the end text position of the last token
+      // This is so we can easily get the end position of the last token we read at the end of a production
+      parser.last_symbol_end_position = parser.lookahead.symbols[0].token.end;
+    }
+
     // Advance lookahead
 
     for (u32 i = 0; i < parser.lookahead.lookahead_n; ++i)
@@ -388,7 +395,7 @@ type_name(Parser& parser, Tree::Node** result)
     }
   }
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches)
   {
@@ -432,7 +439,7 @@ function_signature(Parser& parser, Tree::Node** result)
     }
   }
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -472,7 +479,7 @@ function(Parser& parser, Tree::Node** result)
     }
   }
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -497,7 +504,7 @@ literal(Parser& parser, Tree::Node** result)
   bool matches = ((terminal<SymbolType::Number>(parser, &node.literal.number) ? (node.literal.type = Tree::LiteralNode::Type::Number), true : false) ||
                   (function(parser, &node.literal.function) ? (node.literal.type = Tree::LiteralNode::Type::Function), true : false));
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -534,7 +541,7 @@ function_call(Parser& parser, Tree::Node** result)
     }
   }
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -561,7 +568,7 @@ expression(Parser& parser, Tree::Node** result)
                   (function_call(parser, &node.expression.function_call) ? (node.expression.type = Tree::ExpressionNode::Type::FunctionCall), true : false) ||
                   (terminal<SymbolType::Identifier>(parser, &node.expression.identifier) ? (node.expression.type = Tree::ExpressionNode::Type::Identifier), true : false));
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -604,7 +611,7 @@ expressions(Parser& parser, Tree::Node** result)
   }
   while (terminal<SymbolType::Comma>(parser));
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -660,7 +667,7 @@ declaration(Parser& parser, Tree::Node** result)
     }
   }
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -707,7 +714,7 @@ declarations(Parser& parser, Tree::Node** result)
   }
   while (terminal<SymbolType::Comma>(parser));
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -747,7 +754,7 @@ assignment(Parser& parser, Tree::Node** result)
     }
   }
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -772,7 +779,7 @@ statement(Parser& parser, Tree::Node** result)
   bool matches = ((assignment(parser, &node.statement.assignment) ? (node.statement.type = Tree::StatementNode::Type::Assignment), true : false) ||
                   (expression(parser, &node.statement.expression) ? (node.statement.type = Tree::StatementNode::Type::Expression), true : false));
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -802,7 +809,7 @@ body(Parser& parser, Tree::Node** result)
     statement_node = NULL;
   }
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
@@ -829,7 +836,7 @@ program(Parser& parser, Tree::Node** result)
 
   bool matches = body(parser, &node.program.body);
 
-  node.text_end = current_text_position(parser);
+  node.text_end = parser.last_symbol_end_position;
 
   if (matches && result)
   {
