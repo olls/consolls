@@ -20,6 +20,7 @@ struct ProgramNode;
 struct StatementNode;
 struct BodyNode;
 struct AssignmentNode;
+struct TypeNameNode;
 struct DeclarationNode;
 struct ExpressionNode;
 struct LiteralNode;
@@ -60,7 +61,7 @@ struct AssignmentNode
   Node* expression;
 };
 
-struct DeclarationNode
+struct TypeNameNode
 {
   enum class Type
   {
@@ -72,6 +73,11 @@ struct DeclarationNode
     Node* identifier;
     Node* function_signature;
   };
+};
+
+struct DeclarationNode
+{
+  Node* type_name;
   Node* label;
 };
 
@@ -149,6 +155,7 @@ struct Node
     Statement,
     Body,
     Assignment,
+    TypeName,
     Declaration,
     Expression,
     Literal,
@@ -167,6 +174,7 @@ struct Node
     StatementNode statement;
     BodyNode body;
     AssignmentNode assignment;
+    TypeNameNode type_name;
     DeclarationNode declaration;
     ExpressionNode expression;
     LiteralNode literal;

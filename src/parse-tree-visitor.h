@@ -29,6 +29,7 @@ struct Visitor
   bool (*statement_func)          (State&, VisitorEvent, StatementNode*);
   bool (*body_func)               (State&, VisitorEvent, BodyNode*);
   bool (*assignment_func)         (State&, VisitorEvent, AssignmentNode*);
+  bool (*type_name_func)          (State&, VisitorEvent, TypeNameNode*);
   bool (*declaration_func)        (State&, VisitorEvent, DeclarationNode*);
   bool (*expression_func)         (State&, VisitorEvent, ExpressionNode*);
   bool (*literal_func)            (State&, VisitorEvent, LiteralNode*);
@@ -56,6 +57,10 @@ visit(State& state, Visitor<State>& visitor, BodyNode* body_node);
 template <typename State>
 bool
 visit(State& state, Visitor<State>& visitor, AssignmentNode* assignment_node);
+
+template <typename State>
+bool
+visit(State& state, Visitor<State>& visitor, TypeNameNode* type_name_node);
 
 template <typename State>
 bool
@@ -133,6 +138,12 @@ visit(State& state, Visitor<State>& visitor, Node* node)
       success &= (visitor.declaration_func == NULL) || visitor.declaration_func(state, VisitorEvent::Enter, &node->declaration);
       success &= visit(state, visitor, &node->declaration);
       success &= (visitor.declaration_func == NULL) || visitor.declaration_func(state, VisitorEvent::Leave, &node->declaration);
+    } break;
+    case (Parser::Tree::Node::TypeName):
+    {
+      success &= (visitor.type_name_func == NULL) || visitor.type_name_func(state, VisitorEvent::Enter, &node->type_name);
+      success &= visit(state, visitor, &node->type_name);
+      success &= (visitor.type_name_func == NULL) || visitor.type_name_func(state, VisitorEvent::Leave, &node->type_name);
     } break;
     case (Parser::Tree::Node::Expression):
     {
@@ -256,22 +267,33 @@ visit(State& state, Visitor<State>& visitor, AssignmentNode* assignment_node)
 
 template <typename State>
 bool
+visit(State& state, Visitor<State>& visitor, TypeNameNode* type_name_node)
+{
+  bool success = true;
+
+  switch (type_name_node->type)
+  {
+    case (TypeNameNode::Type::Identifier):
+    {
+      success &= visit(state, visitor, type_name_node->identifier);
+    } break;
+    case (TypeNameNode::Type::FunctionSignature):
+    {
+      success &= visit(state, visitor, type_name_node->function_signature);
+    } break;
+  }
+
+  return success;
+}
+
+
+template <typename State>
+bool
 visit(State& state, Visitor<State>& visitor, DeclarationNode* declaration_node)
 {
   bool success = true;
 
-  switch (declaration_node->type)
-  {
-    case (DeclarationNode::Type::Identifier):
-    {
-      success &= visit(state, visitor, declaration_node->identifier);
-    } break;
-    case (DeclarationNode::Type::FunctionSignature):
-    {
-      success &= visit(state, visitor, declaration_node->function_signature);
-    } break;
-  }
-
+  success &= visit(state, visitor, declaration_node->type_name);
   success &= visit(state, visitor, declaration_node->label);
 
   return success;

@@ -1,5 +1,1 @@
-Func[u8](u8 x, u8 y, Func[u8](u8 a, u8 b) op) apply =
-  [u8](u8 x, u8 y, Func[u8](u8 a, u8 b) op)
-{
-  op(x, y)
-}
+Func[Func[u8]()](u8 x, u8 y, Func[u8](u8 a, u8 b) op) apply = 9

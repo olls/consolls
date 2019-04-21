@@ -356,21 +356,69 @@ current_text_position(Parser const & parser)
   return result;
 }
 
+bool
+type_name(Parser& parser, Tree::Node** result)
+{
+  start_production_debug(parser);
+
+  // type_name <- `Func` function_signature
+  //            | IDENTIFIER
+
+  Tree::Node node = { .type = Tree::Node::TypeName, .text_start = current_text_position(parser) };
+
+  bool matches = true;
+
+  if (terminal<SymbolType::Func>(parser))
+  {
+    node.type_name.type = Tree::TypeNameNode::Type::FunctionSignature;
+
+    matches &= function_signature(parser, &node.type_name.function_signature);
+
+    assert(matches);
+  }
+  else
+  {
+    if (terminal<SymbolType::Identifier>(parser, &node.type_name.identifier))
+    {
+      node.type_name.type = Tree::TypeNameNode::Type::Identifier;
+    }
+    else
+    {
+      matches = false;
+    }
+  }
+
+  node.text_end = current_text_position(parser);
+
+  if (matches)
+  {
+    *result = Allocate::copy(node);
+  }
+
+  end_production_debug(parser, matches, *result);
+  return matches;
+}
 
 bool
 function_signature(Parser& parser, Tree::Node** result)
 {
   start_production_debug(parser);
 
-  // function_signature <- '[' IDENTIFIER ']' '(' declarations ')'
+  // function_signature <- '[' type_name ']' '(' declarations ')'
 
   Tree::Node node = { .type = Tree::Node::FunctionSignature, .text_start = current_text_position(parser) };
 
-  Tree::Node** nodes[] = {NULL, &node.function_signature.return_type, NULL, NULL};
-  bool matches = terminal<SymbolType::L_Bracket, SymbolType::Identifier, SymbolType::R_Bracket, SymbolType::L_Parenthesis>(parser, nodes);
-
-  if (matches)
+  bool matches = false;
+  if (terminal<SymbolType::L_Bracket>(parser))
   {
+    matches = true;
+
+    matches &= type_name(parser, &node.function_signature.return_type);
+    assert(matches);
+    Tree::Node** nodes[] = {NULL, NULL};
+    matches &= terminal<SymbolType::R_Bracket, SymbolType::L_Parenthesis>(parser, nodes);
+    assert(matches);
+
     ProductionLambda sequence[] = {
       {declarations, &node.function_signature.declarations},
       {terminal<SymbolType::R_Parenthesis>}
@@ -420,6 +468,7 @@ function(Parser& parser, Tree::Node** result)
       // TODO: More descriptive error message
       printf("Error while parsing function definition\n");
       matches &= false;
+      assert(matches);
     }
   }
 
@@ -581,27 +630,33 @@ declaration(Parser& parser, Tree::Node** result)
 
   Tree::Node node = { .type = Tree::Node::Declaration, .text_start = current_text_position(parser) };
 
-  bool matches = true;
+  bool matches = false;
+
+  // TODO: This is a bit of a hacky work around to prevent IDENTIFIER IDENTIFIER being ambiguous with IDENTIFIER if not matched at the same time.
+  //
+  //       Maybe change declaration syntax to `name: type = value` to resolve this in a neater way
+
+  node.declaration.type_name = Allocate::allocate<Tree::Node>();
+  node.declaration.type_name->type = Tree::Node::Type::TypeName;
 
   if (terminal<SymbolType::Func>(parser))
   {
-    node.declaration.type = Tree::DeclarationNode::Type::FunctionSignature;
+    matches = true;
 
-    matches &= function_signature(parser, &node.declaration.function_signature);
+    node.declaration.type_name->type_name.type = Tree::TypeNameNode::Type::FunctionSignature;
+
+    matches &= function_signature(parser, &node.declaration.type_name->type_name.function_signature);
     matches &= terminal<SymbolType::Identifier>(parser, &node.declaration.label);
 
     assert(matches);
   }
   else
   {
-    Tree::Node** arg_types[] = {&node.declaration.identifier, &node.declaration.label};
+    Tree::Node** arg_types[] = {&node.declaration.type_name->type_name.identifier, &node.declaration.label};
     if (terminal<SymbolType::Identifier, SymbolType::Identifier>(parser, arg_types))
     {
-      node.declaration.type = Tree::DeclarationNode::Type::Identifier;
-    }
-    else
-    {
-      matches = false;
+      matches = true;
+      node.declaration.type_name->type_name.type = Tree::TypeNameNode::Type::Identifier;
     }
   }
 
@@ -610,6 +665,10 @@ declaration(Parser& parser, Tree::Node** result)
   if (matches && result)
   {
     *result = Allocate::copy(node);
+  }
+  else
+  {
+    Allocate::unallocate(node.declaration.type_name);
   }
 
   end_production_debug(parser, matches, *result);
@@ -800,7 +859,10 @@ program(Parser& parser, Tree::Node** result)
 //
 // assignment <- declaration '=' expression
 //
-// function_signature <- '[' IDENTIFIER ']' '(' declarations ')'
+// type <- `Func` function_signature
+//       | IDENTIFIER
+//
+// function_signature <- '[' type ']' '(' declarations ')'
 //
 // declaration <- `Func` function_signature IDENTIFIER
 //              | IDENTIFIER IDENTIFIER

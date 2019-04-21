@@ -19,6 +19,7 @@ static const String::String NODE_NAMES[] = {
   "Statement",
   "Body",
   "Assignment",
+  "TypeName",
   "Declaration",
   "Expression",
   "Literal",
