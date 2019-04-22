@@ -117,6 +117,8 @@ get_symbol_type(Types const & types, ID type_id);
 void
 string(Types const& types, Type const& type, StringArray::StringArray& result);
 
+
+// string wrapper for calling with a type id
 inline
 void
 string(Types const& types, ID const type_id, StringArray::StringArray& result)
@@ -125,16 +127,37 @@ string(Types const& types, ID const type_id, StringArray::StringArray& result)
 }
 
 
-void
-string(Strings::Table const& strings, Type const & type, StringArray::StringArray& result);
-
-
+// string wrapper for concatenating the StringArray to a String
+inline
 String::String
-string(Types const & types, ID type);
+string(Types const& types, ID type)
+{
+  StringArray::StringArray arr = {};
+  string(types, type, arr);
+  String::String const& result = StringArray::concat(arr);
+  Array::free_array(arr);
+  return result;
+}
 
 
+// Create a StringArray listing all types
+inline
 void
-string(Types const& types, StringArray::StringArray& result);
+string(Types const& types, StringArray::StringArray& result)
+{
+  for (ID index = 0;
+       index < types.types.n_elements;
+       ++index)
+  {
+    Type const& type = types.types[index];
+    result += String::string_f("%u: ", index);
+    string(types, type, result);
+    if (index != types.types.n_elements-1)
+    {
+      result += ",\n";
+    }
+  }
+}
 
 } // namespace TypeSystem
 
