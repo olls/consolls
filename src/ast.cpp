@@ -354,8 +354,10 @@ get_literal(AST& ast, ScopeInfo& scope, Literal& literal_result, Tree::Node cons
     Tree::LiteralNode::Type expected_symbol = TypeSystem::get_symbol_type(scope.types, type);
     if (expected_symbol != literal->type)
     {
-      printf("Type mismatch in literal!  Expecting symbol type of \"%.*s\" (%u), got \"%.*s\"\n",
-             print_s(literal_type_string(expected_symbol)), type,
+      String::String expected_type_string = TypeSystem::string(scope.types, type);
+      printf("Type mismatch in literal!  Expecting symbol type of %.*s %.*s, got %.*s\n",
+             print_s(literal_type_string(expected_symbol)),
+             print_s(expected_type_string),
              print_s(literal_type_string(literal->type)));
       success &= false;
     }
@@ -486,8 +488,9 @@ get_function_call(AST& ast, ScopeInfo& scope, FunctionCall& function_call_result
 
     if (func_type.type != TypeSystem::Type::BuiltIn::Func)
     {
+      String::String identifier_string = Strings::get(*ast.strings, function_call_result.identifier.label);
       String::String identifier_type_string = TypeSystem::string(scope.types, identifier.type);
-      printf("Function call identifier type %.*s is not Func\n", print_s(identifier_type_string));
+      printf("Function call identifier \"%.*s\" type %.*s is not a function\n", print_s(identifier_string), print_s(identifier_type_string));
       success &= false;
     }
     else
@@ -506,12 +509,6 @@ get_function_call(AST& ast, ScopeInfo& scope, FunctionCall& function_call_result
       {
         success &= get_expressions(ast, scope, function_call_result.expressions, function_call->expressions, func_type.function.n_arg_types, func_type.function.arg_types);
       }
-    }
-
-    if (!success)
-    {
-      String::String identifier_type_string = TypeSystem::string(scope.types, identifier.type);
-      printf("Function type %.*s\n", print_s(identifier_type_string));
     }
   }
 
