@@ -41,9 +41,8 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
     printf("\n\n");
 
     success &= Parser::validate_end_state(parser);
-
-    Array::free_array(parser.tokens.elements);
   }
+  Array::free_array(tokens);
 
   {
     StringArray::StringArray parse_tree_text = {};
@@ -70,6 +69,8 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
     AST::AST ast = {};
     success &= AST::make_ast(text, strings, ast, program_node);
 
+    // TODO: free parse tree
+
     if (!success)
     {
       printf("\nAST error.\n");
@@ -85,6 +86,9 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
       }
     }
   }
+
+  // TODO: free AST
+  Array::free_array(strings.table);
 
   return success;
 }
