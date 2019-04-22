@@ -197,7 +197,7 @@ get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_res
   TypeSystem::ID return_type;
   if (get_type(ast, scope, return_type, function_signature->return_type))
   {
-    // TODO: When using this function for a function value, we will need to store the declaration, so we know the parameter identifiers!
+    // TODO: When using this function for a function value, we will need to store the declarations, so we know the parameter identifiers!
 
     Declarations declarations;
     if (get_declarations(ast, scope, declarations, function_signature->declarations))
@@ -304,7 +304,9 @@ get_expressions(AST& ast, ScopeInfo& scope, Expressions& expressions_result, Tre
       success &= get_expression(ast, scope, expressions_result.expressions[expression_index], expression, expected_type, result_type);
       if (result_type != expected_type)
       {
-        printf("result_type(%u) != expected_type(%u)\n", result_type, expected_type);
+        String::String result_type_string = TypeSystem::string(scope.types, result_type);
+        String::String expected_type_string = TypeSystem::string(scope.types, expected_type);
+        printf("expression type %.*s does not equal expected type %.*s\n", print_s(result_type_string), print_s(expected_type_string));
         success &= false;
         break;
       }
@@ -380,7 +382,9 @@ get_literal(AST& ast, ScopeInfo& scope, Literal& literal_result, Tree::Node cons
           success &= (literal_result.function.type == type);
           if (!success)
           {
-            printf("Function literal type %u does not match expected type %u.\n", literal_result.function.type, type);
+            String::String function_type_string = TypeSystem::string(scope.types, literal_result.function.type);
+            String::String type_string = TypeSystem::string(scope.types, type);
+            printf("Function literal type %.*s does not match expected type %.*s.\n", print_s(function_type_string), print_s(type_string));
           }
           else
           {
@@ -437,7 +441,9 @@ get_identifier(AST& ast, ScopeInfo& scope, Identifier& identifier_result, Tree::
     if (type != TypeSystem::InvalidID &&
         identifier.type != type)
     {
-      printf("Identifier type %u does not match expected type %u\n", identifier.type, type);
+      String::String identifier_type_string = TypeSystem::string(scope.types, identifier.type);
+      String::String type_string = TypeSystem::string(scope.types, type);
+      printf("Identifier type %.*s does not match expected type %.*s\n", print_s(identifier_type_string), print_s(type_string));
       success &= false;
     }
   }
@@ -483,9 +489,7 @@ get_function_call(AST& ast, ScopeInfo& scope, FunctionCall& function_call_result
         String::String return_type = TypeSystem::string(scope.types, func_type.function.return_type);
         String::String expected_type_string = TypeSystem::string(scope.types, expected_type);
         printf("Function %.*s return type %.*s does not match expected %.*s\n",
-               name.length, name.start,
-               return_type.length, return_type.start,
-               expected_type_string.length, expected_type_string.start);
+               print_s(name), print_s(return_type), print_s(expected_type_string));
         success &= false;
       }
       else
@@ -587,12 +591,9 @@ get_assignment(AST& ast, ScopeInfo& scope, Assignment& assignment_result, Tree::
 
   if (success)
   {
-    TypeSystem::ID declaration_type = assignment_result.declaration.type;
     TypeSystem::ID result_type;
-    success &= get_expression(ast, scope, assignment_result.expression, assignment->expression, declaration_type, result_type);
-    assignment_result.declaration.type = result_type;  // TOOD: This seems dodgy...
-    Identifiers::Identifier& identifier = scope.identifiers[assignment_result.declaration.identifier.identifier];
-    identifier.type = result_type;
+    success &= get_expression(ast, scope, assignment_result.expression, assignment->expression, assignment_result.declaration.type, result_type);
+    assert(assignment_result.declaration.type == result_type);
   }
 
   if (!success)
@@ -618,6 +619,7 @@ get_statement(AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Nod
     {
       if (type != TypeSystem::InvalidID)
       {
+        // Error if we were asked to validate the statement's type
         printf("Assignment statement does not return a value.\n");
         success &= false;
       }
@@ -632,11 +634,11 @@ get_statement(AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Nod
     {
       statement_result.type = Statement::Type::Expression;
 
-      TypeSystem::ID return_type;
-      success &= get_expression(ast, scope, statement_result.expression, statement->expression, type, return_type);
+      TypeSystem::ID expression_type;
+      success &= get_expression(ast, scope, statement_result.expression, statement->expression, type, expression_type);
 
       assert(type == TypeSystem::InvalidID ||
-             type == return_type);
+             type == expression_type);
     } break;
   }
 
