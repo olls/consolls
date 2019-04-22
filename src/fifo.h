@@ -17,7 +17,7 @@ struct Fifo
 
 template <typename T>
 s32
-elements_remaining(Fifo<T>& fifo)
+elements_remaining(Fifo<T> const& fifo)
 {
   return fifo.elements.n_elements - fifo.position;
 }
@@ -25,7 +25,7 @@ elements_remaining(Fifo<T>& fifo)
 
 template <typename T>
 bool
-empty(Fifo<T>& fifo)
+empty(Fifo<T> const& fifo)
 {
   return elements_remaining(fifo) <= 0;
 }

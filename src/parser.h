@@ -120,6 +120,30 @@ prime_lookahead(Parser& parser)
   }
 }
 
+
+inline
+bool
+validate_end_state(Parser const& parser)
+{
+  bool success = true;
+
+  if (!lookahead_empty(parser.lookahead))
+  {
+    success &= false;
+    printf("Junk tokens at end of program: ");
+    print_lookahead(*parser.strings, parser.lookahead);
+    printf("\n");
+  }
+  else if (!Fifo::empty(parser.tokens))
+  {
+    success &= false;
+    printf("Lookahead empty but junk tokens remaining in token queue: ");
+    Tokeniser::print(*parser.strings, parser.tokens.elements, parser.tokens.position);
+  }
+
+  return success;
+}
+
 } // namespace Parser
 
 } // namespace Compolls

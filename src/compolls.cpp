@@ -40,13 +40,9 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
     success &= Parser::program(parser, &program_node);
     printf("\n\n");
 
-    if (!Parser::lookahead_empty(parser.lookahead))
-    {
-      success &= false;
-      printf("Junk tokens at end of program: ");
-      Parser::print_lookahead(strings, parser.lookahead);
-      printf("\n");
-    }
+    success &= Parser::validate_end_state(parser);
+
+    Array::free_array(parser.tokens.elements);
   }
 
   {
@@ -54,6 +50,7 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
     Parser::Tree::string(text, program_node, parse_tree_text);
     parse_tree_text += "\n";
     StringArray::print(parse_tree_text);
+    Array::free_array(parse_tree_text);
   }
 
   if (!success)
@@ -67,6 +64,7 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
       Strings::string(strings, strings_text);
       strings_text += "\n";
       StringArray::print(strings_text);
+      Array::free_array(strings_text);
     }
 
     AST::AST ast = {};
@@ -83,6 +81,7 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
         AST::string(text, ast, ast_text);
         ast_text += "\n";
         StringArray::print(ast_text);
+        Array::free_array(ast_text);
       }
     }
   }
