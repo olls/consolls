@@ -306,7 +306,7 @@ get_expressions(AST& ast, ScopeInfo& scope, Expressions& expressions_result, Tre
       {
         String::String result_type_string = TypeSystem::string(scope.types, result_type);
         String::String expected_type_string = TypeSystem::string(scope.types, expected_type);
-        printf("expression type %.*s does not equal expected type %.*s\n", print_s(result_type_string), print_s(expected_type_string));
+        printf("Expression type %.*s does not equal expected type %.*s\n", print_s(result_type_string), print_s(expected_type_string));
         success &= false;
         break;
       }
@@ -435,16 +435,25 @@ get_identifier(AST& ast, ScopeInfo& scope, Identifier& identifier_result, Tree::
   }
   else
   {
-    identifier_result.identifier = identifier_id;
-    Identifiers::Identifier const& identifier = scope.identifiers[identifier_id];
-
-    if (type != TypeSystem::InvalidID &&
-        identifier.type != type)
+    if (create)
     {
-      String::String identifier_type_string = TypeSystem::string(scope.types, identifier.type);
-      String::String type_string = TypeSystem::string(scope.types, type);
-      printf("Identifier type %.*s does not match expected type %.*s\n", print_s(identifier_type_string), print_s(type_string));
+      printf("Identifier with name %.*s already exists.\n", print_s(label));
       success &= false;
+    }
+    else
+    {
+      identifier_result.identifier = identifier_id;
+      Identifiers::Identifier const& identifier = scope.identifiers[identifier_id];
+
+      if (type != TypeSystem::InvalidID &&
+          identifier.type != type)
+      {
+        String::String identifier_type_string = TypeSystem::string(scope.types, identifier.type);
+        String::String type_string = TypeSystem::string(scope.types, type);
+        printf("Identifier \"%.*s\" type %.*s does not match expected type %.*s\n",
+               print_s(label), print_s(identifier_type_string), print_s(type_string));
+        success &= false;
+      }
     }
   }
 
@@ -477,7 +486,8 @@ get_function_call(AST& ast, ScopeInfo& scope, FunctionCall& function_call_result
 
     if (func_type.type != TypeSystem::Type::BuiltIn::Func)
     {
-      printf("Function call identifier type (%u) is not Func\n", identifier.type);
+      String::String identifier_type_string = TypeSystem::string(scope.types, identifier.type);
+      printf("Function call identifier type %.*s is not Func\n", print_s(identifier_type_string));
       success &= false;
     }
     else
@@ -500,7 +510,8 @@ get_function_call(AST& ast, ScopeInfo& scope, FunctionCall& function_call_result
 
     if (!success)
     {
-      printf("Function type %u\n", identifier.type);
+      String::String identifier_type_string = TypeSystem::string(scope.types, identifier.type);
+      printf("Function type %.*s\n", print_s(identifier_type_string));
     }
   }
 
@@ -593,7 +604,6 @@ get_assignment(AST& ast, ScopeInfo& scope, Assignment& assignment_result, Tree::
   {
     TypeSystem::ID result_type;
     success &= get_expression(ast, scope, assignment_result.expression, assignment->expression, assignment_result.declaration.type, result_type);
-    assert(assignment_result.declaration.type == result_type);
   }
 
   if (!success)
@@ -690,14 +700,6 @@ get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node,
     {
       break;
     }
-  }
-
-  if (0)
-  {
-    StringArray::StringArray types_text = {};
-    TypeSystem::string(body_result.scope.types, types_text);
-    types_text += "\n";
-    StringArray::print(types_text);
   }
 
   if (!success)
