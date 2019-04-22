@@ -22,19 +22,19 @@ struct Visitor
 {
   bool (*node_func)          (State&, VisitorEvent);
 
-  bool (*program_func)       (State&, VisitorEvent, void* user, Program*);
-  bool (*body_func)          (State&, VisitorEvent, void* user, Body*);
-  bool (*statement_func)     (State&, VisitorEvent, void* user, Statement*);
-  bool (*assignment_func)    (State&, VisitorEvent, void* user, Assignment*);
-  bool (*declaration_func)   (State&, VisitorEvent, void* user, Declaration*);
-  bool (*expression_func)    (State&, VisitorEvent, void* user, Expression*);
-  bool (*function_call_func) (State&, VisitorEvent, void* user, FunctionCall*);
-  bool (*literal_func)       (State&, VisitorEvent, void* user, Literal*);
-  bool (*function_func)      (State&, VisitorEvent, void* user, Function*);
-  bool (*number_func)        (State&, VisitorEvent, void* user, Number*);
-  bool (*declarations_func)  (State&, VisitorEvent, void* user, Declarations*);
-  bool (*expressions_func)   (State&, VisitorEvent, void* user, Expressions*);
-  bool (*identifier_func)    (State&, VisitorEvent, void* user, Identifier*);
+  bool (*program_func)       (State&, VisitorEvent, void*& user, Program*);
+  bool (*body_func)          (State&, VisitorEvent, void*& user, Body*);
+  bool (*statement_func)     (State&, VisitorEvent, void*& user, Statement*);
+  bool (*assignment_func)    (State&, VisitorEvent, void*& user, Assignment*);
+  bool (*declaration_func)   (State&, VisitorEvent, void*& user, Declaration*);
+  bool (*expression_func)    (State&, VisitorEvent, void*& user, Expression*);
+  bool (*function_call_func) (State&, VisitorEvent, void*& user, FunctionCall*);
+  bool (*literal_func)       (State&, VisitorEvent, void*& user, Literal*);
+  bool (*function_func)      (State&, VisitorEvent, void*& user, Function*);
+  bool (*number_func)        (State&, VisitorEvent, void*& user, Number*);
+  bool (*declarations_func)  (State&, VisitorEvent, void*& user, Declarations*);
+  bool (*expressions_func)   (State&, VisitorEvent, void*& user, Expressions*);
+  bool (*identifier_func)    (State&, VisitorEvent, void*& user, Identifier*);
 };
 
 

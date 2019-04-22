@@ -67,7 +67,7 @@ string_string(StringArray::StringArray& result, Strings::Table const & strings, 
 
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Program*)
+string(StringBuilder& state, VisitorEvent event, void*& user, Program*)
 {
   bool success = true;
 
@@ -80,7 +80,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Program*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Body* body)
+string(StringBuilder& state, VisitorEvent event, void*& user, Body* body)
 {
   bool success = true;
 
@@ -107,7 +107,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Body* body)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Statement*)
+string(StringBuilder& state, VisitorEvent event, void*& user, Statement*)
 {
   bool success = true;
 
@@ -120,7 +120,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Statement*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Assignment*)
+string(StringBuilder& state, VisitorEvent event, void*& user, Assignment*)
 {
   bool success = true;
 
@@ -133,7 +133,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Assignment*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Declaration* declaration)
+string(StringBuilder& state, VisitorEvent event, void*& user, Declaration* declaration)
 {
   bool success = true;
 
@@ -149,7 +149,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Declaration* declar
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Expression*)
+string(StringBuilder& state, VisitorEvent event, void*& user, Expression*)
 {
   bool success = true;
 
@@ -162,7 +162,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Expression*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, FunctionCall*)
+string(StringBuilder& state, VisitorEvent event, void*& user, FunctionCall*)
 {
   bool success = true;
 
@@ -175,7 +175,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, FunctionCall*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Literal*)
+string(StringBuilder& state, VisitorEvent event, void*& user, Literal*)
 {
   bool success = true;
 
@@ -188,7 +188,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Literal*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Function* function)
+string(StringBuilder& state, VisitorEvent event, void*& user, Function* function)
 {
   bool success = true;
 
@@ -204,7 +204,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Function* function)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Number* number)
+string(StringBuilder& state, VisitorEvent event, void*& user, Number* number)
 {
   bool success = true;
 
@@ -224,7 +224,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Number* number)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Declarations*)
+string(StringBuilder& state, VisitorEvent event, void*& user, Declarations*)
 {
   bool success = true;
 
@@ -237,7 +237,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Declarations*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Expressions*)
+string(StringBuilder& state, VisitorEvent event, void*& user, Expressions*)
 {
   bool success = true;
 
@@ -250,7 +250,7 @@ string(StringBuilder& state, VisitorEvent event, void* user, Expressions*)
 }
 
 bool
-string(StringBuilder& state, VisitorEvent event, void* user, Identifier* identifier)
+string(StringBuilder& state, VisitorEvent event, void*& user, Identifier* identifier)
 {
   bool success = true;
 
