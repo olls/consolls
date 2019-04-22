@@ -39,6 +39,14 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
 
     success &= Parser::program(parser, &program_node);
     printf("\n\n");
+
+    if (!Parser::lookahead_empty(parser.lookahead))
+    {
+      success &= false;
+      printf("Junk tokens at end of program: ");
+      Parser::print_lookahead(strings, parser.lookahead);
+      printf("\n");
+    }
   }
 
   {

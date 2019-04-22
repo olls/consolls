@@ -50,7 +50,7 @@ template <u32 n>
 inline bool
 lookahead_empty(SymbolLookahead<n> const & lookahead)
 {
-  bool result = false;
+  bool result = true;
   for (u32 i = 0;
        i < n;
        ++i)
@@ -65,17 +65,23 @@ template <u32 n>
 inline void
 print_lookahead(Strings::Table const & strings, SymbolLookahead<n> const & lookahead)
 {
-  printf("Lookahead: ");
   for (u32 i = 0;
        i < n;
        ++i)
   {
-    if (lookahead.symbols[i].type != SymbolType::Error)
+    if (lookahead.symbols[i].type == SymbolType::Error)
     {
-      printf("\"%.*s\", ", print_s(Tokeniser::string(strings, lookahead.symbols[i].token)));
+      break;
+    }
+    else
+    {
+      if (i != 0)
+      {
+        printf(", ");
+      }
+      printf("\"%.*s\"", print_s(Tokeniser::string(strings, lookahead.symbols[i].token)));
     }
   }
-  printf("\n");
 }
 
 
