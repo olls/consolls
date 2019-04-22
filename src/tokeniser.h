@@ -46,7 +46,11 @@ print(Strings::Table const & strings, Array::Array<Token> const & tokens, u32 st
        token_index < tokens.n_elements;
        ++token_index)
   {
-    printf("\"%.*s\", ", print_s(string(strings, tokens[token_index])));
+    if (token_index != start_pos)
+    {
+      printf(", ");
+    }
+    printf("\"%.*s\"", print_s(string(strings, tokens[token_index])));
   }
   printf("\n");
 }
