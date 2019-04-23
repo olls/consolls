@@ -84,6 +84,13 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
         StringArray::print(ast_text);
         Array::free_array(ast_text);
       }
+
+      success &= CodeGenerator::generate_code(&machine, addr, ast);
+
+      if (!success)
+      {
+        printf("\nCode generation error.\n");
+      }
     }
   }
 
