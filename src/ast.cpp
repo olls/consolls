@@ -41,7 +41,7 @@ print_scope(ScopeInfo const & scope)
 
 
 bool
-get_number(AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const * node);
+get_number(AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const * node, TypeSystem::ID type, TypeSystem::ID& type_result);
 
 bool
 get_declarations(AST& ast, ScopeInfo& scope, Declarations& declarations_result, Tree::Node const * node);
@@ -84,7 +84,7 @@ get_program(AST& ast, ScopeInfo& scope, Program& program_result, Tree::Node cons
 
 
 bool
-get_number(AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const * node)
+get_number(AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const * node, TypeSystem::ID expected_type, TypeSystem::ID& type_result)
 {
   bool success = true;
 
@@ -93,6 +93,30 @@ get_number(AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const *
 
   number_result.text = Tokeniser::string(*ast.text, terminal->token);
   success &= NumberParser::parse_u32(number_result.text, number_result.number);
+
+  if (success)
+  {
+    TypeSystem::Type const& type = scope.types.types[expected_type];
+    switch (type.type)
+    {
+      case (TypeSystem::Type::BuiltIn::U8):
+      {
+        success &= (number_result.number <= 0xFF);
+        printf("%u is too large to fit in u8 type (max %u)\n", number_result.number, 0xFF);
+      } break;
+      case (TypeSystem::Type::BuiltIn::U16):
+      {
+        success &= (number_result.number <= 0xFFFF);
+        printf("%u is too large to fit in u16 type (max %u)\n", number_result.number, 0xFFFF);
+      } break;
+      case (TypeSystem::Type::BuiltIn::Func):
+      {
+        assert(false);
+      } break;
+    }
+  }
+
+  type_result = expected_type;
 
   if (!success)
   {
@@ -369,11 +393,8 @@ get_literal(AST& ast, ScopeInfo& scope, Literal& literal_result, Tree::Node cons
     {
       case (Tree::LiteralNode::Type::Number):
       {
-        // TODO: get_number does not distinguish different types
-        result_type = type;
-
         literal_result.type = Literal::Type::Number;
-        success &= get_number(ast, scope, literal_result.number, literal->number);
+        success &= get_number(ast, scope, literal_result.number, literal->number, type, result_type);
       } break;
       case (Tree::LiteralNode::Type::Function):
       {
@@ -601,6 +622,7 @@ get_assignment(AST& ast, ScopeInfo& scope, Assignment& assignment_result, Tree::
   {
     TypeSystem::ID result_type;
     success &= get_expression(ast, scope, assignment_result.expression, assignment->expression, assignment_result.declaration.type, result_type);
+    assert(result_type == assignment_result.declaration.type);
   }
 
   if (!success)

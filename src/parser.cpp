@@ -878,6 +878,8 @@ program(Parser& parser, Tree::Node** result)
 //             | function_call
 //             | IDENTIFIER
 //
+// TODO: different number types (hex, ...)
+//
 // literal <- NUMBER
 //          | function
 //
