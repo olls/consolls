@@ -9,6 +9,7 @@
 #endif
 
 #include <cstring>
+#include <initializer_list>
 
 
 namespace Allocate
@@ -49,6 +50,24 @@ copy(X const & x)
 {
   X* result = allocate<X>();
   memcpy(result, &x, sizeof(X));
+  return result;
+}
+
+
+template <typename X>
+X *
+copy(u32& n_elements_result, std::initializer_list<X> xs)
+{
+  assert(xs.size() > 0);
+  n_elements_result = xs.size();
+
+  X* result = allocate<X>(xs.size());
+  X* ptr = result;
+  for (X const& x : xs)
+  {
+    memcpy(ptr, &x, sizeof(X));
+    ptr += sizeof(X);
+  }
   return result;
 }
 
