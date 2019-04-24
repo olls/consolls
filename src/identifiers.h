@@ -25,12 +25,16 @@ struct Identifier
 using Identifiers = Array::Array<Identifier>;
 
 
-void
-init_built_in_identifiers(Identifiers& identifiers, Strings::Table & strings, TypeSystem::Types & types);
+ID
+add(Identifiers& identifiers, Identifier const& identifier);
 
 
 ID
 find(Identifiers const & identifiers, Strings::ID string);
+
+
+void
+init_built_in_identifiers(Identifiers& identifiers, Strings::Table & strings, TypeSystem::Types & types);
 
 } // namespace Identifiers
 

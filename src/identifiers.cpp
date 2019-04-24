@@ -9,6 +9,43 @@ namespace Compolls
 namespace Identifiers
 {
 
+ID
+find(Identifiers const & identifiers, Strings::ID string)
+{
+  ID result = InvalidID;
+
+  for (u32 index = 0;
+       index < identifiers.n_elements;
+       ++index)
+  {
+    Identifier const & identifier = identifiers[index];
+    if (identifier.string == string)
+    {
+      result = index;
+      break;
+    }
+  }
+  return result;
+}
+
+
+ID
+add(Identifiers& identifiers, Identifier const& identifier)
+{
+  ID result = InvalidID;
+
+  ID existing_name = find(identifiers, identifier.string);
+  if (existing_name == InvalidID)
+  {
+    result = identifiers.n_elements;
+    Array::add(identifiers, identifier);
+  }
+
+  assert(result != InvalidID);
+  return result;
+}
+
+
 void
 add16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types)
 {
@@ -27,7 +64,7 @@ add16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Ty
   identifier.string = Strings::add(strings, "add16");
   identifier.type = type_id;
 
-  Array::add(identifiers, identifier);
+  add(identifiers, identifier);
 }
 
 
@@ -49,7 +86,7 @@ add8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Typ
   identifier.string = Strings::add(strings, "add8");
   identifier.type = type_id;
 
-  Array::add(identifiers, identifier);
+  add(identifiers, identifier);
 }
 
 
@@ -70,7 +107,7 @@ neg8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Typ
   identifier.string = Strings::add(strings, "neg8");
   identifier.type = type_id;
 
-  Array::add(identifiers, identifier);
+  add(identifiers, identifier);
 }
 
 
@@ -91,7 +128,7 @@ neg16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Ty
   identifier.string = Strings::add(strings, "neg16");
   identifier.type = type_id;
 
-  Array::add(identifiers, identifier);
+  add(identifiers, identifier);
 }
 
 
@@ -102,26 +139,6 @@ init_built_in_identifiers(Identifiers& identifiers, Strings::Table& strings, Typ
   add16_built_in(identifiers, strings, types);
   neg8_built_in(identifiers, strings, types);
   neg16_built_in(identifiers, strings, types);
-}
-
-
-ID
-find(Identifiers const & identifiers, Strings::ID string)
-{
-  ID result = InvalidID;
-
-  for (u32 index = 0;
-       index < identifiers.n_elements;
-       ++index)
-  {
-    Identifier const & identifier = identifiers[index];
-    if (identifier.string == string)
-    {
-      result = index;
-      break;
-    }
-  }
-  return result;
 }
 
 } // namespace Identifiers

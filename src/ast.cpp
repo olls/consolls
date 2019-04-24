@@ -447,8 +447,7 @@ get_identifier(AST& ast, ScopeInfo& scope, Identifier& identifier_result, Tree::
       identifier.string = identifier_result.label;
       identifier.type = type;
 
-      identifier_result.identifier = scope.identifiers.n_elements;
-      Array::add(scope.identifiers, identifier);
+      identifier_result.identifier = Identifiers::add(scope.identifiers, identifier);
     }
     else
     {
