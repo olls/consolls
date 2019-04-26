@@ -15,9 +15,13 @@ namespace Parser
 #define PARSE_DEBUG_TRACE (0)
 
 
+// TODO: We need a way to return from a production with an error instead of a not-matching
+
+
 Symbol
 token_to_symbol(Strings::Table& strings, Tokeniser::Token token)
 {
+  // TODO: This should really just be done in the tokeniser, then we can do away with the lookahead
   Symbol result = {
     .type = SymbolType::Error,
     .token = token
@@ -68,7 +72,7 @@ token_to_symbol(Strings::Table& strings, Tokeniser::Token token)
     {
       result.type = SymbolType::Number;
     }
-    else if (String::all(token_text, String::is_alpha_num))
+    else if (String::all(token_text, String::is_alpha_num_underscore))
     {
       result.type = SymbolType::Identifier;
     }
@@ -322,6 +326,10 @@ _start_production_debug(const char * production_name, Parser& parser)
   printf("%*s%s {\n", parser.depth*2, "", production_name);
 
   parser.depth += 1;
+
+  printf("%*slkhd: ", parser.depth*2, "");
+  print_lookahead(*parser.strings, parser.lookahead);
+  printf("\n");
 #endif
 }
 
@@ -331,6 +339,10 @@ void
 _end_production_debug(const char* production_name, Parser& parser, bool matches, Tree::Node const * node)
 {
 #if PARSE_DEBUG_TRACE
+  printf("%*slkhd: ", parser.depth*2, "");
+  print_lookahead(*parser.strings, parser.lookahead);
+  printf("\n");
+
   parser.depth -= 1;
 
   printf("%*s} %s", parser.depth*2, "", production_name);
@@ -340,8 +352,6 @@ _end_production_debug(const char* production_name, Parser& parser, bool matches,
     printf("  \"%.*s\"", print_s(string));
   }
   printf("  %s\n", matches ? "true" : "false");
-
-  print_lookahead(*parser.strings, parser.lookahead);
 #endif
 }
 
@@ -639,7 +649,8 @@ declaration(Parser& parser, Tree::Node** result)
 
   bool matches = false;
 
-  // TODO: This is a bit of a hacky work around to prevent IDENTIFIER IDENTIFIER being ambiguous with IDENTIFIER if not matched at the same time.
+  // TODO: This is a bit of a hacky work around to prevent decl-> IDENTIFIER(type) IDENTIFIER(label) being ambiguous with expr-> IDENTIFIER(label) if not matched at the same time.
+  //       So we have to match the type inside the declaration instead of in its own production
   //
   //       Maybe change declaration syntax to `name: type = value` to resolve this in a neater way
 
@@ -652,9 +663,10 @@ declaration(Parser& parser, Tree::Node** result)
 
     node.declaration.type_name->type_name.type = Tree::TypeNameNode::Type::FunctionSignature;
 
+    // These must both match, as we have already consumed the Func symbol
     matches &= function_signature(parser, &node.declaration.type_name->type_name.function_signature);
+    assert(matches);
     matches &= terminal<SymbolType::Identifier>(parser, &node.declaration.label);
-
     assert(matches);
   }
   else

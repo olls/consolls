@@ -42,6 +42,14 @@ is_alpha_num(char c)
 }
 
 
+inline bool
+is_alpha_num_underscore(char c)
+{
+  return (is_alpha_num(c) ||
+          c == '_');
+}
+
+
 struct String
 {
   u32 length;

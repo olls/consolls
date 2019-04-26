@@ -95,8 +95,8 @@ tokenise(String::String text, Strings::Table& strings)
       if (in_token)
       {
         if (String::is_whitespace(c) ||
-            !String::is_alpha_num(prev_c) ||
-            !String::is_alpha_num(c))
+            !String::is_alpha_num_underscore(prev_c) ||
+            !String::is_alpha_num_underscore(c))
         {
           in_token = false;
           add_token(text, result, strings, token_start, character_index);
