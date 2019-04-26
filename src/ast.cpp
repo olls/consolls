@@ -102,12 +102,18 @@ get_number(AST& ast, ScopeInfo& scope, Number& number_result, Tree::Node const *
       case (TypeSystem::Type::BuiltIn::U8):
       {
         success &= (number_result.number <= 0xFF);
-        printf("%u is too large to fit in u8 type (max %u)\n", number_result.number, 0xFF);
+        if (!success)
+        {
+          printf("%u is too large to fit in u8 type (max %u)\n", number_result.number, 0xFF);
+        }
       } break;
       case (TypeSystem::Type::BuiltIn::U16):
       {
         success &= (number_result.number <= 0xFFFF);
-        printf("%u is too large to fit in u16 type (max %u)\n", number_result.number, 0xFFFF);
+        if (!success)
+        {
+          printf("%u is too large to fit in u16 type (max %u)\n", number_result.number, 0xFFFF);
+        }
       } break;
       case (TypeSystem::Type::BuiltIn::Func):
       {
