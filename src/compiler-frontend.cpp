@@ -33,9 +33,6 @@ main(s32 argc, char const * argv[])
       Machine::Machine machine = {};
       Machine::MemoryAddress addr = Machine::Reserved::UserStart;
 
-      // Compolls::compile(S("add(123, [u8](u16 a, u8 stride){MemoryAddress a = [u8](u16 a, u8 stride){}}) MemoryAddress a = [u8](u16 a, u8 stride){}"), machine, addr);
-      // Compolls::compile(S("add(1, 2)"), machine, addr);
-
       Basolls::Subroutine<void> result = {};
       if (!Compolls::compile(file_string, machine, addr, result))
       {
