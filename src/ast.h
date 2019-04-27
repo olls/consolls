@@ -82,6 +82,8 @@ struct Literal
     Number number;
     Function function;
   };
+
+  TypeSystem::ID inherited_type;
 };
 
 
@@ -139,6 +141,8 @@ struct Statement
 
 struct Body
 {
+  Declarations arg_declarations;
+
   u32 n;
   Statement* statements;
 

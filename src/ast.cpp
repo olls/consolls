@@ -49,7 +49,7 @@ bool
 get_declarations(AST& ast, ScopeInfo& scope, Declarations& declarations_result, Tree::Node const * node);
 
 bool
-get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Tree::Node const * node);
+get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Declarations& declarations_result, Tree::Node const * node);
 
 bool
 get_function(AST& ast, ScopeInfo& scope, Function& function_result, Tree::Node const * node);
@@ -79,7 +79,7 @@ bool
 get_statement(AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Node const * node, TypeSystem::ID type);
 
 bool
-get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node, TypeSystem::ID type);
+get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node, TypeSystem::ID function_type, Declarations const* function_declarations);
 
 bool
 get_program(AST& ast, ScopeInfo& scope, Program& program_result, Tree::Node const * node);
@@ -174,7 +174,8 @@ get_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Tree::Node con
     } break;
     case (Tree::TypeNameNode::Type::FunctionSignature):
     {
-      get_function_signature_type(ast, scope, type_result, type_name->function_signature);
+      Declarations function_declarations;  // Not needed, we don't care about the parameter names, this really should be fixed in the syntax
+      get_function_signature_type(ast, scope, type_result, function_declarations, type_name->function_signature);
     } break;
   }
 
@@ -219,7 +220,7 @@ get_declarations(AST& ast, ScopeInfo& scope, Declarations& declarations_result, 
 
 
 bool
-get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Tree::Node const * node)
+get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_result, Declarations& declarations_result, Tree::Node const * node)
 {
   type_result = TypeSystem::InvalidID;
 
@@ -229,10 +230,7 @@ get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_res
   TypeSystem::ID return_type = TypeSystem::InvalidID;
   if (get_type(ast, scope, return_type, function_signature->return_type))
   {
-    // TODO: When using this function for a function value, we will need to store the declarations, so we know the parameter identifiers!
-
-    Declarations declarations;
-    if (get_declarations(ast, scope, declarations, function_signature->declarations))
+    if (get_declarations(ast, scope, declarations_result, function_signature->declarations))
     {
       String::String node_string = String::sub_string(*ast.text, node->text_start, node->text_end);
       Strings::ID node_string_id = Strings::add(*ast.strings, node_string);
@@ -241,7 +239,7 @@ get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_res
         .type = TypeSystem::Type::BuiltIn::Func,
         .string = node_string_id,
         .function.return_type = return_type,
-        .function.n_arg_types = declarations.n,
+        .function.n_arg_types = declarations_result.n,
         .function.arg_types = Allocate::allocate<TypeSystem::ID>(type.function.n_arg_types)
       };
 
@@ -249,7 +247,7 @@ get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_res
            index < type.function.n_arg_types;
            ++index)
       {
-        type.function.arg_types[index] = declarations.declarations[index].type;
+        type.function.arg_types[index] = declarations_result.declarations[index].type;
       }
 
       type_result = TypeSystem::add(scope.types, type);
@@ -274,15 +272,13 @@ get_function(AST& ast, ScopeInfo& scope, Function& function_result, Tree::Node c
   assert(node->type == Tree::Node::Type::Function);
   Tree::FunctionNode const * function = &node->function;
 
-  success &= get_function_signature_type(ast, scope, function_result.type, function->function_signature);
+  Declarations function_declarations = {};
+  success &= get_function_signature_type(ast, scope, function_result.type, function_declarations, function->function_signature);
 
   if (success)
   {
-    TypeSystem::Type const& type = scope.types.types[function_result.type];
-    assert(type.type == TypeSystem::Type::BuiltIn::Func);
-
     function_result.body = Allocate::allocate<Body>();
-    success &= get_body(ast, scope, *function_result.body, function->body, type.function.return_type);
+    success &= get_body(ast, scope, *function_result.body, function->body, function_result.type, &function_declarations);
   }
 
   if (!success)
@@ -425,6 +421,8 @@ get_literal(AST& ast, ScopeInfo& scope, Literal& literal_result, Tree::Node cons
       } break;
     }
   }
+
+  literal_result.inherited_type = type;
 
   if (!success)
   {
@@ -688,7 +686,7 @@ get_statement(AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Nod
 
 
 bool
-get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node, TypeSystem::ID type)
+get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node, TypeSystem::ID function_type_id, Declarations const* function_declarations)
 {
   bool success = true;
 
@@ -705,6 +703,31 @@ get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node,
   body_result.scope.types.types += scope.types.types;
   body_result.scope.identifiers += scope.identifiers;
 
+  TypeSystem::ID return_type = TypeSystem::InvalidID;
+  if (function_type_id != TypeSystem::InvalidID)
+  {
+    TypeSystem::Type const& function_type = scope.types.types[function_type_id];
+    assert(function_type.type == TypeSystem::Type::BuiltIn::Func);
+
+    return_type = function_type.function.return_type;
+
+    // Sanity check that the function_declarations match the function_type_id
+    // TODO: This is a bit messy, can we unify the function_declarations and function_type_id?
+    assert(function_declarations != NULL);
+    assert(function_declarations->n == function_type.function.n_arg_types);
+    for (u32 arg_type_index = 0;
+         arg_type_index < function_type.function.n_arg_types;
+         ++arg_type_index)
+    {
+      TypeSystem::ID arg_type_id = function_type.function.arg_types[arg_type_index];
+      Declaration const& arg_declaration = function_declarations->declarations[arg_type_index];
+      assert(arg_declaration.type == arg_type_id);
+    }
+
+    // Store any body arg declarations
+    body_result.arg_declarations = *function_declarations;
+  }
+
   body_result.n = body->statements.n_elements;
   body_result.statements = Allocate::allocate<Statement>(body_result.n);
 
@@ -714,10 +737,12 @@ get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node,
   {
     Tree::Node const * statement = body->statements[statement_index];
 
+    // If this is the final statement: ask for the statement to have the
+    // function return type
     TypeSystem::ID statement_type = TypeSystem::InvalidID;
     if (statement_index == body->statements.n_elements - 1)
     {
-      statement_type = type;
+      statement_type = return_type;
     }
 
     success &= get_statement(ast, body_result.scope, body_result.statements[statement_index], statement, statement_type);
@@ -747,7 +772,7 @@ get_program(AST& ast, ScopeInfo& scope, Program& program_result, Tree::Node cons
   assert(node->type == Tree::Node::Type::Program);
   Tree::ProgramNode const * program = &node->program;
 
-  success &= get_body(ast, scope, program_result.body, program->body, TypeSystem::InvalidID);
+  success &= get_body(ast, scope, program_result.body, program->body, TypeSystem::InvalidID, NULL);
 
   if (!success)
   {
