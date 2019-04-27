@@ -30,7 +30,7 @@ push_dot_subroutine(Machine::Machine& machine, MemoryAddress& addr)
   MemoryAddress const pixel_shift = Machine::advance_addr<u8>(addr);
   MemoryAddress const old_colour = Machine::advance_addr<u8>(addr);
 
-  Subroutine subroutine = push_subroutine_start<DotSubroutineArgs>(addr);
+  Subroutine<DotSubroutineArgs> subroutine = push_subroutine_start<DotSubroutineArgs>(addr);
 
   MemoryAddress const offset = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, offset);
   MemoryAddress const pixel_pos = SUBROUTINE_ARG_POSITION(DotSubroutineArgs, subroutine.args, pixel_pos);
@@ -116,7 +116,7 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
 {
   // Subroutines
 
-  Subroutine dot = push_dot_subroutine(machine, addr);
+  Subroutine<DotSubroutineArgs> dot = push_dot_subroutine(machine, addr);
 
   // Variables / Constants
 
@@ -133,7 +133,7 @@ push_demo_program(Machine::Machine& machine, MemoryAddress& addr)
   MemoryAddress const stride = push_value<u16>(machine, addr, 0x0031);
 
   // Start routine
-  Subroutine subroutine = push_subroutine_start<void>(addr);
+  Subroutine<void> subroutine = push_subroutine_start<void>(addr);
 
   MemoryAddress const loop = addr;
 
@@ -187,7 +187,7 @@ load_os(Machine::Machine& machine)
 
   MemoryAddress addr = Machine::Reserved::UserStart;
 
-  Subroutine const demo_program = push_demo_program(machine, addr);
+  Subroutine<void> const demo_program = push_demo_program(machine, addr);
 
   MemoryAddress const os_start = addr;
   push_subroutine_call(machine, addr, demo_program);
