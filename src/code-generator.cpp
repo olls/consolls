@@ -2,6 +2,7 @@
 
 #include "instructions.h"
 #include "basolls.h"
+#include "strings.h"
 #include "array.h"
 
 
@@ -55,6 +56,9 @@ struct FunctionInfo
 
   MemoryAddress code_start;
   MemoryAddress code_end;
+
+  MemoryAddress return_address;
+  MemoryAddress return_value;
 
   Array::Array<IdentifierMapping> identifiers_map;
 };
@@ -217,7 +221,7 @@ generate_expression_code(CodeGenerator& code_generator, AST::ScopeInfo const& sc
 
 
 bool
-generate_statement_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionInfo& func, AST::Statement const& statement)
+generate_statement_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionInfo& func, AST::Statement const& statement, MemoryAddress const* result_location)
 {
   bool success = true;
 
@@ -225,6 +229,8 @@ generate_statement_code(CodeGenerator& code_generator, AST::ScopeInfo const& sco
   {
     case (AST::Statement::Type::Assignment):
     {
+      assert(result_location == NULL);
+
       AST::Assignment const& assignment = statement.assignment;
       success &= generate_assignment_code(code_generator, scope, func, assignment);
     } break;
@@ -232,6 +238,10 @@ generate_statement_code(CodeGenerator& code_generator, AST::ScopeInfo const& sco
     {
       // TODO: Need a dummy address to output the result of the expression to
       MemoryAddress result;
+      if (result_location != NULL)
+      {
+        result = *result_location;
+      }
       success &= generate_expression_code(code_generator, scope, func, statement.expression, result);
     } break;
   }
@@ -444,6 +454,16 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
 {
   bool success = true;
 
+  // Reserve return address and value space
+  if (function_type_id != TypeSystem::InvalidID)
+  {
+    func.return_address = Machine::advance_addr<MemoryAddress>(func.data_end);
+
+    TypeSystem::Type const& function_type = parent_scope.types.types[function_type_id];
+    assert(function_type.type == TypeSystem::Type::BuiltIn::Func);
+    func.return_value = reserve_type(code_generator, parent_scope, func, function_type.function.return_type);
+  }
+
   // Reserve function parameter space
 
   AST::Declarations const& arg_declarations = body.arg_declarations;
@@ -495,16 +515,30 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
        statement_index < body.n;
        ++statement_index)
   {
-    success &= generate_statement_code(code_generator, body.scope, func, body.statements[statement_index]);
+    MemoryAddress const* result_location = NULL;
+    if (statement_index == (body.n-1))
+    {
+      result_location = &func.return_value;
+    }
+    success &= generate_statement_code(code_generator, body.scope, func, body.statements[statement_index], result_location);
   }
 
-  // TODO: Return to caller code
+  // Return to caller code
+  if (function_type_id != TypeSystem::InvalidID)
+  {
+    Basolls::push_instruction<Code::JUMP>(*code_generator.machine, func.code_end, {
+      .addr = func.return_address
+    });
+  }
 
   printf("%.*s {\n", print_s(debug_name));
   printf("  data start: 0x%.4x\n", func.data_start);
   printf("  data end: 0x%.4x\n", func.data_end);
   printf("  code start: 0x%.4x\n", func.code_start);
   printf("  code end: 0x%.4x\n", func.code_end);
+
+  printf("  return address: 0x%.4x\n", func.return_address);
+  printf("  return value: 0x%.4x\n", func.return_value);
 
   printf("  identifiers (%u):\n", func.identifiers_map.n_elements);
   for (IdentifierMapping const& identifier : func.identifiers_map)

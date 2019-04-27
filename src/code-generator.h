@@ -2,7 +2,6 @@
 
 #include "ast.h"
 #include "machine.h"
-#include "strings.h"
 #include "types.h"
 
 
