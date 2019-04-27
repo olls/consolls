@@ -28,13 +28,15 @@ _error(char const *const name, String::String const & text, Tree::Node const * n
 
 
 void
-print_scope(ScopeInfo const & scope)
+print_scope(ScopeInfo const & scope, Strings::Table const& strings)
 {
   printf("Identifiers {  ");
   for (u32 i = 0; i < scope.identifiers.n_elements; ++i)
   {
     Identifiers::Identifier const & identifier = scope.identifiers[i];
-    printf("%u/%u  ", identifier.string, identifier.type);
+    printf("%u: \"%.*s\" %u,  ", i,
+           print_s(Strings::get(strings, identifier.string)),
+           identifier.type);
   }
   printf("}\n");
 }
@@ -224,7 +226,7 @@ get_function_signature_type(AST& ast, ScopeInfo& scope, TypeSystem::ID& type_res
   assert(node->type == Tree::Node::Type::FunctionSignature);
   Tree::FunctionSignatureNode const * function_signature = &node->function_signature;
 
-  TypeSystem::ID return_type;
+  TypeSystem::ID return_type = TypeSystem::InvalidID;
   if (get_type(ast, scope, return_type, function_signature->return_type))
   {
     // TODO: When using this function for a function value, we will need to store the declarations, so we know the parameter identifiers!
@@ -625,9 +627,9 @@ get_assignment(AST& ast, ScopeInfo& scope, Assignment& assignment_result, Tree::
 
   if (success)
   {
-    TypeSystem::ID result_type;
+    TypeSystem::ID result_type = TypeSystem::InvalidID;
     success &= get_expression(ast, scope, assignment_result.expression, assignment->expression, assignment_result.declaration.type, result_type);
-    assert(result_type == assignment_result.declaration.type);
+    assert(!success || result_type == assignment_result.declaration.type);
   }
 
   if (!success)
@@ -668,7 +670,7 @@ get_statement(AST& ast, ScopeInfo& scope, Statement& statement_result, Tree::Nod
     {
       statement_result.type = Statement::Type::Expression;
 
-      TypeSystem::ID expression_type;
+      TypeSystem::ID expression_type = TypeSystem::InvalidID;
       success &= get_expression(ast, scope, statement_result.expression, statement->expression, type, expression_type);
 
       assert(type == TypeSystem::InvalidID ||
@@ -725,6 +727,8 @@ get_body(AST& ast, ScopeInfo& scope, Body& body_result, Tree::Node const * node,
       break;
     }
   }
+
+  print_scope(body_result.scope, *ast.strings);
 
   if (!success)
   {
