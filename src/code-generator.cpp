@@ -138,16 +138,28 @@ generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const&
 {
   bool success = true;
 
-  MemoryAddress expression_results[function_call.expressions.n];
+  // TODO: fill with addresses of function parameters
+  MemoryAddress* expression_results = Allocate::allocate<MemoryAddress>(function_call.expressions.n);
+
   for (u32 expression_index = 0;
        expression_index < function_call.expressions.n;
        ++expression_index)
   {
     success &= generate_expression_code(code_generator, scope, func, function_call.expressions.expressions[expression_index], expression_results[expression_index]);
+
+    if (!success)
+    {
+       break;
+    }
   }
 
-  // Call function_call.identifier
-  // put function result in location
+  Allocate::unallocate(expression_results);
+
+  if (success)
+  {
+    // Call function_call.identifier
+    // put function result in location
+  }
 
   return success;
 }
@@ -165,10 +177,10 @@ generate_identifier_code(CodeGenerator& code_generator, AST::ScopeInfo const& sc
 
   MemoryAddress identifier_addr = identifier_mapping->address;
 
-  // Basolls::push_instruction<Code::COPY>(*code_generator.machine, func.code_end, {
-  //   .from = identifier_addr,
-  //   .to = location
-  // });
+  Basolls::push_instruction<Code::COPY>(*code_generator.machine, func.code_end, {
+    .from = identifier_addr,
+    .to = location
+  });
 
   return success;
 }
@@ -183,10 +195,7 @@ generate_expression_code(CodeGenerator& code_generator, AST::ScopeInfo const& sc
   {
     case (AST::Expression::Type::Literal):
     {
-      // Literals in assignments are stored in the assignment in generate_body_code
-      // but literals as parts of expressions are not.
-      // Instead of storing all declarations in the data section in generate_body_code,
-      // we should be storing all literals.
+      // Literals are stored in the data section in generate_body_code.
       // The stored literals should be given a id.
       // Identifiers should then just point at the literals' ids.
       //
@@ -323,6 +332,11 @@ store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Funct
       {
         AST::Expression const& expression = expressions.expressions[expression_index];
         success &= store_literals(code_generator, scope, func, expression);
+
+        if (!success)
+        {
+          break;
+        }
       }
     } break;
     case (AST::Expression::Type::Identifier):
@@ -501,6 +515,12 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
            identifier.address);
   }
   printf("}\n");
+
+  if (func.code_end > Machine::Reserved::UserEnd)
+  {
+    printf("Error: Overran user memory.  Out of space\n");
+    success = false;
+  }
 
   return success;
 }
