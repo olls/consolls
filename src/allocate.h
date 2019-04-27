@@ -66,7 +66,7 @@ copy(u32& n_elements_result, std::initializer_list<X> xs)
   for (X const& x : xs)
   {
     memcpy(ptr, &x, sizeof(X));
-    ptr += sizeof(X);
+    ptr += 1;
   }
   return result;
 }
