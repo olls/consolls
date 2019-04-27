@@ -133,12 +133,35 @@ neg16_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Ty
 
 
 void
+put8_built_in(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types)
+{
+  TypeSystem::Type type = {};
+  type.type = TypeSystem::Type::BuiltIn::Func;
+  type.string = Strings::add(strings, "8_sig_16_8");
+  type.function.return_type = types.built_in.u8_type;
+  type.function.arg_types = Allocate::copy<TypeSystem::ID>(type.function.n_arg_types, {
+    types.built_in.u16_type,
+    types.built_in.u8_type
+  });
+
+  TypeSystem::ID type_id = TypeSystem::add(types, type);
+
+  Identifier identifier = {};
+  identifier.string = Strings::add(strings, "put8");
+  identifier.type = type_id;
+
+  add(identifiers, identifier);
+}
+
+
+void
 init_built_in_identifiers(Identifiers& identifiers, Strings::Table& strings, TypeSystem::Types& types)
 {
   add8_built_in(identifiers, strings, types);
   add16_built_in(identifiers, strings, types);
   neg8_built_in(identifiers, strings, types);
   neg16_built_in(identifiers, strings, types);
+  put8_built_in(identifiers, strings, types);
 }
 
 } // namespace Identifiers
