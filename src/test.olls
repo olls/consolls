@@ -1,1 +1,10 @@
-Func[Func[u8]()](u8 x, u8 y, Func[u8](u8 a, u8 b) op) apply = 9
+Func [u8](u16 offset_t, u8 colour_t) set_two_pixels = [u8](u16 offset, u8 colour)
+{
+  u16 sb = 8192
+  u16 pixel = add16(sb, offset)
+  put8(pixel, colour)
+  0
+}
+
+u8 pink_black = 79
+set_two_pixels(0, pink_black)
