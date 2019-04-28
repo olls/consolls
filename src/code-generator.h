@@ -12,7 +12,7 @@ namespace CodeGenerator
 {
 
 bool
-generate_code(Machine::Machine* machine, Machine::MemoryAddress data_start, AST::AST const & ast);
+generate_code(Machine::Machine* machine, Machine::MemoryAddress data_start, AST::AST const & ast, Machine::MemoryAddress& code_start_result);
 
 } // namespace CodeGenerator
 

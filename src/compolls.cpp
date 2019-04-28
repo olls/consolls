@@ -15,10 +15,9 @@ namespace Compolls
 {
 
 bool
-compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& addr, Basolls::Subroutine<void>& result)
+compile(String::String text, Machine::Machine& machine, Machine::MemoryAddress& addr, Machine::MemoryAddress& start_result)
 {
   bool success = true;
-  result = {};
 
   printf("Compiling:  \"%.*s\"\n", text.length, text.start);
 
@@ -85,7 +84,7 @@ compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& 
         Array::free_array(ast_text);
       }
 
-      success &= CodeGenerator::generate_code(&machine, addr, ast);
+      success &= CodeGenerator::generate_code(&machine, addr, ast, start_result);
 
       if (!success)
       {

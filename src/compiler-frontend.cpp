@@ -33,7 +33,7 @@ main(s32 argc, char const * argv[])
       Machine::Machine machine = {};
       Machine::MemoryAddress addr = Machine::Reserved::UserStart;
 
-      Basolls::Subroutine<void> result = {};
+      Machine::MemoryAddress result;
       if (!Compolls::compile(file_string, machine, addr, result))
       {
         success &= false;

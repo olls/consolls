@@ -9,6 +9,6 @@ namespace Compolls
 {
 
 bool
-compile(String::String text, Machine::Machine& machine, Basolls::MemoryAddress& addr, Basolls::Subroutine<void>& result);
+compile(String::String text, Machine::Machine& machine, Machine::MemoryAddress& addr, Machine::MemoryAddress& start_result);
 
 } // namespace Compolls
