@@ -573,6 +573,8 @@ generate_code(Machine::Machine* machine, MemoryAddress data_start, AST::AST cons
   global_func.data_start = data_start;
   global_func.data_end = data_start;
 
+  BuiltInCode::generate_code(code_generator, ast.built_in_identifiers, global_func);
+
   AST::ScopeInfo dummy_scope = {};
 
   success &= generate_body_code(code_generator, dummy_scope, global_func, "global_scope", TypeSystem::InvalidID, ast.program.body);
