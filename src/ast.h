@@ -162,6 +162,8 @@ struct AST
 
   String::String const* text;
   Strings::Table* strings;
+
+  Identifiers::BuiltIn built_in_identifiers;
 };
 
 

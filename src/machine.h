@@ -26,6 +26,9 @@ struct Memory
 
   u8 bytes[size];
 
+  // General buffer: b_000X_XXXX_XXXX_XXXX
+  // Screen buffer:  b_001X_XXXX_XXXX_XXXX
+
   //
   // Screen buffer:
   // 128*128 pixels
@@ -65,9 +68,13 @@ enum : MemoryAddress
 {
   NI = 0x0000,
   UserStart = 0x0002,
+
   PollInput = 0x1FFE,
   Blit = 0x1FFF,
-  ScreenBuffer = 0x2000
+  ScreenBuffer = 0x2000,
+
+  FlagsStart = PollInput,
+  UserEnd = FlagsStart
 };
 } // namespace Reserved
 

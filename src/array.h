@@ -53,6 +53,8 @@ namespace Array
   template <typename T, bool dynamic_elem_size=false, u32 static_size=16>
   struct Array
   {
+    using Type = T;
+
     u32 array_size;  // Size of array pointed to by elements (in T units)
     u32 n_elements;  // Number of Ts in use in elements
 

@@ -296,11 +296,15 @@ disassemble_instruction(Machine::Machine const & machine, Machine::MemoryAddress
 
 
 void
-disassemble(Machine::Machine const & machine, Machine::MemoryAddress from, Machine::MemoryAddress to)
+disassemble(Machine::Machine const & machine, Machine::MemoryAddress from, Machine::MemoryAddress to, char const* prefix)
 {
   Machine::MemoryAddress addr = from;
   while (addr < to)
   {
+    if (prefix != NULL)
+    {
+      printf("%s", prefix);
+    }
     addr = disassemble_instruction(machine, addr);
     assert(addr <= to);
   }

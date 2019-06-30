@@ -797,9 +797,11 @@ make_ast(String::String const & text, Strings::Table& strings, AST& result, Tree
   TypeSystem::init_built_in_types(global_scope.types);
 
   global_scope.identifiers = {};
-  Identifiers::init_built_in_identifiers(global_scope.identifiers, *result.strings, global_scope.types);
+  result.built_in_identifiers = Identifiers::init_built_in_identifiers(global_scope.identifiers, *result.strings, global_scope.types);
 
   success &= get_program(result, global_scope, result.program, node);
+
+  Array::free_array(global_scope.identifiers);
 
   return success;
 }
