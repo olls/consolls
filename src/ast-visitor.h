@@ -10,7 +10,7 @@ namespace Compolls
 namespace AST
 {
 
-enum VisitorEvent
+enum class VisitorEvent
 {
   Enter,
   Leave
