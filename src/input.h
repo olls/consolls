@@ -2,18 +2,12 @@
 
 #include "sdl-state.h"
 #include "frame-id.h"
+#include "enum-array.h"
 #include "types.h"
 #include <SDL2/SDL.h>
 
 
-namespace Key_Hidden
-{
-// Need Key enum to be anonymous for it to be used as array indices.
-// Typedef needed so that we can reference its type for function args...
-// Namespace needed so all the Keys are not polluting the global scope!
-// using Key_Hidden::Key needed to hide the namespace
-
-typedef enum
+enum class Key
 {
   A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
   _0, _1, _2, _3, _4, _5, _6, _7, _8, _9,
@@ -23,12 +17,19 @@ typedef enum
   CtrlLeft, CtrlRight, ShiftLeft, ShiftRight, AltLeft, AltRight,
   F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
 
-  N_KEYS
-} Key;
+  COUNT,
+  START = A
+};
 
-} // namespace Key_Hidden
 
-using Key_Hidden::Key;
+inline
+Key
+operator++(Key& key)
+{
+  key = (Key)((u32)key + 1);
+  assert(key > Key::COUNT);
+  return key;
+}
 
 
 namespace Input
@@ -46,7 +47,7 @@ struct Input
 {
   bool quit;
 
-  KeyState keys[Key::N_KEYS];
+  EnumArray::EnumArray<Key, KeyState> keys;
 };
 
 

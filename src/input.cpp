@@ -134,8 +134,8 @@ update(Input& input, FrameID::FrameID frame_id)
       case (SDL_KEYDOWN):
       case (SDL_KEYUP):
       {
-        for (u32 key_index = 0;
-             key_index < Key::N_KEYS;
+        for (Key key_index = Key::START;
+             key_index < Key::COUNT;
              ++key_index)
         {
           update(input.keys[key_index], event, frame_id);
