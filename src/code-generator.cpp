@@ -93,7 +93,7 @@ generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const&
   assert(info_ptr);
   FunctionInfo const info = *info_ptr;
 
-  assert(info.parameter_offsets.n_elements == function_call.expressions.n);
+  assert(info.parameter_addrs.n_elements == function_call.expressions.n);
 
   for (u32 expression_index = 0;
        expression_index < function_call.expressions.n;
@@ -101,7 +101,7 @@ generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const&
   {
     AST::Expression const& expression = function_call.expressions.expressions[expression_index];
 
-    MemoryAddress expression_result = info.parameter_offsets[expression_index];
+    MemoryAddress expression_result = info.parameter_addrs[expression_index];
 
     success &= generate_expression_code(code_generator, scope, func, expression, &expression_result);
 
@@ -573,7 +573,7 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
     AST::Declaration const& arg_declaration = arg_declarations.declarations[arg_index];
 
     // Store the offset of each parameter from data_start, used for generating calling code.
-    Array::add(func.info.parameter_offsets, func.info.data_end);
+    Array::add(func.info.parameter_addrs, func.info.data_end);
 
     // TODO: We do not currently support passing functions in the code-gen
     assert(parent_scope.types.types[arg_declaration.type].type != TypeSystem::Type::BuiltIn::Func);
@@ -644,6 +644,12 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
 
   printf("  return address: %#.4x\n", func.info.return_address);
   printf("  return value: %#.4x\n", func.info.return_value);
+
+  printf("  parameters:\n");
+  for (MemoryAddress parameter : func.info.parameter_addrs)
+  {
+    printf("    0x%x\n", parameter);
+  }
 
   printf("  identifiers (%u):\n", func.identifiers_map.n_elements);
   for (IdentifiersMap::Type const& pair : func.identifiers_map)

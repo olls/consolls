@@ -44,7 +44,7 @@ using LiteralsMap = Map::Map<AST::Literal const*, MemoryAddress>;
 
 struct FunctionInfo
 {
-  Array::Array<MemoryAddress> parameter_offsets;
+  Array::Array<MemoryAddress> parameter_addrs;
 
   MemoryAddress data_start;
   MemoryAddress data_end;
