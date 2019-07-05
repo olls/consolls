@@ -9,15 +9,54 @@ main(s32 argc, char const * argv[])
 {
   bool success = true;
 
-  if (argc != 2)
+  char const* program = NULL;
+  char const* filename = NULL;
+  char const* output_filename = NULL;
+
+  u32 arg_index = 0;
+  if (arg_index < argc)
   {
-    success &= false;
-    printf("Argument 1 must be compolls source filename.\n");
+    program = argv[arg_index];
+    arg_index += 1;
   }
   else
   {
-    char const * filename = argv[1];
+    printf("Not enough arguments passed in.\n");
+    success &= false;
+  }
 
+  if (arg_index < argc)
+  {
+    filename = argv[arg_index];
+    arg_index += 1;
+  }
+  else
+  {
+    success &= false;
+    printf("Argument 1 must be Compolls source filename.\n");
+  }
+
+  for (;
+       arg_index < argc;
+       ++arg_index)
+  {
+    if (strcmp(argv[arg_index], "-o") == 0)
+    {
+      if (arg_index + 1 < argc)
+      {
+        arg_index += 1;
+        output_filename = argv[arg_index];
+      }
+      else
+      {
+        printf("-o specified without no filename following\n");
+        success &= false;
+      }
+    }
+  }
+
+  if (success)
+  {
     Machine::Machine machine = {};
     Machine::MemoryAddress addr = Machine::Reserved::UserStart;
 
