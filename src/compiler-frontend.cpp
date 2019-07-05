@@ -62,16 +62,21 @@ main(s32 argc, char const * argv[])
 
     Machine::MemoryAddress result;
     String::String error_msg = {};
-    if (!Compolls::compile_file(filename, machine, addr, result, &error_msg))
+    success &= Compolls::compile_file(filename, machine, addr, result, &error_msg);
+    printf("%.*s", print_s(error_msg));
+    if (!success)
     {
-      success &= false;
       printf("\n\nCompilation error!\n");
     }
     else
     {
       printf("\n\nCompiled successfully!\n");
+
+      if (output_filename)
+      {
+        // TODO: Store program to file.
+      }
     }
-    printf("%.*s", print_s(error_msg));
   }
 
   return success == true ? 0 : 1;
