@@ -1,7 +1,5 @@
 #include "compolls.h"
 #include "machine.h"
-#include "file.h"
-#include "assert.h"
 #include "string.h"
 #include "types.h"
 
@@ -20,30 +18,21 @@ main(s32 argc, char const * argv[])
   {
     char const * filename = argv[1];
 
-    File::File file = {};
-    if (!File::open(filename, &file))
+    Machine::Machine machine = {};
+    Machine::MemoryAddress addr = Machine::Reserved::UserStart;
+
+    Machine::MemoryAddress result;
+    String::String error_msg = {};
+    if (!Compolls::compile_file(filename, machine, addr, result, &error_msg))
     {
       success &= false;
-      printf("Couldn't open file: %s\n", filename);
+      printf("\n\nCompilation error!\n");
     }
     else
     {
-      String::String file_string = { file.read_ptr, (u32)file.size };
-
-      Machine::Machine machine = {};
-      Machine::MemoryAddress addr = Machine::Reserved::UserStart;
-
-      Machine::MemoryAddress result;
-      if (!Compolls::compile(file_string, machine, addr, result))
-      {
-        success &= false;
-        printf("\n\nCompilation error!\n");
-      }
-      else
-      {
-        printf("\n\nCompiled successfully!\n");
-      }
+      printf("\n\nCompiled successfully!\n");
     }
+    printf("%.*s", print_s(error_msg));
   }
 
   return success == true ? 0 : 1;

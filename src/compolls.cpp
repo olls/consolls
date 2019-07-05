@@ -9,10 +9,47 @@
 #include "parser.h"
 #include "parse-tree.h"
 #include "string-array.h"
+#include "file.h"
 
 
 namespace Compolls
 {
+
+bool
+compile_file(char const* filename, Machine::Machine& machine, Machine::MemoryAddress& addr, Machine::MemoryAddress& start_result, String::String* error)
+{
+  bool success = true;
+
+  String::String error_msg_void;
+  String::String* error_msg;
+  if (error)
+  {
+    error_msg = error;
+  }
+  else
+  {
+    error_msg = &error_msg_void;
+  }
+
+  File::File file = {};
+  if (!File::open(filename, &file))
+  {
+    success &= false;
+    *error_msg = String::string_f("Couldn't open file: %s\n", filename);
+  }
+  else
+  {
+    String::String file_string = { file.read_ptr, (u32)file.size };
+
+    Machine::MemoryAddress result;
+    if (!Compolls::compile(file_string, machine, addr, start_result))
+    {
+      success &= false;
+    }
+  }
+  return success;
+}
+
 
 bool
 compile(String::String text, Machine::Machine& machine, Machine::MemoryAddress& addr, Machine::MemoryAddress& start_result)
