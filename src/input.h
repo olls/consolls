@@ -27,7 +27,7 @@ Key
 operator++(Key& key)
 {
   key = (Key)((u32)key + 1);
-  assert(key > Key::COUNT);
+  assert(key <= Key::COUNT);
   return key;
 }
 
