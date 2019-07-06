@@ -1,7 +1,10 @@
 #include "game.h"
 
+#include "machine-serialisation.h"
 #include "debugger.h"
+#include "compolls.h"
 #include "basolls.h"
+#include "disassembler.h"
 #include "sdl-state.h"
 #include "palette.h"
 #include "instructions.h"
@@ -82,7 +85,14 @@ run(Options::Args args)
   SDL_State::SDL_State sdl_state = {};
   success &= SDL_State::init(sdl_state, APP_NAME, 640, 480, SDL_PIXELFORMAT_RGBX8888);
 
-  success &= Basolls::load_os(state.machine);
+  Machine::set(state.machine, Machine::Reserved::ScreenBuffer, (Palette::Yellow|Palette::Brown<<4), state.machine.memory.screen_buffer_size);
+
+  if (args.file != NULL)
+  {
+    success &= MachineSerialisation::deserialise(args.file, state.machine);
+  }
+
+  // success &= Basolls::load_os(state.machine);
 
   Debugger::init(args);
 

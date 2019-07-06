@@ -1,3 +1,4 @@
+#include "machine-serialisation.h"
 #include "compolls.h"
 #include "machine.h"
 #include "string.h"
@@ -74,7 +75,7 @@ main(s32 argc, char const * argv[])
 
       if (output_filename)
       {
-        // TODO: Store program to file.
+        success &= MachineSerialisation::serialise(output_filename, machine);
       }
     }
   }

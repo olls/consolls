@@ -10,6 +10,7 @@ struct Args
 {
   bool debugger;
   bool client;
+  char const* file;
 };
 
 
