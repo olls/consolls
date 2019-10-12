@@ -73,6 +73,9 @@ main(s32 argc, char const * argv[])
     {
       printf("\n\nCompiled successfully!\n");
 
+      // Set the machine's next instruction ptr to the code start address.
+      Machine::set<Machine::MemoryAddress>(machine, Machine::Reserved::NI, result);
+
       if (output_filename)
       {
         success &= MachineSerialisation::serialise(output_filename, machine);
