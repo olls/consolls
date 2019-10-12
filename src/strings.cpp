@@ -46,7 +46,7 @@ string(Table const& strings, StringArray::StringArray& result)
        ++index)
   {
     String::String const& string = strings.table[index];
-    result += String::string_f("%u: \"", index);
+    result += String::format("%u: \"", index);
     result += string;
     result += "\"\n";
   }

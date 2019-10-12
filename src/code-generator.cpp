@@ -352,7 +352,7 @@ store_literal(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Functi
       Machine::set<u16>(*code_generator.machine, result_location, data);
 
       type_debug = "u16";
-      value_debug = String::string_f("%u", data);
+      value_debug = String::format("%u", data);
     } break;
     case (TypeSystem::Type::BuiltIn::Func):
     {

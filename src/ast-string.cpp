@@ -60,7 +60,7 @@ void
 string_string(StringArray::StringArray& result, Strings::Table const & strings, Strings::ID string)
 {
   result += "string: ";
-  result += String::string_f("%d, \"", string);
+  result += String::format("%d, \"", string);
   result += Strings::get(strings, string);
   result += "\"";
 }
@@ -217,7 +217,7 @@ string(StringBuilder& state, VisitorEvent event, void*& user, Number* number)
     *state.result += "\"\n";
     indent(state);
     *state.result += "number: ";
-    *state.result += String::string_f("%u\n", number->number);
+    *state.result += String::format("%u\n", number->number);
   }
 
   return success;
@@ -263,7 +263,7 @@ string(StringBuilder& state, VisitorEvent event, void*& user, Identifier* identi
     *state.result += "\n";
 
     indent(state);
-    *state.result += String::string_f("identifier_id: %u\n", identifier->identifier);
+    *state.result += String::format("identifier_id: %u\n", identifier->identifier);
   }
 
   return success;

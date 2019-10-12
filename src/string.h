@@ -72,7 +72,7 @@ struct String
 
 
 String
-string_f(char const * format...)  __attribute__((format(printf, 1, 2)));
+format(char const * format...)  __attribute__((format(printf, 1, 2)));
 
 
 bool

@@ -8,7 +8,7 @@ namespace String
 {
 
 String
-string_f(char const * format...)
+format(char const * format...)
 {
   String result = {};
 

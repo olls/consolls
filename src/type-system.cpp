@@ -127,13 +127,13 @@ string(Types const& types, Type const& type, StringArray::StringArray& result)
     {
       result += "Func, return_type: ";
       string(types, types.types[type.function.return_type], result);
-      result += String::string_f(", n_args: %u", type.function.n_arg_types);
+      result += String::format(", n_args: %u", type.function.n_arg_types);
       for (u32 i = 0;
            i < type.function.n_arg_types;
            ++i)
       {
         ID arg_type = type.function.arg_types[i];
-        result += String::string_f(", arg%u: ", i);
+        result += String::format(", arg%u: ", i);
         string(types, types.types[arg_type], result);
       }
     } break;

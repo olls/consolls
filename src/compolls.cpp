@@ -35,7 +35,7 @@ compile_file(char const* filename, Machine::Machine& machine, Machine::MemoryAdd
   if (!File::open(filename, &file))
   {
     success &= false;
-    *error_msg = String::string_f("Couldn't open file: %s\n", filename);
+    *error_msg = String::format("Couldn't open file: %s\n", filename);
   }
   else
   {

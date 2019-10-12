@@ -150,7 +150,7 @@ string(Types const& types, StringArray::StringArray& result)
        ++index)
   {
     Type const& type = types.types[index];
-    result += String::string_f("%u: ", index);
+    result += String::format("%u: ", index);
     string(types, type, result);
     if (index != types.types.n_elements-1)
     {
