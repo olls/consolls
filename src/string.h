@@ -75,6 +75,10 @@ String
 format(char const * format...)  __attribute__((format(printf, 1, 2)));
 
 
+String
+cat(String const& a, String const& b);
+
+
 bool
 starts_with(String const & string, String const & substring);
 

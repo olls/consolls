@@ -39,6 +39,20 @@ format(char const * format...)
   return result;
 }
 
+
+String
+cat(String const& a, String const& b)
+{
+  String result;
+  result.length = a.length + b.length;
+  char* start = Allocate::allocate<char>(result.length);
+  memcpy(start, a.start, a.length);
+  memcpy(start + a.length, b.start, b.length);
+  result.start = start;
+  return result;
+}
+
+
 bool
 starts_with(String const & string, String const & substring)
 {
