@@ -106,6 +106,7 @@ run(Options::Args args)
   success &= SDL_State::init(sdl_state, APP_NAME, 640, 480, SDL_PIXELFORMAT_RGBX8888);
 
   Machine::set(state.machine, Machine::Reserved::ScreenBuffer, (Palette::Yellow|Palette::Brown<<4), state.machine.memory.screen_buffer_size);
+  Machine::set<u8>(state.machine, Machine::Reserved::Blit, true);
 
   if (args.file != NULL)
   {
