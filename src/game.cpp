@@ -15,17 +15,16 @@
 namespace Game
 {
 
-static bool blit = false;
-
 bool
 advance(State *const state, SDL_State::SDL_State& sdl_state)
 {
   bool success = true;
+  bool advance_machine = !state->stepping;
 
   FrameID::update(state->frame_id);
 
   if (Timer::check(state->input_update) ||
-      Machine::consume_signal_register(state->machine, Machine::Reserved::PollInput))
+      (advance_machine && Machine::consume_signal_register(state->machine, Machine::Reserved::PollInput)))
   {
     Input::update(state->input, state->frame_id);
 
@@ -38,37 +37,56 @@ advance(State *const state, SDL_State::SDL_State& sdl_state)
     {
       SDL_State::toggle_fullscreen(sdl_state);
     }
-  }
 
-  Machine::advance(state->machine);
-
-  if (Machine::consume_signal_register(state->machine, Machine::Reserved::Blit))
-  {
-    blit = true;
-    bool texture = true;
-    if (!state->texture.pixels)
+    if (state->step_mode)
     {
-      texture &= Machine::allocate_screen_buffer_texture(state->machine.memory, state->texture);
-      if (texture)
+      if (Input::up<Key::P>(state->input, state->frame_id))
       {
-        texture &= SDL_State::set_render_texture(sdl_state, state->texture);
+        state->stepping = !state->stepping;
+      }
+      if (state->stepping && Input::up<Key::N>(state->input, state->frame_id))
+      {
+        advance_machine = true;
       }
     }
-
-    if (!texture)
-    {
-      state->texture.pixels = 0;
-      success &= false;
-    }
-    else
-    {
-      Machine::output_screen_buffer(state->machine, state->texture);
-      success &= SDL_State::render(sdl_state, state->texture);
-    }
   }
-  else
+
+  if (state->stepping && (state->frame_id == 1 || advance_machine))
   {
-    blit = false;
+    // Display the next instruction
+
+    Machine::MemoryAddress ni = Machine::get<Machine::MemoryAddress>(state->machine, Machine::Reserved::NI);
+    Disassembler::disassemble_instruction(state->machine, ni);
+    // Disassembler::disassemble(state->machine, Machine::Reserved::UserStart, Machine::Reserved::UserEnd);
+  }
+
+  if (advance_machine)
+  {
+    Machine::advance(state->machine);
+
+    if (Machine::consume_signal_register(state->machine, Machine::Reserved::Blit))
+    {
+      bool texture = true;
+      if (!state->texture.pixels)
+      {
+        texture &= Machine::allocate_screen_buffer_texture(state->machine.memory, state->texture);
+        if (texture)
+        {
+          texture &= SDL_State::set_render_texture(sdl_state, state->texture);
+        }
+      }
+
+      if (!texture)
+      {
+        state->texture.pixels = 0;
+        success &= false;
+      }
+      else
+      {
+        Machine::output_screen_buffer(state->machine, state->texture);
+        success &= SDL_State::render(sdl_state, state->texture);
+      }
+    }
   }
 
   return success;
@@ -81,6 +99,8 @@ run(Options::Args args)
   bool success = true;
 
   State state = {};
+  state.step_mode = args.step;
+  state.stepping = state.step_mode;
 
   SDL_State::SDL_State sdl_state = {};
   success &= SDL_State::init(sdl_state, APP_NAME, 640, 480, SDL_PIXELFORMAT_RGBX8888);
@@ -106,7 +126,7 @@ run(Options::Args args)
     bool running = true;
     while (running)
     {
-      Debugger::advance(args, state.machine, blit);
+      Debugger::advance(args, state.machine);
 
       running &= advance(&state, sdl_state);
 

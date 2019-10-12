@@ -22,6 +22,9 @@ struct State
   Timer::Timer input_update;
   Clock::Clock clock;
 
+  bool step_mode;
+  bool stepping;
+
   Machine::Machine machine;
 };
 

@@ -31,19 +31,14 @@ destroy(Options::Args const & args)
 
 
 void
-advance(Options::Args const & args, Machine::Machine& machine, bool blit)
+advance(Options::Args const & args, Machine::Machine& machine)
 {
   if (args.debugger)
   {
     MemoryAddress ni = Machine::get<MemoryAddress>(machine, Machine::Reserved::NI);
     Disassembler::disassemble_instruction(machine, ni);
 
-    if (blit)
-    {
-      Machine::get<u8>(machine, Machine::Reserved::Blit) = 1;
-      Socket::advance(args.client, machine);
-      Machine::get<u8>(machine, Machine::Reserved::Blit) = 0;
-    }
+    Socket::advance(args.client, machine);
   }
 }
 

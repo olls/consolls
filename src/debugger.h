@@ -17,6 +17,6 @@ destroy(Options::Args const & args);
 
 
 void
-advance(Options::Args const & args, Machine::Machine& machine, bool blit);
+advance(Options::Args const & args, Machine::Machine& machine);
 
 } // namespace Debugger

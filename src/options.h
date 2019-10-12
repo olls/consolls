@@ -9,6 +9,7 @@ namespace Options
 struct Args
 {
   bool debugger;
+  bool step;
   bool client;
   char const* file;
 };
