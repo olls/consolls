@@ -42,6 +42,7 @@ using IdentifiersMap = Map::Map<Identifiers::ID, IdentifierMapping>;
 using LiteralsMap = Map::Map<AST::Literal const*, MemoryAddress>;
 
 
+// Stored function info used for generating calling code
 struct FunctionInfo
 {
   Array::Array<MemoryAddress> parameter_addrs;
@@ -61,9 +62,10 @@ struct FunctionInfo
 using FunctionsMap = Map::Map<Identifiers::ID, FunctionInfo>;
 
 
+// Local function state, used only within the function's compilation
 struct FunctionScope
 {
-  FunctionInfo info;
+  u32 function_index;
 
   IdentifiersMap identifiers_map;
   LiteralsMap literals_map;
@@ -72,7 +74,7 @@ struct FunctionScope
 
 
 bool
-generate_code(Machine::Machine* machine, Machine::MemoryAddress data_start, AST::AST const & ast, Machine::MemoryAddress& code_start_result);
+generate_code(Machine::Machine* machine, Machine::MemoryAddress& addr, AST::AST const & ast, Machine::MemoryAddress& code_start_result);
 
 } // namespace CodeGenerator
 

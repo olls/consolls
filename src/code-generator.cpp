@@ -57,6 +57,43 @@ namespace CodeGenerator
 //       useful for shadowing variables in the AST.
 
 
+void
+debug_print_func(CodeGenerator const& code_generator, FunctionScope const& func_scope, String::String debug_name)
+{
+  FunctionInfo const& func_info = func_scope.functions_map[func_scope.function_index].value;
+
+  printf("\n%.*s {\n", print_s(debug_name));
+  printf("  data start: %#.4x\n", func_info.data_start);
+  printf("  data end: %#.4x\n", func_info.data_end);
+  printf("  code start: %#.4x\n", func_info.code_start);
+  printf("  code end: %#.4x\n", func_info.code_end);
+
+  printf("  return address: %#.4x\n", func_info.return_address);
+  printf("  return value: %#.4x\n", func_info.return_value);
+
+  printf("  parameters:\n");
+  for (MemoryAddress parameter : func_info.parameter_addrs)
+  {
+    printf("    0x%x\n", parameter);
+  }
+
+  printf("  identifiers (%u):\n", func_scope.identifiers_map.n_elements);
+  for (IdentifiersMap::Type const& pair : func_scope.identifiers_map)
+  {
+    Identifiers::ID id = pair.key;
+    IdentifierMapping const& identifier = pair.value;
+
+    printf("    %u : \"%.*s\" : %#.4x\n",
+           id,
+           print_s(Strings::get(*code_generator.strings, identifier.debug_name)),
+           identifier.address);
+  }
+  Disassembler::disassemble(*code_generator.machine, func_info.code_start, func_info.code_end, "  ");
+
+  printf("}\n\n");
+}
+
+
 bool
 generate_expression_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Expression const& expression, MemoryAddress const* location);
 
@@ -84,16 +121,17 @@ generate_assignment_code(CodeGenerator& code_generator, AST::ScopeInfo const& sc
   return success;
 }
 
+
 bool
 generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::FunctionCall const& function_call, MemoryAddress const* location)
 {
   bool success = true;
 
-  FunctionInfo* const info_ptr = Map::find(func.functions_map, function_call.identifier.identifier);
-  assert(info_ptr);
-  FunctionInfo const info = *info_ptr;
+  FunctionInfo& func_info = func.functions_map[func.function_index].value;
 
-  assert(info.parameter_addrs.n_elements == function_call.expressions.n);
+  FunctionInfo* const call_info = Map::find(func.functions_map, function_call.identifier.identifier);
+  assert(call_info);
+  assert(call_info->parameter_addrs.n_elements == function_call.expressions.n);
 
   for (u32 expression_index = 0;
        expression_index < function_call.expressions.n;
@@ -101,7 +139,7 @@ generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const&
   {
     AST::Expression const& expression = function_call.expressions.expressions[expression_index];
 
-    MemoryAddress expression_result = info.parameter_addrs[expression_index];
+    MemoryAddress expression_result = call_info->parameter_addrs[expression_index];
 
     success &= generate_expression_code(code_generator, scope, func, expression, &expression_result);
 
@@ -113,40 +151,41 @@ generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const&
 
   if (success)
   {
-    IdentifierMapping* mapping = Map::find(func.identifiers_map, function_call.identifier.identifier);
-    assert(mapping != NULL);
-    MemoryAddress function_addr = mapping->address;
-    assert(function_addr == info.code_start);
+    // IdentifierMapping* mapping = Map::find(func.identifiers_map, function_call.identifier.identifier);
+    // assert(mapping != NULL);
+    // MemoryAddress function_addr = mapping->address;
+    // assert(function_addr == call_info->code_start);
+    MemoryAddress function_addr = call_info->code_start;
 
-    Basolls::push_instruction<Code::SET_VW>(*code_generator.machine, func.info.code_end, {
-      .addr = info.return_address,
+    Basolls::push_instruction<Code::SET_VW>(*code_generator.machine, func_info.code_end, {
+      .addr = call_info->return_address,
       .value = 0
     });
     // Store the address of the value parameter of the SET_VW above
-    MemoryAddress return_location_address = func.info.code_end - sizeof(MemoryAddress);
+    MemoryAddress return_location_address = func_info.code_end - sizeof(MemoryAddress);
 
-    Basolls::push_instruction<Code::JUMP_V>(*code_generator.machine, func.info.code_end, {function_addr});
+    Basolls::push_instruction<Code::JUMP_V>(*code_generator.machine, func_info.code_end, {function_addr});
 
     // Function returns to here, store this address in the value parameter of SET_VW
-    MemoryAddress return_location = func.info.code_end;
+    MemoryAddress return_location = func_info.code_end;
     Machine::set<MemoryAddress>(*code_generator.machine, return_location_address, return_location);
 
     if (location != NULL)
     {
       // Copy the function return value into our location
-      switch (info.return_value_bytes)
+      switch (call_info->return_value_bytes)
       {
         case (1):
         {
-          Basolls::push_instruction<Code::COPY>(*code_generator.machine, func.info.code_end, {
-            .from = info.return_value,
+          Basolls::push_instruction<Code::COPY>(*code_generator.machine, func_info.code_end, {
+            .from = call_info->return_value,
             .to = *location
           });
         } break;
         case (2):
         {
-          Basolls::push_instruction<Code::COPY_W>(*code_generator.machine, func.info.code_end, {
-            .from = info.return_value,
+          Basolls::push_instruction<Code::COPY_W>(*code_generator.machine, func_info.code_end, {
+            .from = call_info->return_value,
             .to = *location
           });
         } break;
@@ -177,20 +216,22 @@ generate_identifier_code(CodeGenerator& code_generator, AST::ScopeInfo const& sc
   TypeSystem::ID type_id = scope.identifiers[identifier.identifier].type;
   TypeSystem::Type const& type = scope.types.types[type_id];
 
+  FunctionInfo& func_info = func.functions_map[func.function_index].value;
+
   if (location != NULL)
   {
     switch (type.type)
     {
       case (TypeSystem::Type::BuiltIn::U8):
       {
-        Basolls::push_instruction<Code::COPY>(*code_generator.machine, func.info.code_end, {
+        Basolls::push_instruction<Code::COPY>(*code_generator.machine, func_info.code_end, {
           .from = identifier_addr,
           .to = *location
         });
       } break;
       case (TypeSystem::Type::BuiltIn::U16):
       {
-        Basolls::push_instruction<Code::COPY_W>(*code_generator.machine, func.info.code_end, {
+        Basolls::push_instruction<Code::COPY_W>(*code_generator.machine, func_info.code_end, {
           .from = identifier_addr,
           .to = *location
         });
@@ -223,6 +264,8 @@ generate_literal_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope
 
   TypeSystem::Type const& type = scope.types.types[literal.inherited_type];
 
+  FunctionInfo& func_info = func.functions_map[func.function_index].value;
+
   if (location != NULL)
   {
     // Copy literal value to location
@@ -230,14 +273,14 @@ generate_literal_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope
     {
       case (TypeSystem::Type::BuiltIn::U8):
       {
-        Basolls::push_instruction<Code::COPY>(*code_generator.machine, func.info.code_end, {
+        Basolls::push_instruction<Code::COPY>(*code_generator.machine, func_info.code_end, {
           .from = literal_location,
           .to = *location
         });
       } break;
       case (TypeSystem::Type::BuiltIn::U16):
       {
-        Basolls::push_instruction<Code::COPY_W>(*code_generator.machine, func.info.code_end, {
+        Basolls::push_instruction<Code::COPY_W>(*code_generator.machine, func_info.code_end, {
           .from = literal_location,
           .to = *location
         });
@@ -245,7 +288,7 @@ generate_literal_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope
       case (TypeSystem::Type::BuiltIn::Func):
       {
         // TODO: Not sure if this will actually work
-        Basolls::push_instruction<Code::COPY_W>(*code_generator.machine, func.info.code_end, {
+        Basolls::push_instruction<Code::COPY_W>(*code_generator.machine, func_info.code_end, {
           .from = literal_location,
           .to = *location
         });
@@ -313,12 +356,14 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
 
 
 bool
-store_literal(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, String::String debug_name, AST::Literal const& literal, MemoryAddress& result_location, FunctionInfo* result_func_info)
+store_literal(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, String::String debug_name, AST::Literal const& literal, MemoryAddress& result_location, u32 function_index)
 {
   bool success = true;
 
   TypeSystem::ID type_id = literal.inherited_type;
   TypeSystem::Type type = scope.types.types[type_id];
+
+  FunctionInfo& func_info = func.functions_map[func.function_index].value;
 
   char const* type_debug;
   String::String value_debug;
@@ -326,7 +371,7 @@ store_literal(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Functi
   {
     case (TypeSystem::Type::BuiltIn::U8):
     {
-      result_location = Machine::advance_addr<u8>(func.info.data_end);
+      result_location = Machine::advance_addr<u8>(func_info.data_end);
 
       assert(literal.type == AST::Literal::Type::Number);
       AST::Number const& number = literal.number;
@@ -337,11 +382,11 @@ store_literal(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Functi
       Machine::set<u8>(*code_generator.machine, result_location, data);
 
       type_debug = "u8";
-      value_debug = String::string_f("%u", data);
+      value_debug = String::format("%u", data);
     } break;
     case (TypeSystem::Type::BuiltIn::U16):
     {
-      result_location = Machine::advance_addr<u16>(func.info.data_end);
+      result_location = Machine::advance_addr<u16>(func_info.data_end);
 
       assert(literal.type == AST::Literal::Type::Number);
       AST::Number const& number = literal.number;
@@ -360,27 +405,39 @@ store_literal(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Functi
       AST::Function const& function = literal.function;
 
       FunctionScope child_func = {};
-      child_func.info.data_start = func.info.data_end;
-      child_func.info.data_end = child_func.info.data_start;
+      // TODO: We are duplicating the maps into the child scope.
+      //       So when we modify them in the child scope, they are not
+      //       modified in the parent scope.  This is a problem, because the
+      //       parent scope is the scope they are being defined into!
+      //       The stack system would solve this much more elegantly...
       child_func.identifiers_map += func.identifiers_map;
       child_func.literals_map += func.literals_map;
       child_func.functions_map += func.functions_map;
 
+      child_func.function_index = function_index;
+
+      FunctionInfo& child_func_info = child_func.functions_map[function_index].value;
+      child_func_info.data_start = func_info.data_end;
+      child_func_info.data_end = child_func_info.data_start;
+
       success &= generate_body_code(code_generator, scope, child_func, debug_name, function.type, *function.body);
 
-      func.info.data_end = child_func.info.code_end;
-      result_location = child_func.info.code_start;
+      result_location = child_func_info.code_start;
+
+      // Re: Above comment; for now, we can hack around it by copying the data
+      //     back from the child maps... :s
+      for (u32 parent_func_index = 0;
+           parent_func_index < func.functions_map.n_elements;
+           ++parent_func_index)
+      {
+        func.functions_map[parent_func_index] = child_func.functions_map[parent_func_index];
+      }
+
+      func_info.data_end = child_func_info.code_end;
 
       Array::free_array(child_func.identifiers_map);
       Array::free_array(child_func.literals_map);
       Array::free_array(child_func.functions_map);
-
-      // Pass the function info back out
-      // TODO: If thjs assert fires, it means we are trying to generate a
-      //       function literal in a place where the calling function does not
-      //       expect/yet-support it.
-      assert(result_func_info != NULL);
-      *result_func_info = child_func.info;
 
       type_debug = "func";
       value_debug = "function-DEBUG-TODO";
@@ -404,7 +461,7 @@ store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Funct
     case (AST::Expression::Type::Literal):
     {
       MemoryAddress location;  // Not used, literal address is stored in func.literals_map
-      success &= store_literal(code_generator, scope, func, "expression literal", expression.literal, location, NULL);
+      success &= store_literal(code_generator, scope, func, "expression literal", expression.literal, location, 0);
     } break;
     case (AST::Expression::Type::FunctionCall):
     {
@@ -451,36 +508,36 @@ store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Funct
 
     // If this literal is a function type, pass in a FunctionInfo so we can
     // store that along with it's identifier.
-    FunctionInfo function_info = {};
-    FunctionInfo* function_info_ptr = NULL;
+    u32 function_index;
     if (expression.literal.type == AST::Literal::Type::Function)
     {
-      function_info_ptr = &function_info;
+      // Create the entry before we generate the function, so the function is
+      // able to call itself.
+      function_index = func.functions_map.n_elements;
+      FunctionsMap::Type& pair = Array::new_element(func.functions_map);
+      pair.key = declaration.identifier.identifier;
+      pair.value = {};
     }
 
-    success &= store_literal(code_generator, scope, func, debug_label, expression.literal, decl_location, function_info_ptr);
-
-    if (expression.literal.type == AST::Literal::Type::Function)
-    {
-      // Save the FunctionInfo in our FunctionsMap
-      Array::add(func.functions_map, {declaration.identifier.identifier, function_info});
-    }
+    success &= store_literal(code_generator, scope, func, debug_label, expression.literal, decl_location, function_index);
   }
   else
   {
     // Otherwise store all the literals in the expression as normal, then allocate separately for the declaration
     success &= store_literals(code_generator, scope, func, expression);
 
+    FunctionInfo& func_info = func.functions_map[func.function_index].value;
+
     TypeSystem::Type const& type = scope.types.types[declaration.type];
     switch (type.type)
     {
       case (TypeSystem::Type::BuiltIn::U8):
       {
-        decl_location = Machine::advance_addr<u8>(func.info.data_end);
+        decl_location = Machine::advance_addr<u8>(func_info.data_end);
       } break;
       case (TypeSystem::Type::BuiltIn::U16):
       {
-        decl_location = Machine::advance_addr<u16>(func.info.data_end);
+        decl_location = Machine::advance_addr<u16>(func_info.data_end);
       } break;
       case (TypeSystem::Type::BuiltIn::Func):
       {
@@ -510,7 +567,7 @@ store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Funct
 
 
 MemoryAddress
-reserve_type(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, TypeSystem::ID type_id, u32* result_bytes = NULL)
+reserve_type(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionInfo* func_info, TypeSystem::ID type_id, u32* result_bytes = NULL)
 {
   MemoryAddress result;
   u32 bytes = 0;
@@ -521,12 +578,12 @@ reserve_type(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Functio
   {
     case (TypeSystem::Type::BuiltIn::U8):
     {
-      result = Machine::advance_addr<u8>(func.info.data_end);
+      result = Machine::advance_addr<u8>(func_info->data_end);
       bytes = 1;
     } break;
     case (TypeSystem::Type::BuiltIn::U16):
     {
-      result = Machine::advance_addr<u16>(func.info.data_end);
+      result = Machine::advance_addr<u16>(func_info->data_end);
       bytes = 2;
     } break;
     case (TypeSystem::Type::BuiltIn::Func):
@@ -553,14 +610,16 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
 {
   bool success = true;
 
+  FunctionInfo& func_info = func.functions_map[func.function_index].value;
+
   // Reserve return address and value space
   if (function_type_id != TypeSystem::InvalidID)
   {
-    func.info.return_address = Machine::advance_addr<MemoryAddress>(func.info.data_end);
+    func_info.return_address = Machine::advance_addr<MemoryAddress>(func_info.data_end);
 
     TypeSystem::Type const& function_type = parent_scope.types.types[function_type_id];
     assert(function_type.type == TypeSystem::Type::BuiltIn::Func);
-    func.info.return_value = reserve_type(code_generator, parent_scope, func, function_type.function.return_type, &func.info.return_value_bytes);
+    func_info.return_value = reserve_type(code_generator, parent_scope, &func_info, function_type.function.return_type, &func_info.return_value_bytes);
   }
 
   // Reserve function parameter space
@@ -573,11 +632,11 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
     AST::Declaration const& arg_declaration = arg_declarations.declarations[arg_index];
 
     // Store the offset of each parameter from data_start, used for generating calling code.
-    Array::add(func.info.parameter_addrs, func.info.data_end);
+    Array::add(func_info.parameter_addrs, func_info.data_end);
 
     // TODO: We do not currently support passing functions in the code-gen
     assert(parent_scope.types.types[arg_declaration.type].type != TypeSystem::Type::BuiltIn::Func);
-    MemoryAddress arg_location = reserve_type(code_generator, parent_scope, func, arg_declaration.type);
+    MemoryAddress arg_location = reserve_type(code_generator, parent_scope, &func_info, arg_declaration.type);
 
     // Store the arg-name -> reserved-location mapping
     IdentifierMapping identifier = {};
@@ -609,8 +668,8 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
 
   // Write code
 
-  func.info.code_start = func.info.data_end;
-  func.info.code_end = func.info.code_start;
+  func_info.code_start = func_info.data_end;
+  func_info.code_end = func_info.code_start;
 
   for (u32 statement_index = 0;
        statement_index < body.n;
@@ -622,7 +681,7 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
     MemoryAddress const* result_location = NULL;
     if (statement_index == (body.n-1) && function_type_id != TypeSystem::InvalidID)
     {
-      result_location = &func.info.return_value;
+      result_location = &func_info.return_value;
     }
 
     success &= generate_statement_code(code_generator, body.scope, func, body.statements[statement_index], result_location);
@@ -631,42 +690,14 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
   // Return to caller code
   if (function_type_id != TypeSystem::InvalidID)
   {
-    Basolls::push_instruction<Code::JUMP>(*code_generator.machine, func.info.code_end, {
-      .addr = func.info.return_address
+    Basolls::push_instruction<Code::JUMP>(*code_generator.machine, func_info.code_end, {
+      .addr = func_info.return_address
     });
   }
 
-  printf("\n%.*s {\n", print_s(debug_name));
-  printf("  data start: %#.4x\n", func.info.data_start);
-  printf("  data end: %#.4x\n", func.info.data_end);
-  printf("  code start: %#.4x\n", func.info.code_start);
-  printf("  code end: %#.4x\n", func.info.code_end);
+  debug_print_func(code_generator, func, debug_name);
 
-  printf("  return address: %#.4x\n", func.info.return_address);
-  printf("  return value: %#.4x\n", func.info.return_value);
-
-  printf("  parameters:\n");
-  for (MemoryAddress parameter : func.info.parameter_addrs)
-  {
-    printf("    0x%x\n", parameter);
-  }
-
-  printf("  identifiers (%u):\n", func.identifiers_map.n_elements);
-  for (IdentifiersMap::Type const& pair : func.identifiers_map)
-  {
-    Identifiers::ID id = pair.key;
-    IdentifierMapping const& identifier = pair.value;
-
-    printf("    %u : \"%.*s\" : %#.4x\n",
-           id,
-           print_s(Strings::get(*code_generator.strings, identifier.debug_name)),
-           identifier.address);
-  }
-  Disassembler::disassemble(*code_generator.machine, func.info.code_start, func.info.code_end, "  ");
-
-  printf("}\n\n");
-
-  if (func.info.code_end > Machine::Reserved::UserEnd)
+  if (func_info.code_end > Machine::Reserved::UserEnd)
   {
     printf("Error: Overran user memory.  Out of space\n");
     success = false;
@@ -677,7 +708,7 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
 
 
 bool
-generate_code(Machine::Machine* machine, MemoryAddress data_start, AST::AST const& ast, MemoryAddress& code_start_result)
+generate_code(Machine::Machine* machine, MemoryAddress& addr, AST::AST const& ast, MemoryAddress& code_start_result)
 {
   bool success = true;
 
@@ -686,8 +717,14 @@ generate_code(Machine::Machine* machine, MemoryAddress data_start, AST::AST cons
   code_generator.strings = ast.strings;
 
   FunctionScope global_func = {};
-  global_func.info.data_start = data_start;
-  global_func.info.data_end = data_start;
+  global_func.function_index = global_func.functions_map.n_elements;
+
+  FunctionsMap::Type& pair = Array::new_element(global_func.functions_map);
+  pair.key = -1;
+  FunctionInfo& global_func_info = pair.value;
+
+  global_func_info.data_start = addr;
+  global_func_info.data_end = addr;
 
   BuiltInCode::generate_code(code_generator, ast.built_in_identifiers, global_func);
 
@@ -697,8 +734,10 @@ generate_code(Machine::Machine* machine, MemoryAddress data_start, AST::AST cons
 
   Array::free_array(global_func.identifiers_map);
   Array::free_array(global_func.literals_map);
+  Array::free_array(global_func.functions_map);
 
-  code_start_result = global_func.info.code_start;
+  code_start_result = global_func_info.code_start;
+  addr = global_func_info.code_end;
 
   return success;
 }

@@ -219,74 +219,76 @@ inline
 void
 generate_code(CodeGenerator& code_generator, Identifiers::BuiltIn built_in_identifiers, FunctionScope& func)
 {
+  FunctionInfo& func_info = func.functions_map[func.function_index].value;
+
   {
-    FunctionInfo func_info = generate_add8_code(code_generator, func.info.data_end);
+    FunctionInfo add8_func_info = generate_add8_code(code_generator, func_info.data_end);
     func.identifiers_map += {
       built_in_identifiers.add8,
       {
-        .address = func_info.code_start,
+        .address = add8_func_info.code_start,
         .debug_name = Strings::add(*code_generator.strings, "add8")
       }
     };
     func.functions_map += {
       built_in_identifiers.add8,
-      func_info
+      add8_func_info
     };
   }
   {
-    FunctionInfo func_info = generate_add16_code(code_generator, func.info.data_end);
+    FunctionInfo add16_func_info = generate_add16_code(code_generator, func_info.data_end);
     func.identifiers_map += {
       built_in_identifiers.add16,
       {
-        .address = func_info.code_start,
+        .address = add16_func_info.code_start,
         .debug_name = Strings::add(*code_generator.strings, "add16")
       }
     };
     func.functions_map += {
       built_in_identifiers.add16,
-      func_info
+      add16_func_info
     };
   }
   {
-    FunctionInfo func_info = generate_sub8_code(code_generator, func.info.data_end);
+    FunctionInfo sub8_func_info = generate_sub8_code(code_generator, func_info.data_end);
     func.identifiers_map += {
       built_in_identifiers.sub8,
       {
-        .address = func_info.code_start,
+        .address = sub8_func_info.code_start,
         .debug_name = Strings::add(*code_generator.strings, "sub8")
       }
     };
     func.functions_map += {
       built_in_identifiers.sub8,
-      func_info
+      sub8_func_info
     };
   }
   {
-    FunctionInfo func_info = generate_sub16_code(code_generator, func.info.data_end);
+    FunctionInfo sub16_func_info = generate_sub16_code(code_generator, func_info.data_end);
     func.identifiers_map += {
       built_in_identifiers.sub16,
       {
-        .address = func_info.code_start,
+        .address = sub16_func_info.code_start,
         .debug_name = Strings::add(*code_generator.strings, "sub16")
       }
     };
     func.functions_map += {
       built_in_identifiers.sub16,
-      func_info
+      sub16_func_info
     };
   }
   {
-    FunctionInfo func_info = generate_put8_code(code_generator, func.info.data_end);
+    FunctionInfo put8_func_info = generate_put8_code(code_generator, func_info.data_end);
     func.identifiers_map += {
       built_in_identifiers.put8,
       {
-        .address = func_info.code_start,
+        .address = put8_func_info.code_start,
         .debug_name = Strings::add(*code_generator.strings, "put8")
       }
     };
     func.functions_map += {
       built_in_identifiers.put8,
-      func_info
+      put8_func_info
     };
   }
 }
