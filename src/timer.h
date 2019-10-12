@@ -9,7 +9,7 @@ namespace Timer
 
 struct Timer
 {
-  u32 duration;
+  u32 duration_us;
   u64 end;
 };
 
@@ -18,14 +18,14 @@ inline void
 start(Timer& timer)
 {
   u64 now = Time::get_us();
-  timer.end = now + timer.duration;
+  timer.end = now + timer.duration_us;
 }
 
 
 inline void
-init(Timer& timer, u32 duration)
+init(Timer& timer, u32 duration_us)
 {
-  timer.duration = duration;
+  timer.duration_us = duration_us;
   start(timer);
 }
 
