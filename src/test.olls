@@ -1,3 +1,8 @@
+Func [u8]() blit = [u8]()
+{
+  put8(8191, 1)
+}
+
 Func [u8](u16 offset_t, u8 colour_t) set_two_pixels = [u8](u16 offset, u8 colour)
 {
   u16 sb = 8192
@@ -6,5 +11,74 @@ Func [u8](u16 offset_t, u8 colour_t) set_two_pixels = [u8](u16 offset, u8 colour
   0
 }
 
-u8 pink_black = 79
-set_two_pixels(0, pink_black)
+Func [u16](u16 offset_tt, u8 colour_tt) set_16_pixels = [u16](u16 o0, u8 colour_)
+{
+  set_two_pixels(o0, colour_)  u16 o1 = add16(o0, 1)
+  set_two_pixels(o1, colour_)  u16 o2 = add16(o1, 1)
+  set_two_pixels(o2, colour_)  u16 o3 = add16(o2, 1)
+  set_two_pixels(o3, colour_)  u16 o4 = add16(o3, 1)
+  set_two_pixels(o4, colour_)  u16 o5 = add16(o4, 1)
+  set_two_pixels(o5, colour_)  u16 o6 = add16(o5, 1)
+  set_two_pixels(o6, colour_)  u16 o7 = add16(o6, 1)
+  set_two_pixels(o7, colour_)  u16 o8 = add16(o7, 1)
+  o8
+}
+
+Func [u16](u16 offset_ttt, u8 colour_ttt) set_row = [u16](u16 O0, u8 colour__)
+{
+  u16 O1 = set_16_pixels(O0, colour__)
+  u16 O2 = set_16_pixels(O1, colour__)
+  u16 O3 = set_16_pixels(O2, colour__)
+  u16 O4 = set_16_pixels(O3, colour__)
+  u16 O5 = set_16_pixels(O4, colour__)
+  u16 O6 = set_16_pixels(O5, colour__)
+  u16 O7 = set_16_pixels(O6, colour__)
+  u16 O8 = set_16_pixels(O7, colour__)
+  O8
+}
+
+Func [u16](u16 offset_tttt, u8 colour_tttt) set_8_rows = [u16](u16 i0, u8 C)
+{
+  u16 i1 = set_row(i0, C)
+  u16 i2 = set_row(i1, C)
+  u16 i3 = set_row(i2, C)
+  u16 i4 = set_row(i3, C)
+  u16 i5 = set_row(i4, C)
+  u16 i6 = set_row(i5, C)
+  u16 i7 = set_row(i6, C)
+  u16 i8 = set_row(i7, C)
+  i8
+}
+
+Func [u16](u16 offset_t0, u8 colour_t0) set_64_rows = [u16](u16 I0, u8 c)
+{
+  u16 I1 = set_8_rows(I0, c)
+  u16 I2 = set_8_rows(I1, c)
+  u16 I3 = set_8_rows(I2, c)
+  u16 I4 = set_8_rows(I3, c)
+  u16 I5 = set_8_rows(I4, c)
+  u16 I6 = set_8_rows(I5, c)
+  u16 I7 = set_8_rows(I6, c)
+  u16 I8 = set_8_rows(I7, c)
+  I8
+}
+
+Func [u8](u16 o_t) loop = [u8](u16 o)
+{
+  u8 pink_black = 79   // 0x4f
+  u8 black_pink = 244  // 0xf4
+
+  u16 o2 = set_64_rows(o, pink_black)
+  u16 o3 = set_64_rows(o2, black_pink)
+
+  blit()
+
+  u16 o4 = set_64_rows(0, black_pink)
+  u16 o5 = set_64_rows(o4, pink_black)
+
+  blit()
+  loop(0)
+}
+
+
+loop(0)
