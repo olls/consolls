@@ -31,6 +31,10 @@ struct BuiltIn
   ID add16;
   ID sub8;
   ID sub16;
+  ID mul8;
+  ID mul16;
+  ID div8;
+  ID div16;
   ID put8;
 };
 
