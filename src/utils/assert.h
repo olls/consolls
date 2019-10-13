@@ -12,12 +12,9 @@
   { \
     if (!(cond)) \
     { \
-      printf("assert(" #cond ") failed at " __FILE__ ":" S__LINE__ "\n"); \
+      /* __PRETTY_FUNCTION__ is a normal char[] not a prepocessor macro */ \
+      printf(__PRETTY_FUNCTION__); \
+      printf(": assert(" #cond ") failed at " __FILE__ ":" S__LINE__ "\n"); \
       trap(); \
     } \
   }
-
-namespace Assert
-{
-
-} // namespace Assert
