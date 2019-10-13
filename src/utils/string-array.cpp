@@ -1,6 +1,6 @@
-#include "allocate.h"
-#include "string-array.h"
-#include "types.h"
+#include "utils/allocate.h"
+#include "utils/string-array.h"
+#include "utils/types.h"
 
 
 namespace StringArray

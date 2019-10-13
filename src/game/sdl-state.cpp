@@ -1,6 +1,6 @@
 #include "sdl-state.h"
 
-#include "assert.h"
+#include "utils/assert.h"
 
 
 namespace SDL_State

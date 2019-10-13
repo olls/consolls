@@ -1,7 +1,7 @@
 #pragma once
 
-#include "assert.h"
-#include "types.h"
+#include "utils/assert.h"
+#include "utils/types.h"
 
 
 namespace EnumArray

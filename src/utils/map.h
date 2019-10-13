@@ -1,7 +1,7 @@
 #pragma once
 
-#include "array.h"
-#include "types.h"
+#include "utils/array.h"
+#include "utils/types.h"
 
 
 namespace Map
