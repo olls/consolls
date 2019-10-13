@@ -1,8 +1,10 @@
 #pragma once
 
-#include "texture.h"
+#include "utils/texture.h"
+#include "utils/allocate.h"
 #include "utils/assert.h"
 #include "utils/types.h"
+#include "palette.h"
 
 
 namespace Machine
@@ -125,14 +127,6 @@ set(Machine& machine, MemoryAddress start, u8 element, u32 n_copies)
 }
 
 
-template <u32 w, u32 h>
-inline bool
-allocate_screen_buffer_texture(Memory<w,h> const & memory, Texture::Texture& texture)
-{
-  return Texture::allocate(texture, w, h);
-}
-
-
 template <typename element_type>
 inline MemoryAddress
 advance_addr(MemoryAddress& addr)
@@ -167,6 +161,6 @@ consume_signal_register(Machine& machine, MemoryAddress addr);
 
 
 void
-output_screen_buffer(Machine const & machine, Texture::Texture& texture);
+output_screen_buffer(Machine const & machine, Texture::Texture<Palette::Colour>& texture);
 
 } // namespace Machine

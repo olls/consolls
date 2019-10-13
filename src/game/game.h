@@ -1,7 +1,8 @@
 #pragma once
 
 #include "machine/machine.h"
-#include "machine/texture.h"
+#include "machine/palette.h"
+#include "utils/texture.h"
 #include "input.h"
 #include "frame-id.h"
 #include "clock.h"
@@ -13,9 +14,12 @@
 namespace Game
 {
 
+using TextureType = Texture::Texture<Palette::Colour>;
+
+
 struct State
 {
-  Texture::Texture texture;
+  TextureType texture;
 
   FrameID::FrameID frame_id;
   Input::Input input;

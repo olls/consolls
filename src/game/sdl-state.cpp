@@ -2,15 +2,14 @@
 
 #include "utils/assert.h"
 
+#include <SDL2/SDL.h>
+
 
 namespace SDL_State
 {
 
-#include <SDL2/SDL.h>
-
-
 bool
-init(SDL_State& sdl_state, char const * title, u32 initial_width, u32 initial_height, u32 pixel_format)
+init(SDL_State& sdl_state, char const * title, u32 initial_width, u32 initial_height)
 {
   bool success = true;
 
@@ -39,9 +38,6 @@ init(SDL_State& sdl_state, char const * title, u32 initial_width, u32 initial_he
     }
 
     success &= SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-
-    assert(sizeof(Texture::Pixel) == SDL_BYTESPERPIXEL(pixel_format));
-    sdl_state.pixel_format = pixel_format;
   }
 
   return success;
@@ -49,9 +45,13 @@ init(SDL_State& sdl_state, char const * title, u32 initial_width, u32 initial_he
 
 
 bool
-set_render_texture(SDL_State& sdl_state, Texture::Texture const & texture)
+set_render_texture(SDL_State& sdl_state, Game::TextureType const& texture)
 {
   bool success = true;
+
+  // TODO: Will need to do more work here to support different formats.
+  u32 const pixel_format = SDL_PIXELFORMAT_RGBX8888;
+  assert(sizeof(Game::TextureType::Pixel) == SDL_BYTESPERPIXEL(pixel_format));
 
   if (0 != SDL_RenderSetLogicalSize(sdl_state.sdl_renderer, texture.width, texture.height))
   {
@@ -65,7 +65,7 @@ set_render_texture(SDL_State& sdl_state, Texture::Texture const & texture)
     sdl_state.sdl_texture = NULL;
   }
 
-  sdl_state.sdl_texture = SDL_CreateTexture(sdl_state.sdl_renderer, sdl_state.pixel_format, SDL_TEXTUREACCESS_STREAMING, texture.width, texture.height);
+  sdl_state.sdl_texture = SDL_CreateTexture(sdl_state.sdl_renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, texture.width, texture.height);
   if (sdl_state.sdl_texture == NULL)
   {
     printf("Failed to create SDL_Texture: %s\n", SDL_GetError());
@@ -77,11 +77,11 @@ set_render_texture(SDL_State& sdl_state, Texture::Texture const & texture)
 
 
 bool
-render(SDL_State const & sdl_state, Texture::Texture const & texture)
+render(SDL_State const& sdl_state, Game::TextureType const& texture)
 {
   bool success = true;
 
-  success &= 0 == SDL_UpdateTexture(sdl_state.sdl_texture, NULL, texture.pixels, texture.width * sizeof(Texture::Pixel));
+  success &= 0 == SDL_UpdateTexture(sdl_state.sdl_texture, NULL, texture.pixels, texture.width * sizeof(Game::TextureType::Pixel));
   success &= 0 == SDL_SetRenderDrawColor(sdl_state.sdl_renderer, 0x00, 0x00, 0x00, 0xff);
   success &= 0 == SDL_RenderClear(sdl_state.sdl_renderer);
   success &= 0 == SDL_RenderCopy(sdl_state.sdl_renderer, sdl_state.sdl_texture, NULL, NULL);
@@ -95,7 +95,7 @@ render(SDL_State const & sdl_state, Texture::Texture const & texture)
 
 
 bool
-set_fullscreen(SDL_State const & sdl_state, bool on)
+set_fullscreen(SDL_State const& sdl_state, bool on)
 {
   bool success = true;
   success &= 0 == SDL_SetWindowFullscreen(sdl_state.sdl_window, on ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
@@ -104,7 +104,7 @@ set_fullscreen(SDL_State const & sdl_state, bool on)
 
 
 bool
-is_fullscreen(SDL_State const & sdl_state)
+is_fullscreen(SDL_State const& sdl_state)
 {
   bool result;
   result = SDL_WINDOW_FULLSCREEN_DESKTOP & SDL_GetWindowFlags(sdl_state.sdl_window);

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "sdl-state.h"
 #include "frame-id.h"
 #include "utils/enum-array.h"
 #include "utils/types.h"
 
-// Is this necessary?
-#include <SDL2/SDL.h>
+
+// Predeclare from <SDL2/SDL.h>
+using SDL_Keycode = s32;
 
 
 enum class Key

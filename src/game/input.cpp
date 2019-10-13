@@ -1,11 +1,10 @@
 #include "input.h"
 
+#include <SDL2/SDL.h>
+
 
 namespace Input
 {
-
-#include <SDL2/SDL.h>
-
 
 void
 init(Input& input)

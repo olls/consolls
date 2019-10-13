@@ -69,10 +69,14 @@ advance(State *const state, SDL_State::SDL_State& sdl_state)
       bool texture = true;
       if (!state->texture.pixels)
       {
-        texture &= Machine::allocate_screen_buffer_texture(state->machine.memory, state->texture);
+        texture &= Texture::allocate<Palette::Colour>(state->texture, state->machine.memory.sb_width, state->machine.memory.sb_height);
         if (texture)
         {
           texture &= SDL_State::set_render_texture(sdl_state, state->texture);
+          if (!texture)
+          {
+            Texture::destroy(state->texture);
+          }
         }
       }
 
@@ -103,7 +107,7 @@ run(Options::Args args)
   state.stepping = state.step_mode;
 
   SDL_State::SDL_State sdl_state = {};
-  success &= SDL_State::init(sdl_state, APP_NAME, 640, 480, SDL_PIXELFORMAT_RGBX8888);
+  success &= SDL_State::init(sdl_state, APP_NAME, 640, 480);
 
   Machine::set(state.machine, Machine::Reserved::ScreenBuffer, (Palette::Yellow|Palette::Brown<<4), state.machine.memory.screen_buffer_size);
   Machine::set<u8>(state.machine, Machine::Reserved::Blit, true);
@@ -133,6 +137,11 @@ run(Options::Args args)
 
       Clock::regulate(state.clock);
     }
+  }
+
+  if (state.texture.pixels)
+  {
+    Texture::destroy(state.texture);
   }
 
   Debugger::destroy(args);
