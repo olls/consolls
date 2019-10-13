@@ -19,7 +19,7 @@ def configure(conf):
   sdl_libs  = check_output(['sdl2-config', '--libs'  ]).split()
 
   conf.env.append_value('CXXFLAGS', ['--std=c++17', '-Werror', '-fcolor-diagnostics'] + sdl_flags)
-  conf.env.append_value('INCLUDES', ['.'])
+  conf.env.append_value('INCLUDES', ['.', '../../src/'])
   conf.env.append_value('LINKFLAGS', sdl_libs)
 
   base_env = conf.env.derive()
@@ -42,20 +42,28 @@ def build(bld):
   if not bld.variant:
     bld.fatal('Must use `{0}_debug` or `{0}_release or {0}_profile`'.format(bld.cmd))
 
-  main_src = 'src/main.cpp'
-  compiler_src = 'src/compiler-frontend.cpp'
-
+  # Build libraries as shared libs if using LIVE_RELOAD
   lib_type = bld.shlib if LIVE_RELOAD else bld.stlib
 
-  lib_type(source = bld.path.ant_glob('src/**/*.cpp', excl=[main_src, compiler_src]),
-           target = 'game')
+  libraries = [
+    'game',
+    'machine',
+    'utils'
+  ]
 
-  bld.program(source = bld.path.ant_glob(main_src, excl=compiler_src),
+  for library_name in libraries:
+    lib_type(source = bld.path.ant_glob('src/{}/*.cpp'.format(library_name)),
+             target = library_name)
+
+  # consolls loader program
+  bld.program(source = bld.path.ant_glob('src/loader/*.cpp'),
               target = APPNAME,
-              use = 'game')
+              use = ['game', 'machine', 'utils'])
 
-  bld.program(source = bld.path.ant_glob('src/**/*.cpp', excl=main_src),
-              target = 'compolls')
+  # compolls program
+  bld.program(source = bld.path.ant_glob('src/compolls/*.cpp'),
+              target = 'compolls',
+              use = ['machine', 'utils'])
 
 
 def init(ctx):
