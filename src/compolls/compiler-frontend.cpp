@@ -1,7 +1,11 @@
-#include "machine/machine-serialisation.h"
 #include "compolls.h"
+
+#include "machine/machine-serialisation.h"
 #include "machine/machine.h"
+
 #include "utils/string.h"
+#include "utils/debug.h"
+#include "utils/mem.h"
 #include "utils/types.h"
 
 

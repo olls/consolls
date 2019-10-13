@@ -1,6 +1,7 @@
 #include "machine-serialisation.h"
 
 #include "utils/file.h"
+#include "utils/debug.h"
 
 
 namespace MachineSerialisation

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "utils/types.h"
 #include "parse-tree.h"
+
+#include "utils/types.h"
 
 
 namespace Compolls

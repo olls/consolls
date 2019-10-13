@@ -1,7 +1,8 @@
 #pragma once
 
-#include "utils/types.h"
 #include "utils/assert.h"
+#include "utils/types.h"
+#include "utils/mem.h"
 
 #if defined(__MACH__)
 #include <cstdlib>
@@ -9,8 +10,7 @@
 #include <malloc.h>
 #endif
 
-#include <cstring>
-#include <initializer_list>
+#include <initializer_list>  // This is simple self contained impl
 
 
 namespace Allocate

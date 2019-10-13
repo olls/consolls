@@ -2,6 +2,9 @@
 
 #include "machine.h"
 
+#include "utils/types.h"
+
+
 namespace Disassembler
 {
 

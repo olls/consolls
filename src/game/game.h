@@ -1,14 +1,17 @@
 #pragma once
 
-#include "machine/machine.h"
-#include "machine/palette.h"
-#include "utils/texture.h"
 #include "input.h"
 #include "frame-id.h"
 #include "clock.h"
 #include "timer.h"
-#include "utils/types.h"
+
 #include "loader/options.h"
+
+#include "machine/machine.h"
+#include "machine/palette.h"
+
+#include "utils/texture.h"
+#include "utils/types.h"
 
 
 namespace Game

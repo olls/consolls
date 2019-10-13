@@ -1,7 +1,9 @@
 #include "disassembler.h"
 
-#include "utils/debug.h"
 #include "instructions.h"
+
+#include "utils/debug.h"
+#include "utils/assert.h"
 
 
 namespace Disassembler

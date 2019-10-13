@@ -1,6 +1,8 @@
 #pragma once
 
 #include "machine/basolls.h"
+#include "machine/machine.h"
+
 #include "utils/string.h"
 #include "utils/types.h"
 

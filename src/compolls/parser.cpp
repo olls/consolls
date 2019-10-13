@@ -2,8 +2,8 @@
 
 #include "utils/pair.h"
 #include "utils/allocate.h"
-
-#define LENGTH(array) sizeof((array))/sizeof((array)[0])
+#include "utils/c-array.h"
+#include "utils/assert.h"
 
 
 namespace Compolls
@@ -444,7 +444,7 @@ function_signature(Parser& parser, Tree::Node** result)
       {terminal<SymbolType::R_Parenthesis>}
     };
 
-    if (!accept_sequence(parser, LENGTH(sequence), sequence))
+    if (!accept_sequence(parser, array_size(sequence), sequence))
     {
       // TODO: More descriptive error message
       printf("Error while parsing function signature\n");
@@ -483,7 +483,7 @@ function(Parser& parser, Tree::Node** result)
       {terminal<SymbolType::R_Brace>}
     };
 
-    if (!accept_sequence(parser, LENGTH(sequence), sequence))
+    if (!accept_sequence(parser, array_size(sequence), sequence))
     {
       // TODO: More descriptive error message
       printf("Error while parsing function definition\n");
@@ -548,7 +548,7 @@ function_call(Parser& parser, Tree::Node** result)
       {terminal<SymbolType::R_Parenthesis>}
     };
 
-    if (!accept_sequence(parser, LENGTH(productions), productions))
+    if (!accept_sequence(parser, array_size(productions), productions))
     {
       assert(0 && "error");
     }
@@ -763,7 +763,7 @@ assignment(Parser& parser, Tree::Node** result)
       {expression, &node.assignment.expression}
     };
 
-    if (!accept_sequence(parser, LENGTH(productions), productions))
+    if (!accept_sequence(parser, array_size(productions), productions))
     {
       assert(0 && "error");
     }

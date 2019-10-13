@@ -1,6 +1,6 @@
-#include "utils/types.h"
-
 #pragma once
+
+#include "utils/types.h"
 
 
 namespace Options

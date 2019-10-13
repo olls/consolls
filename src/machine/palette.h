@@ -50,7 +50,8 @@ typedef enum : u8
 } Index;
 
 
-inline Colour
+inline
+Colour
 get_colour(Index index)
 {
   Colour result = COLOURS[index];

@@ -1,5 +1,9 @@
-#include "utils/types.h"
+#pragma once
+
 #include "machine/machine.h"
+
+#include "utils/types.h"
+
 
 namespace Socket
 {

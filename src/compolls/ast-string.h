@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ast.h"
+
+#include "utils/string-array.h"
 #include "utils/string.h"
 #include "utils/types.h"
 

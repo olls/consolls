@@ -1,6 +1,7 @@
 #include "sdl-state.h"
 
 #include "utils/assert.h"
+#include "utils/debug.h"
 
 #include <SDL2/SDL.h>
 

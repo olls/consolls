@@ -1,11 +1,6 @@
 #include "socket.h"
 
-#include "machine/machine.h"
 #include "utils/debug.h"
-
-
-namespace Socket
-{
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -14,6 +9,10 @@ namespace Socket
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+
+
+namespace Socket
+{
 
 const u32 BUF_SIZE = 500;
 const u32 PORT = 62626;

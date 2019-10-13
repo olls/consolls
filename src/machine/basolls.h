@@ -3,6 +3,8 @@
 #include "machine.h"
 #include "instructions.h"
 
+#include "utils/types.h"
+
 
 namespace Basolls
 {

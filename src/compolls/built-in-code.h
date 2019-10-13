@@ -1,11 +1,12 @@
 #pragma once
 
 #include "code-generator.h"
-#include "ast.h"
-#include "machine/basolls.h"
-#include "identifiers.h"
-#include "machine/machine.h"
 #include "strings.h"
+#include "identifiers.h"
+
+#include "machine/basolls.h"
+#include "machine/machine.h"
+
 #include "utils/string.h"
 #include "utils/types.h"
 

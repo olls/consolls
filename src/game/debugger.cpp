@@ -1,7 +1,10 @@
 #include "debugger.h"
 
-#include "machine/disassembler.h"
 #include "socket.h"
+
+#include "machine/disassembler.h"
+
+#include "utils/types.h"
 
 
 namespace Debugger

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "loader/options.h"
 
 #include "machine/machine.h"
-#include "loader/options.h"
 
 
 namespace Debugger

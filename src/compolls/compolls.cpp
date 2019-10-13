@@ -8,7 +8,10 @@
 #include "parse-tree-visitor.h"
 #include "parser.h"
 #include "parse-tree.h"
+
 #include "utils/string-array.h"
+#include "utils/array.h"
+#include "utils/debug.h"
 #include "utils/file.h"
 
 

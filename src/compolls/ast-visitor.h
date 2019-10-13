@@ -1,7 +1,8 @@
 #pragma once
 
-#include "utils/types.h"
 #include "ast.h"
+
+#include "utils/types.h"
 
 
 namespace Compolls

@@ -1,5 +1,7 @@
 #include "type-system.h"
 
+#include "utils/debug.h"
+
 
 namespace Compolls
 {

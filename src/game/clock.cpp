@@ -1,8 +1,6 @@
 #include "clock.h"
 
 #include "utils/time.h"
-#include "utils/debug.h"
-#include "utils/assert.h"
 
 
 namespace Clock

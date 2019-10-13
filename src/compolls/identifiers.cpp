@@ -1,6 +1,7 @@
 #include "identifiers.h"
 
 #include "utils/allocate.h"
+#include "utils/assert.h"
 
 
 namespace Compolls

@@ -6,10 +6,14 @@
 namespace FrameID
 {
 
-typedef u32 FrameID;
+using FrameID = u32;
 
 
+inline
 void
-update(FrameID& frame_id);
+update(FrameID& frame_id)
+{
+  frame_id += 1;
+}
 
 } // namespace FrameID

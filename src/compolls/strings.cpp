@@ -24,7 +24,6 @@ add(Table& strings, String::String string)
   {
     result = strings.table.n_elements;
     Array::add(strings.table, string);
-    // printf("String: \"%.*s\" %d\n", print_s(string), result);
   }
 
   return result;
@@ -32,7 +31,7 @@ add(Table& strings, String::String string)
 
 
 String::String &
-get(Table const & strings, ID id)
+get(Table const& strings, ID id)
 {
   return strings.table[id];
 }

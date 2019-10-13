@@ -1,8 +1,8 @@
 #pragma once
 
+#include "utils/mem.h"
 #include "utils/types.h"
 
-#include <string.h>
 
 #define print_s(string) ((string).length), ((string).start)
 

@@ -9,7 +9,8 @@
 namespace Time
 {
 
-inline u64
+inline
+u64
 get_us()
 {
   struct timeval tv;
@@ -18,7 +19,8 @@ get_us()
 }
 
 
-inline bool
+inline
+bool
 sleep_us(u32 us)
 {
   bool success = usleep(us) == 0;

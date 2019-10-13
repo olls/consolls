@@ -2,8 +2,8 @@
 
 #include "machine.h"
 
-
-#define PACKED __attribute__((packed))
+#include "utils/types.h"
+#include "utils/mem-layout.h"
 
 
 namespace Instructions
@@ -41,6 +41,7 @@ enum class Code : u8
   SET,
   SET_W
 };
+
 
 template <Code InstructionCode>
 struct PACKED Args;

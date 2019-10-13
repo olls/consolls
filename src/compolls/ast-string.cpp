@@ -2,9 +2,7 @@
 
 #include "ast-visitor.h"
 #include "type-system.h"
-#include "utils/string-array.h"
 #include "strings.h"
-#include "utils/string.h"
 
 
 namespace Compolls

@@ -1,7 +1,7 @@
 #include "machine.h"
 
-#include "palette.h"
 #include "instructions.h"
+
 #include "utils/assert.h"
 
 

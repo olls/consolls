@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/allocate.h"
+#include "utils/debug.h"
 #include "utils/assert.h"
 #include "utils/types.h"
 

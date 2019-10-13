@@ -3,9 +3,11 @@
 #include "parse-tree.h"
 #include "tokeniser.h"
 #include "strings.h"
+
 #include "utils/string.h"
 #include "utils/fifo.h"
 #include "utils/types.h"
+#include "utils/debug.h"
 
 
 namespace Compolls

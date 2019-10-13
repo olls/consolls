@@ -1,10 +1,10 @@
 #pragma once
 
+#include "palette.h"
+
 #include "utils/texture.h"
-#include "utils/allocate.h"
 #include "utils/assert.h"
 #include "utils/types.h"
-#include "palette.h"
 
 
 namespace Machine
@@ -148,7 +148,7 @@ template <typename element_type>
 inline element_type &
 advance_addr(Machine const & machine, MemoryAddress& addr)
 {
-  return  *get_ptr<element_type>(machine, advance_addr<element_type>(addr));
+  return *get_ptr<element_type>(machine, advance_addr<element_type>(addr));
 }
 
 

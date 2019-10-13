@@ -1,6 +1,8 @@
 #include "options.h"
+
+#include "utils/debug.h"
+
 #include <string.h>
-#include <stdio.h>
 
 
 namespace Options

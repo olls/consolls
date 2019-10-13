@@ -1,4 +1,7 @@
+#pragma once
+
 #include "machine.h"
+
 #include "utils/types.h"
 
 

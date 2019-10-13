@@ -2,8 +2,8 @@
 
 #include "parse-tree-visitor.h"
 
-// TODO: Put this somewhere sensible
-#define array_size(a) (sizeof(a)/sizeof(a[0]))
+#include "utils/c-array.h"
+#include "utils/assert.h"
 
 
 namespace Compolls

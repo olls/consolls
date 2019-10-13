@@ -1,11 +1,12 @@
 #pragma once
 
-#include "utils/texture.h"
-#include "utils/types.h"
 #include "game.h"
 
+#include "utils/texture.h"
+#include "utils/types.h"
 
-// Predeclares from <SDL2/SDL.h>
+
+// Forward declares from <SDL2/SDL.h>
 struct SDL_Window;
 struct SDL_Renderer;
 struct SDL_Texture;
@@ -42,7 +43,8 @@ bool
 is_fullscreen(SDL_State const& sdl_state);
 
 
-inline void
+inline
+void
 toggle_fullscreen(SDL_State const& sdl_state) { set_fullscreen(sdl_state, !is_fullscreen(sdl_state)); }
 
 

@@ -1,9 +1,11 @@
 #include "options.h"
-#include "utils/assert.h"
 
 #if !LIVE_RELOAD
 #include "game/game.h"
 #endif
+
+#include "utils/assert.h"
+#include "utils/types.h"
 
 
 s32

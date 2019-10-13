@@ -1,14 +1,13 @@
 #include "game.h"
 
-#include "machine/machine-serialisation.h"
+#include "sdl-state.h"
 #include "debugger.h"
-#include "compolls/compolls.h"
+
+#include "machine/machine-serialisation.h"
 #include "machine/basolls.h"
 #include "machine/disassembler.h"
-#include "sdl-state.h"
-#include "machine/palette.h"
 #include "machine/instructions.h"
-#include "clock.h"
+
 #include "utils/assert.h"
 
 

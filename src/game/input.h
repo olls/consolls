@@ -1,11 +1,12 @@
 #pragma once
 
 #include "frame-id.h"
+
 #include "utils/enum-array.h"
 #include "utils/types.h"
 
 
-// Predeclare from <SDL2/SDL.h>
+// Forward declares from <SDL2/SDL.h>
 using SDL_Keycode = s32;
 
 

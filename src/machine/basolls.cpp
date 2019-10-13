@@ -2,10 +2,9 @@
 
 #include "disassembler.h"
 #include "palette.h"
+
 #include "utils/debug.h"
 #include "utils/string.h"
-
-#include <cstddef>
 
 
 namespace Basolls

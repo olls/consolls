@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
+#include <stddef.h>
 
 
 using s64 = int64_t;

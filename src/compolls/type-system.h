@@ -2,7 +2,10 @@
 
 #include "parse-tree.h"
 #include "strings.h"
+
 #include "utils/string-array.h"
+#include "utils/string.h"
+#include "utils/array.h"
 #include "utils/types.h"
 
 

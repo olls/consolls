@@ -2,9 +2,11 @@
 
 #include "identifiers.h"
 #include "ast.h"
+#include "strings.h"
+
 #include "machine/instructions.h"
 #include "machine/machine.h"
-#include "strings.h"
+
 #include "utils/map.h"
 #include "utils/array.h"
 #include "utils/types.h"
