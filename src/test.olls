@@ -40,13 +40,14 @@ Func [u16](u16 offset_ttt, u8 colour_ttt) set_row = [u16](u16 O0, u8 colour__)
 Func [u16](u16 offset_tttt, u8 colour_tttt) set_8_rows = [u16](u16 i0, u8 C)
 {
   u16 i1 = set_row(i0, C)
-  u16 i2 = set_row(i1, C)
-  u16 i3 = set_row(i2, C)
-  u16 i4 = set_row(i3, C)
-  u16 i5 = set_row(i4, C)
-  u16 i6 = set_row(i5, C)
-  u16 i7 = set_row(i6, C)
-  u16 i8 = set_row(i7, C)
+  //u16 i2 = set_row(i1, C)
+  //u16 i3 = set_row(i2, C)
+  //u16 i4 = set_row(i3, C)
+  //u16 i5 = set_row(i4, C)
+  //u16 i6 = set_row(i5, C)
+  //u16 i7 = set_row(i6, C)
+  //u16 i8 = set_row(i7, C)
+  u16 i8 = add16(i1, mul16(64, 7))
   i8
 }
 
