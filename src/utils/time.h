@@ -27,5 +27,4 @@ sleep_us(u32 us)
   return success;
 }
 
-
 } // namespace Time

@@ -19,7 +19,7 @@ template <typename T>
 s32
 elements_remaining(Fifo<T> const& fifo)
 {
-  return fifo.elements.n_elements - fifo.position;
+  return (s32)(fifo.elements.n_elements - fifo.position);
 }
 
 

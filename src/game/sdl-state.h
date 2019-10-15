@@ -24,7 +24,7 @@ struct SDL_State
 
 
 bool
-init(SDL_State& sdl_state, const char * title, u32 initial_width, u32 intial_height);
+init(SDL_State& sdl_state, const char * title, s32 initial_width, s32 intial_height);
 
 
 bool

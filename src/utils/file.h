@@ -8,7 +8,7 @@ namespace File
 
 struct File
 {
-  s32 fd;
+  size_t size;
 
   char const * read_ptr;
 
@@ -16,15 +16,57 @@ struct File
   ///          opening the file.
   char* write_ptr;
 
-  s32 size;
+  s32 fd;
 };
 
 
 bool
-open(char const * filename, File* result, bool write = false, s32 trunc_to = -1);
+open(char const * filename, File* result, bool write, bool trunc, size_t trunc_to);
+
+inline
+bool
+open(char const * filename, File *result, bool write, size_t trunc_to)
+{
+  return open(filename, result, write, true, trunc_to);
+}
+
+inline
+bool
+open(char const * filename, File *result, bool write)
+{
+  return open(filename, result, write, false, 0);
+}
+
+inline
+bool
+open(char const * filename, File *result, size_t trunc_to)
+{
+  return open(filename, result, false, true, trunc_to);
+}
+
+inline
+bool
+open(char const * filename, File *result)
+{
+  return open(filename, result, false, false, 0);
+}
 
 
 bool
-close(File* file, s32 trunc_to = -1);
+close(File* file, bool trunc, size_t trunc_to);
+
+inline
+bool
+close(File* file, size_t trunc_to)
+{
+  return close(file, true, trunc_to);
+}
+
+inline
+bool
+close(File* file)
+{
+  return close(file, false, 0);
+}
 
 } // namespace File

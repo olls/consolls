@@ -14,8 +14,8 @@ struct Texture
 {
   using Pixel = Pixel_t;
 
-  u32 width;
-  u32 height;
+  s32 width;
+  s32 height;
 
   Pixel *pixels;
 };
@@ -29,7 +29,7 @@ allocate(Texture<Pixel>& texture, s32 width, s32 height)
 
   texture.width = width;
   texture.height = height;
-  texture.pixels = Allocate::allocate<Pixel>(texture.width * texture.height);
+  texture.pixels = Allocate::allocate<Pixel>((size_t)(texture.width * texture.height));
   if (texture.pixels == NULL)
   {
     printf("Failed to allocate texture screen pixels.\n");
@@ -42,7 +42,7 @@ allocate(Texture<Pixel>& texture, s32 width, s32 height)
 
 template <typename Pixel>
 void
-set_pixel(Texture<Pixel>& texture, u32 x, u32 y, Pixel colour)
+set_pixel(Texture<Pixel>& texture, s32 x, s32 y, Pixel colour)
 {
   assert(x < texture.width &&
          y < texture.height);

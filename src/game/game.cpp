@@ -123,7 +123,7 @@ run(Options::Args args)
   if (success)
   {
     Input::init(state.input);
-    Timer::init(state.input_update, 1000000*.2);
+    Timer::init(state.input_update, (u32)(1000000.0f*.2f));
 
     state.frame_id = 0;
 

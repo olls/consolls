@@ -42,7 +42,7 @@ deserialise(char const* filename, Machine::Machine& machine)
   {
     if (file.size != machine.memory.size)
     {
-      printf("\"%s\" is not the correct size (%u != %u).\n", filename, file.size, machine.memory.size);
+      printf("\"%s\" is not the correct size (%zu != %u).\n", filename, file.size, machine.memory.size);
       success &= false;
     }
     else

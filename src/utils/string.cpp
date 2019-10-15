@@ -21,12 +21,12 @@ format(char const * format...)
   s32 length = vsnprintf(NULL, 0, format, args);
   if (length >= 0)
   {
-    buffer = Allocate::allocate<char>(length);
+    buffer = Allocate::allocate<char>((u32)length);
 
     if (vsprintf(buffer, format, args2) == length)
     {
       result.start = buffer;
-      result.length = length;
+      result.length = (u32)length;
     }
     else
     {

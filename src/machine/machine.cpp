@@ -121,7 +121,7 @@ inst<Instructions::Code::LSHIFT>(Machine& machine, MemoryAddress& instruction_pt
 {
   u8 in = get<u8>(machine, args.in);
   u8 bits = get<u8>(machine, args.bits);
-  set<u8>(machine, args.result, in << bits);
+  set<u8>(machine, args.result, (u8)(in << bits));
 }
 
 
@@ -131,7 +131,7 @@ inst<Instructions::Code::RSHIFT>(Machine& machine, MemoryAddress& instruction_pt
 {
   u8 in = get<u8>(machine, args.in);
   u8 bits = get<u8>(machine, args.bits);
-  set<u8>(machine, args.result, in >> bits);
+  set<u8>(machine, args.result, (u8)(in >> bits));
 }
 
 
@@ -409,23 +409,23 @@ output_screen_buffer(Machine const & machine, Texture::Texture<Palette::Colour>&
 
   u8 const pixel_mask = (1 << machine.memory.pixel_size) - 1;
 
-  for (u32 y = 0;
-       y < machine.memory.sb_height;
+  for (s32 y = 0;
+       y < (s32)machine.memory.sb_height;
        ++y)
   {
-    for (u32 x = 0;
-         x < machine.memory.sb_width;
+    for (s32 x = 0;
+         x < (s32)machine.memory.sb_width;
          ++x)
     {
-      u32 pixel_offset = (y * machine.memory.sb_width) + x;
-      r32 byte_offset_frac = pixel_offset * (machine.memory.pixel_size / 8.0);
+      u32 pixel_offset = ((u32)y * machine.memory.sb_width) + (u32)x;
+      r32 byte_offset_frac = pixel_offset * (machine.memory.pixel_size / 8.0f);
 
       u32 byte_offset = u32(byte_offset_frac);
       assert(byte_offset < machine.memory.screen_buffer_size);
 
       u8 byte = sb[byte_offset];
 
-      u32 bit_offset = 8*(byte_offset_frac - byte_offset);
+      u32 bit_offset = (u32)(8.0f*(byte_offset_frac - (r32)byte_offset));
       assert(bit_offset < 8);
 
       Palette::Index colour_index = (Palette::Index)((byte >> bit_offset) & pixel_mask);

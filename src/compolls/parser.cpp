@@ -162,7 +162,7 @@ symbol_string(SymbolType symbol)
     } break;
   }
 
-  result.length = strlen(result.start);
+  result.length = (u32)strlen(result.start);
 
   return result;
 }
@@ -814,7 +814,7 @@ scope(Parser& parser, Tree::Node** result)
   // scope <- '{' body '}'
 
   Tree::Node node = { .type = Tree::Node::Scope, .text_start = current_text_position(parser) };
-  Tree::Node* scope_node = NULL;
+  Tree::Node* scope_node = NULL; (void)(scope_node);
 
   bool matches = false;
 

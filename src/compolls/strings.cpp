@@ -15,14 +15,14 @@ add(Table& strings, String::String string)
   {
     if (String::equals(strings.table[i], string))
     {
-      result = i;
+      result = (s32)i;
       break;
     }
   }
 
   if (result == -1)
   {
-    result = strings.table.n_elements;
+    result = (s32)strings.table.n_elements;
     Array::add(strings.table, string);
   }
 

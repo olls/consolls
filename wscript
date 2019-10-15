@@ -18,9 +18,43 @@ def configure(conf):
   sdl_flags = check_output(['sdl2-config', '--cflags']).split()
   sdl_libs  = check_output(['sdl2-config', '--libs'  ]).split()
 
-  conf.env.append_value('CXXFLAGS', ['--std=c++17', '-Werror', '-fcolor-diagnostics'] + sdl_flags)
+  flags = [
+    '--std=c++17',
+    '-Wc++1z-extensions',
+    '-Werror',
+    '-Weverything',
+    '-fcolor-diagnostics',
+    '-fno-exceptions',
+    '-fstack-protector',
+    '-Wformat-security',
+    '-fvisibility=hidden',
+    '-Wpointer-arith',
+    '-Wformat-nonliteral',
+    '-Winit-self',
+
+    '-Wno-c++98-compat',
+    '-Wno-unused-parameter',
+    '-Wno-packed',
+    '-Wno-old-style-cast',
+    '-Wno-c99-extensions',
+    '-Wno-missing-prototypes',
+    '-Wno-covered-switch-default',
+    '-Wno-padded',
+    '-Wno-nested-anon-types',
+    '-Wno-sometimes-uninitialized'
+    # '-Wdouble-promotion'
+  ]
+  flags += sdl_flags
+
+  link_flags = [
+    '-Wl,-z,relro',
+    '-Wl,-z,now'
+  ]
+  link_flags += sdl_libs
+
+  conf.env.append_value('CXXFLAGS', flags)
   conf.env.append_value('INCLUDES', ['.', '../../src/'])
-  conf.env.append_value('LINKFLAGS', sdl_libs)
+  conf.env.append_value('LINKFLAGS', link_flags)
 
   base_env = conf.env.derive()
 

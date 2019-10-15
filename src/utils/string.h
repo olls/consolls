@@ -4,7 +4,7 @@
 #include "utils/types.h"
 
 
-#define print_s(string) ((string).length), ((string).start)
+#define print_s(string) ((s32)(string).length), ((string).start)
 
 
 namespace String
@@ -50,24 +50,39 @@ is_alpha_num_underscore(char c)
 }
 
 
+// Awful SFINAE for String ctor overloads :(
+struct Dummy {};
+template<typename T> struct IsCharPtr {};
+template<> struct IsCharPtr<const char *> { typedef Dummy* Type; };
+template<> struct IsCharPtr<char *> { typedef Dummy* Type; };
+
+
 struct String
 {
+  char const* start;
   u32 length;
-  char const * start;
 
   String() = default;
 
-  String(char const * start)
-  {
-    this->start = start;
-    this->length = strlen(start);
-  }
+  // constexpr ctor templating to only match on string literals.
+  template <size_t N>
+  constexpr
+  String(char const (&_start)[N]):
+    start(_start),
+    length(N-1)
+  {}
 
-  String(char const * start, u32 length)
-  {
-    this->start = start;
-    this->length = length;
-  }
+  template <typename T>
+  String(T _start, typename IsCharPtr<T>::Type=0):
+    start(_start),
+    length((u32)strlen(_start))
+  {}
+
+  constexpr
+  String(char const* _start, u32 _length):
+    start(_start),
+    length(_length)
+  {}
 };
 
 

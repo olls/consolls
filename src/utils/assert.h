@@ -6,7 +6,7 @@
 
 #define S(x) #x
 #define S_(x) S(x)
-#define S__LINE__ S_(__LINE__)
+#define S_LINE S_(__LINE__)
 
 #define assert(cond) \
   { \
@@ -14,7 +14,7 @@
     { \
       /* __PRETTY_FUNCTION__ is a normal char[] not a prepocessor macro */ \
       printf(__PRETTY_FUNCTION__); \
-      printf(": assert(" #cond ") failed at " __FILE__ ":" S__LINE__ "\n"); \
+      printf(": assert(" #cond ") failed at " __FILE__ ":" S_LINE "\n"); \
       trap(); \
     } \
   }

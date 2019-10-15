@@ -17,9 +17,3 @@ using s8 = int8_t;
 using u8 = uint8_t;
 
 using r32 = float;
-
-
-namespace Types
-{
-
-} // namespace Types

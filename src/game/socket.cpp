@@ -14,7 +14,6 @@
 namespace Socket
 {
 
-const u32 BUF_SIZE = 500;
 const u32 PORT = 62626;
 
 static int server = -1;

@@ -18,7 +18,7 @@ main(s32 argc, char const * argv[])
   char const* filename = NULL;
   char const* output_filename = NULL;
 
-  u32 arg_index = 0;
+  s32 arg_index = 0;
   if (arg_index < argc)
   {
     program = argv[arg_index];

@@ -29,7 +29,7 @@ find(Types const & types, Strings::ID type_string)
   s32 index = Array::find_first(types.types, find_func, &type_string);
   if (index != -1)
   {
-    result = index;
+    result = (ID)index;
   }
   return result;
 }
@@ -43,7 +43,7 @@ find(Types const& types, Type const& type)
   s32 index = Array::find_first(types.types, type);
   if (index != -1)
   {
-    result = index;
+    result = (ID)index;
   }
   return result;
 }

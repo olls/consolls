@@ -18,7 +18,7 @@ namespace File
 //
 // trunc_to:  Optional; if specified file is truncated to trunc_to bytes before opening.
 bool
-open(char const * filename, File *result, bool write, s32 trunc_to)
+open(char const * filename, File *result, bool write, bool trunc, size_t trunc_to)
 {
   bool success = true;
 
@@ -46,7 +46,7 @@ open(char const * filename, File *result, bool write, s32 trunc_to)
 
   if (success)
   {
-    if (trunc_to < 0)
+    if (!trunc)
     {
       // If not re-sizing the file, get the actual size of the file.
 
@@ -58,7 +58,7 @@ open(char const * filename, File *result, bool write, s32 trunc_to)
       }
       else
       {
-        result->size = sb.st_size;
+        result->size = (size_t)sb.st_size;
       }
     }
     else
@@ -66,7 +66,7 @@ open(char const * filename, File *result, bool write, s32 trunc_to)
       // Re-size the file
 
       result->size = trunc_to;
-      if (ftruncate(result->fd, result->size) == -1)
+      if (ftruncate(result->fd, (off_t)result->size) == -1)
       {
         printf("Failed to ftruncate file: \"%s\"\n", filename);
         success = false;
@@ -114,7 +114,7 @@ open(char const * filename, File *result, bool write, s32 trunc_to)
 //
 // trunc_to:  Optional; if specified, the file will be truncated to trunc_to bytes after closing.
 bool
-close(File *file, s32 trunc_to)
+close(File *file, bool trunc, size_t trunc_to)
 {
   bool error = false;
 
@@ -124,10 +124,10 @@ close(File *file, s32 trunc_to)
     error = true;
   }
 
-  if (trunc_to >= 0)
+  if (trunc)
   {
     file->size = trunc_to;
-    if (ftruncate(file->fd, file->size) == -1)
+    if (ftruncate(file->fd, (off_t)file->size) == -1)
     {
       printf("Failed to truncate file for saving.\n");
     }

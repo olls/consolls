@@ -14,6 +14,7 @@ namespace Parser
 
 namespace Tree
 {
+
 static const String::String NODE_NAMES[] = {
   "Program",
   "Statement",

@@ -34,9 +34,9 @@
 
 
 #define ARRAY_ALLOCATE OVERRIDE_ARRAY_ALLOCATE_FUNC
-#define ARRAY_ALLOCATE_SIZE(size, n) (OVERRIDE_ARRAY_ALLOCATE_FUNC((size)  * (n)))
-#define ARRAY_FREE(p) (OVERRIDE_ARRAY_FREE_FUNC(p))
-#define ARRAY_ASSERT(exp) (OVERRIDE_ARRAY_ASSERT_FUNC(exp))
+#define ARRAY_ALLOCATE_SIZE(size, n) OVERRIDE_ARRAY_ALLOCATE_FUNC((size)  * (n))
+#define ARRAY_FREE(p) OVERRIDE_ARRAY_FREE_FUNC(p)
+#define ARRAY_ASSERT(exp) OVERRIDE_ARRAY_ASSERT_FUNC(exp)
 #define ARRAY_MEMCPY OVERRIDE_ARRAY_MEMCPY_FUNC
 #define ARRAY_MEMSET OVERRIDE_ARRAY_MEMSET_FUNC
 
@@ -87,6 +87,12 @@ namespace Array
     operator[](const u32 index) const
     {
       return *get(*this, index);
+    }
+
+    T &
+    operator[](const s32 index) const
+    {
+      return *get(*this, (u32)index);
     }
 
     Array<T, dynamic_elem_size, static_size>&
@@ -143,7 +149,10 @@ namespace Array
       else
       {
         // Allocate array on heap
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
         new_heap_elements = (T *)ARRAY_ALLOCATE_SIZE(array.element_size, new_array_size);
+#pragma clang diagnostic pop
         new_elements = new_heap_elements;
       }
 
@@ -240,7 +249,10 @@ namespace Array
   get_(Array<T, dynamic_elem_size, static_size> const & array, const u32 index)
   {
     // Have to do indexing in bytes to deal with dynamic element size
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
     return (T *)((u8 *)array.elements() + (index * array.element_size));
+#pragma clang diagnostic pop
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
@@ -252,6 +264,14 @@ namespace Array
 
     return get_(array, index);
   }
+
+  template<typename T, bool dynamic_elem_size, u32 static_size>
+  T *
+  get(Array<T, dynamic_elem_size, static_size> const & array, const s32 index)
+  {
+    return get(array, (u32)index);
+  }
+
 
   // Searches the array for the index of the first element equal to the given element
   //
@@ -269,7 +289,7 @@ namespace Array
 
       if (test_element == element)
       {
-        result = test_index;
+        result = (s32)test_index;
         break;
       }
     }
@@ -291,7 +311,7 @@ namespace Array
       T* item = get(array, i);
       if (condition(*item, user))
       {
-        result = i;
+        result = (s32)i;
         break;
       }
     }
@@ -310,7 +330,7 @@ namespace Array
       T const& item = array[i];
       if (item == element)
       {
-        result = i;
+        result = (s32)i;
         break;
       }
     }

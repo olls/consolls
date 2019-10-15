@@ -18,9 +18,9 @@ namespace Allocate
 
 template <typename X>
 X *
-allocate(u32 n_elements)
+allocate(size_t n_elements)
 {
-  u32 const bytes_size = sizeof(X) * n_elements;
+  size_t const bytes_size = sizeof(X) * n_elements;
   X *result = (X *)malloc(bytes_size);
   memset(result, 0, bytes_size);
 
@@ -60,7 +60,7 @@ X *
 copy(u32& n_elements_result, std::initializer_list<X> xs)
 {
   assert(xs.size() > 0);
-  n_elements_result = xs.size();
+  n_elements_result = (u32)xs.size();
 
   X* result = allocate<X>(xs.size());
   X* ptr = result;
@@ -72,4 +72,4 @@ copy(u32& n_elements_result, std::initializer_list<X> xs)
   return result;
 }
 
-} // namespace Allocate
+} // namespace size_t

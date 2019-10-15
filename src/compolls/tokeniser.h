@@ -15,6 +15,17 @@ struct Token
   u32 start;
   u32 end;
   Strings::ID string;
+
+  Token(u32 _start, u32 _end):
+    start(_start),
+    end(_end)
+  {}
+  Token(u32 _start, u32 _end, Strings::ID _string):
+    start(_start),
+    end(_end),
+    string(_string)
+  {}
+  Token() {}
 };
 
 

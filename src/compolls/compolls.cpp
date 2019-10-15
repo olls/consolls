@@ -44,7 +44,6 @@ compile_file(char const* filename, Machine::Machine& machine, Machine::MemoryAdd
   {
     String::String file_string = { file.read_ptr, (u32)file.size };
 
-    Machine::MemoryAddress result;
     if (!Compolls::compile(file_string, machine, addr, start_result))
     {
       success &= false;
@@ -59,7 +58,7 @@ compile(String::String text, Machine::Machine& machine, Machine::MemoryAddress& 
 {
   bool success = true;
 
-  printf("Compiling:  \"%.*s\"\n", text.length, text.start);
+  printf("Compiling:  \"%.*s\"\n", (s32)text.length, text.start);
 
   Strings::Table strings = {};
   Array::Array<Tokeniser::Token> tokens = Tokeniser::tokenise(text, strings);

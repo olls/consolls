@@ -10,7 +10,7 @@ namespace SDL_State
 {
 
 bool
-init(SDL_State& sdl_state, char const * title, u32 initial_width, u32 initial_height)
+init(SDL_State& sdl_state, char const * title, s32 initial_width, s32 initial_height)
 {
   bool success = true;
 
@@ -82,7 +82,7 @@ render(SDL_State const& sdl_state, Game::TextureType const& texture)
 {
   bool success = true;
 
-  success &= 0 == SDL_UpdateTexture(sdl_state.sdl_texture, NULL, texture.pixels, texture.width * sizeof(Game::TextureType::Pixel));
+  success &= 0 == SDL_UpdateTexture(sdl_state.sdl_texture, NULL, texture.pixels, texture.width * (s32)sizeof(Game::TextureType::Pixel));
   success &= 0 == SDL_SetRenderDrawColor(sdl_state.sdl_renderer, 0x00, 0x00, 0x00, 0xff);
   success &= 0 == SDL_RenderClear(sdl_state.sdl_renderer);
   success &= 0 == SDL_RenderCopy(sdl_state.sdl_renderer, sdl_state.sdl_texture, NULL, NULL);

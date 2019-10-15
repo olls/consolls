@@ -19,7 +19,7 @@ parse_u32(String::String text, u32& result)
     if (c >= '0' && c <= '9')
     {
       result *= 10;
-      result += c - '0';
+      result += (u32)(c - '0');
     }
     else
     {

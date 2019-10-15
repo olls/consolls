@@ -192,7 +192,7 @@ generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const&
         } break;
         default:
         {
-          assert(!"Unsupported return value size");
+          assert(!(bool)"Unsupported return value size");
         }
       }
     }
@@ -472,8 +472,8 @@ store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Funct
            expression_index < expressions.n;
            ++expression_index)
       {
-        AST::Expression const& expression = expressions.expressions[expression_index];
-        success &= store_literals(code_generator, scope, func, expression);
+        AST::Expression const& param_expression = expressions.expressions[expression_index];
+        success &= store_literals(code_generator, scope, func, param_expression);
 
         if (!success)
         {
@@ -721,7 +721,7 @@ generate_code(Machine::Machine* machine, MemoryAddress& addr, AST::AST const& as
   global_func.function_index = global_func.functions_map.n_elements;
 
   FunctionsMap::Type& pair = Array::new_element(global_func.functions_map);
-  pair.key = -1;
+  pair.key = (u32)-1;
   FunctionInfo& global_func_info = pair.value;
 
   global_func_info.data_start = addr;

@@ -92,7 +92,11 @@ inline element_type *const
 get_ptr(Machine const & machine, MemoryAddress addr)
 {
   assert(addr < machine.memory.size);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
   return (element_type *const)(machine.memory.bytes + addr);
+#pragma clang diagnostic pop
 }
 
 

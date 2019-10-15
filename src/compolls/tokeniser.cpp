@@ -7,11 +7,11 @@ namespace Tokeniser
 void
 add_token(String::String text, Array::Array<Token>& tokens, Strings::Table& strings, u32 start, u32 end)
 {
-  Token token = {
-    .start = start,
-    .end = end,
-    .string = Strings::add(strings, String::String(text.start + start, end - start))
-  };
+  Token token(
+    start,
+    end,
+    Strings::add(strings, String::String(text.start + start, end - start))
+  );
 
   Array::add(tokens, token);
 }
@@ -23,7 +23,7 @@ tokenise(String::String text, Strings::Table& strings)
   Array::Array<Token> result = {};
 
   bool in_token = false;
-  u32 token_start;
+  u32 token_start = (u32)-1;
 
   bool in_line_comment = false;
   bool in_inline_comment = false;
