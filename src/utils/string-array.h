@@ -11,7 +11,7 @@ using StringArray = Array::Array<String::String>;
 
 
 String::String
-concat(StringArray const & strings);
+concat(StringArray const& strings);
 
 
 void

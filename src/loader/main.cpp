@@ -9,7 +9,7 @@
 
 
 s32
-main(s32 argc, char const *const argv[])
+main(s32 argc, char const* const argv[])
 {
   bool success = true;
 

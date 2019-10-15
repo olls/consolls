@@ -88,21 +88,21 @@ struct Machine
 
 
 template <typename element_type>
-inline element_type *const
-get_ptr(Machine const & machine, MemoryAddress addr)
+inline element_type* const
+get_ptr(Machine const& machine, MemoryAddress addr)
 {
   assert(addr < machine.memory.size);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-align"
-  return (element_type *const)(machine.memory.bytes + addr);
+  return (element_type* const)(machine.memory.bytes + addr);
 #pragma clang diagnostic pop
 }
 
 
 template <typename element_type>
 inline element_type &
-get(Machine const & machine, MemoryAddress addr)
+get(Machine const& machine, MemoryAddress addr)
 {
   return *get_ptr<element_type>(machine, addr);
 }
@@ -118,7 +118,7 @@ set(Machine& machine, MemoryAddress addr, element_type byte_value)
 
 template <typename element_type>
 inline void
-copy(Machine const & machine, MemoryAddress start, element_type const * elements, u32 n_elements)
+copy(Machine const& machine, MemoryAddress start, element_type const* elements, u32 n_elements)
 {
   memcpy(machine.memory.bytes + start, elements, n_elements * sizeof(element_type));
 }
@@ -150,7 +150,7 @@ advance_addr<void>(MemoryAddress& addr)
 
 template <typename element_type>
 inline element_type &
-advance_addr(Machine const & machine, MemoryAddress& addr)
+advance_addr(Machine const& machine, MemoryAddress& addr)
 {
   return *get_ptr<element_type>(machine, advance_addr<element_type>(addr));
 }
@@ -165,6 +165,6 @@ consume_signal_register(Machine& machine, MemoryAddress addr);
 
 
 void
-output_screen_buffer(Machine const & machine, Texture::Texture<Palette::Colour>& texture);
+output_screen_buffer(Machine const& machine, Texture::Texture<Palette::Colour>& texture);
 
 } // namespace Machine

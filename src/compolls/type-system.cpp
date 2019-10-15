@@ -21,11 +21,11 @@ init_built_in_types(Types& types)
 
 
 ID
-find(Types const & types, Strings::ID type_string)
+find(Types const& types, Strings::ID type_string)
 {
   ID result = InvalidID;
 
-  Array::FindFirstFunc<Type> find_func = [](Type const & t, void* user){ return t.string == *(Strings::ID*)user; };
+  Array::FindFirstFunc<Type> find_func = [](Type const& t, void* user){ return t.string == *(Strings::ID*)user; };
   s32 index = Array::find_first(types.types, find_func, &type_string);
   if (index != -1)
   {
@@ -50,7 +50,7 @@ find(Types const& types, Type const& type)
 
 
 ID
-add(Types& types, Type const & type)
+add(Types& types, Type const& type)
 {
   ID result = InvalidID;
 
@@ -83,7 +83,7 @@ add(Types& types, Type const & type)
 
 
 Parser::Tree::LiteralNode::Type
-get_symbol_type(Types const & types, ID type_id)
+get_symbol_type(Types const& types, ID type_id)
 {
   using Parser::Tree::LiteralNode;
   LiteralNode::Type result;

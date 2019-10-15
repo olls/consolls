@@ -29,7 +29,7 @@ init_client()
   client_addr.sin_addr.s_addr = INADDR_ANY;
   client_addr.sin_port = 0;
 
-  if (bind(server, (sockaddr *) &client_addr, sizeof(sockaddr)) == -1)
+  if (bind(server, (sockaddr*) &client_addr, sizeof(sockaddr)) == -1)
   {
      perror("Error binding");
      success &= false;
@@ -41,7 +41,7 @@ init_client()
     server_addr.sin_addr.s_addr = inet_addr("192.168.1.188");
     server_addr.sin_port = htons(PORT);
 
-    if (connect(server, (sockaddr *) &server_addr, sizeof(sockaddr)) == -1)
+    if (connect(server, (sockaddr*) &server_addr, sizeof(sockaddr)) == -1)
     {
        perror("Error connecting");
        success &= false;
@@ -62,7 +62,7 @@ init_server()
   server_addr.sin_addr.s_addr = INADDR_ANY;
   server_addr.sin_port = htons(PORT);
 
-  if (bind(server, (sockaddr *) &server_addr, sizeof(sockaddr)) == -1)
+  if (bind(server, (sockaddr*) &server_addr, sizeof(sockaddr)) == -1)
   {
      perror("Error binding");
      success &= false;

@@ -8,7 +8,7 @@ namespace String
 {
 
 String
-format(char const * format...)
+format(char const* format...)
 {
   String result = {};
 
@@ -54,7 +54,7 @@ cat(String const& a, String const& b)
 
 
 bool
-starts_with(String const & string, String const & substring)
+starts_with(String const& string, String const& substring)
 {
   bool result = true;
 
@@ -93,7 +93,7 @@ equals(String const& a, String const& b)
 
 
 bool
-all(String const & string, bool(*condition)(char))
+all(String const& string, bool(*condition)(char))
 {
   bool result = true;
 

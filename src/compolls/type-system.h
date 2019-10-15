@@ -106,15 +106,15 @@ init_built_in_types(Types& types);
 
 
 ID
-add(Types& types, Type const & type);
+add(Types& types, Type const& type);
 
 
 ID
-find(Types const & types, Strings::ID type_string);
+find(Types const& types, Strings::ID type_string);
 
 
 Parser::Tree::LiteralNode::Type
-get_symbol_type(Types const & types, ID type_id);
+get_symbol_type(Types const& types, ID type_id);
 
 
 void

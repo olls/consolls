@@ -60,7 +60,7 @@ init(Input& input);
 
 template <Key key>
 bool
-is_pressed(Input const & input)
+is_pressed(Input const& input)
 {
   bool result = (input.keys[key].up_at < input.keys[key].down_at);
   return result;
@@ -69,7 +69,7 @@ is_pressed(Input const & input)
 
 template <Key key>
 bool
-up(Input const & input, FrameID::FrameID frame_id)
+up(Input const& input, FrameID::FrameID frame_id)
 {
   bool result = (input.keys[key].up_at == frame_id);
   return result;
@@ -78,7 +78,7 @@ up(Input const & input, FrameID::FrameID frame_id)
 
 template <Key key>
 bool
-down(Input const & input, FrameID::FrameID frame_id)
+down(Input const& input, FrameID::FrameID frame_id)
 {
   bool result = (input.keys[key].down_at == frame_id);
   return result;

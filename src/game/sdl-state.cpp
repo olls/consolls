@@ -10,7 +10,7 @@ namespace SDL_State
 {
 
 bool
-init(SDL_State& sdl_state, char const * title, s32 initial_width, s32 initial_height)
+init(SDL_State& sdl_state, char const* title, s32 initial_width, s32 initial_height)
 {
   bool success = true;
 

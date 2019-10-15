@@ -22,7 +22,7 @@ using Map = Array::Array<Pair<Key, Value>>;
 
 
 template <typename Key, typename Value>
-Value *
+Value*
 find(Map<Key, Value> const& map, Key key)
 {
   using PairT = Pair<Key, Value>;

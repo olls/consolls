@@ -23,7 +23,7 @@ add(Table& strings, String::String string);
 
 
 String::String&
-get(Table const & strings, ID id);
+get(Table const& strings, ID id);
 
 
 void

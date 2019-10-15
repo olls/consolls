@@ -16,6 +16,6 @@ struct Args
 
 
 Args
-get_args(s32 argc, char const *const argv[]);
+get_args(s32 argc, char const* const argv[]);
 
 } // namespace Options

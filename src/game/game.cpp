@@ -15,7 +15,7 @@ namespace Game
 {
 
 bool
-advance(State *const state, SDL_State::SDL_State& sdl_state)
+advance(State* const state, SDL_State::SDL_State& sdl_state)
 {
   bool success = true;
   bool advance_machine = !state->stepping;

@@ -323,7 +323,7 @@ program(Parser& parser, Tree::Node** result);
 #define start_production_debug(parser) _start_production_debug(__FUNCTION__, (parser))
 
 void
-_start_production_debug(const char * production_name, Parser& parser)
+_start_production_debug(const char* production_name, Parser& parser)
 {
 #if PARSE_DEBUG_TRACE
   printf("%*s%s {\n", parser.depth*2, "", production_name);
@@ -339,7 +339,7 @@ _start_production_debug(const char * production_name, Parser& parser)
 
 #define end_production_debug(parser, matches, node) _end_production_debug(__FUNCTION__, (parser), (matches), (node))
 void
-_end_production_debug(const char* production_name, Parser& parser, bool matches, Tree::Node const * node)
+_end_production_debug(const char* production_name, Parser& parser, bool matches, Tree::Node const* node)
 {
 #if PARSE_DEBUG_TRACE
   printf("%*slkhd: ", parser.depth*2, "");
@@ -360,7 +360,7 @@ _end_production_debug(const char* production_name, Parser& parser, bool matches,
 
 
 u32
-current_text_position(Parser const & parser)
+current_text_position(Parser const& parser)
 {
   u32 result;
 

@@ -9,7 +9,7 @@ namespace StringArray
 {
 
 String::String
-concat(StringArray const & strings)
+concat(StringArray const& strings)
 {
   String::String result = {};
 

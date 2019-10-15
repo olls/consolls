@@ -76,7 +76,7 @@ struct FunctionScope
 
 
 bool
-generate_code(Machine::Machine* machine, Machine::MemoryAddress& addr, AST::AST const & ast, Machine::MemoryAddress& code_start_result);
+generate_code(Machine::Machine* machine, Machine::MemoryAddress& addr, AST::AST const& ast, Machine::MemoryAddress& code_start_result);
 
 } // namespace CodeGenerator
 

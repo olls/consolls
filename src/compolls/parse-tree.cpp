@@ -107,7 +107,7 @@ terminal_string(StringBuilder& string_builder, VisitorEvent event, TerminalNode*
 
 
 bool
-string(String::String const & text, Node *node, StringArray::StringArray& result)
+string(String::String const& text, Node* node, StringArray::StringArray& result)
 {
   Visitor<StringBuilder> visitor = {};
   visitor.generic_func = string;

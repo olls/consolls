@@ -50,7 +50,7 @@ struct SymbolLookahead
 
 template <u32 n>
 inline bool
-lookahead_empty(SymbolLookahead<n> const & lookahead)
+lookahead_empty(SymbolLookahead<n> const& lookahead)
 {
   bool result = true;
   for (u32 i = 0;
@@ -65,7 +65,7 @@ lookahead_empty(SymbolLookahead<n> const & lookahead)
 
 template <u32 n>
 inline void
-print_lookahead(Strings::Table const & strings, SymbolLookahead<n> const & lookahead)
+print_lookahead(Strings::Table const& strings, SymbolLookahead<n> const& lookahead)
 {
   for (u32 i = 0;
        i < n;

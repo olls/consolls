@@ -17,7 +17,7 @@ struct Texture
   s32 width;
   s32 height;
 
-  Pixel *pixels;
+  Pixel* pixels;
 };
 
 

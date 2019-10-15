@@ -64,7 +64,7 @@ namespace Array
     // Static storage for small number of elements, prevents heap allocation for small arrays
     T static_elements[static_size];
 
-    T *heap_elements;  // Pointer to array memory
+    T* heap_elements;  // Pointer to array memory
 
     // Constructor to zero members
     // Array(u32 initial_size = static_size, u32 _element_size = sizeof(T))
@@ -75,7 +75,7 @@ namespace Array
     // {}
 
     // Wrapper to switch between static_elements and heap_elements
-    T const *
+    T const*
     elements() const
     {
       return heap_elements != 0 ? heap_elements : static_elements;
@@ -96,7 +96,7 @@ namespace Array
     }
 
     Array<T, dynamic_elem_size, static_size>&
-    operator+=(Array<T> const & other)
+    operator+=(Array<T> const& other)
     {
       add(*this, other);
       return *this;
@@ -136,8 +136,8 @@ namespace Array
     }
     else
     {
-      T *new_heap_elements = 0;
-      T *new_elements = 0;
+      T* new_heap_elements = 0;
+      T* new_elements = 0;
 
       if (!dynamic_elem_size &&
           new_array_size <= ARRAY_DEFAULT_INITIAL_SIZE)
@@ -151,7 +151,7 @@ namespace Array
         // Allocate array on heap
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-align"
-        new_heap_elements = (T *)ARRAY_ALLOCATE_SIZE(array.element_size, new_array_size);
+        new_heap_elements = (T*)ARRAY_ALLOCATE_SIZE(array.element_size, new_array_size);
 #pragma clang diagnostic pop
         new_elements = new_heap_elements;
       }
@@ -245,19 +245,19 @@ namespace Array
 
   // No bounds checking!
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
-  get_(Array<T, dynamic_elem_size, static_size> const & array, const u32 index)
+  T*
+  get_(Array<T, dynamic_elem_size, static_size> const& array, const u32 index)
   {
     // Have to do indexing in bytes to deal with dynamic element size
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-align"
-    return (T *)((u8 *)array.elements() + (index * array.element_size));
+    return (T*)((u8*)array.elements() + (index * array.element_size));
 #pragma clang diagnostic pop
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
-  get(Array<T, dynamic_elem_size, static_size> const & array, const u32 index)
+  T*
+  get(Array<T, dynamic_elem_size, static_size> const& array, const u32 index)
   {
     ARRAY_ASSERT(index < array.n_elements);
     ARRAY_ASSERT(array.element_size != 0);
@@ -266,8 +266,8 @@ namespace Array
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
-  get(Array<T, dynamic_elem_size, static_size> const & array, const s32 index)
+  T*
+  get(Array<T, dynamic_elem_size, static_size> const& array, const s32 index)
   {
     return get(array, (u32)index);
   }
@@ -277,7 +277,7 @@ namespace Array
   //
   template<typename T, bool dynamic_elem_size, u32 static_size>
   s32
-  get_element_index(Array<T, dynamic_elem_size, static_size> const & array, T const & element)
+  get_element_index(Array<T, dynamic_elem_size, static_size> const& array, T const& element)
   {
     s32 result = -1;
 
@@ -298,11 +298,11 @@ namespace Array
   }
 
   template <typename T>
-  using FindFirstFunc = bool (*)(T const &, void *);
+  using FindFirstFunc = bool (*)(T const&, void*);
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   s32
-  find_first(Array<T, dynamic_elem_size, static_size> const & array, FindFirstFunc<T> condition, void *user)
+  find_first(Array<T, dynamic_elem_size, static_size> const& array, FindFirstFunc<T> condition, void* user)
   {
     s32 result = -1;
 
@@ -321,7 +321,7 @@ namespace Array
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   s32
-  find_first(Array<T, dynamic_elem_size, static_size> const & array, T const& element)
+  find_first(Array<T, dynamic_elem_size, static_size> const& array, T const& element)
   {
     s32 result = -1;
 
@@ -344,17 +344,17 @@ namespace Array
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   void
-  set_n(Array<T, dynamic_elem_size, static_size>& array, u32 start_index, u32 n_elements, T *elements)
+  set_n(Array<T, dynamic_elem_size, static_size>& array, u32 start_index, u32 n_elements, T* elements)
   {
     ARRAY_ASSERT(start_index + n_elements <= array.n_elements);
 
-    T *start_pos = get(array, start_index);
+    T* start_pos = get(array, start_index);
     ARRAY_MEMCPY(start_pos, elements, n_elements*array.element_size);
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   void
-  set(Array<T, dynamic_elem_size, static_size>& array, u32 index, T *element)
+  set(Array<T, dynamic_elem_size, static_size>& array, u32 index, T* element)
   {
     set_n(array, index, 1, element);
   }
@@ -380,19 +380,19 @@ namespace Array
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
+  T*
   add_n(Array<T, dynamic_elem_size, static_size>& array, u32 n_new_elements)
   {
     u32 new_elements_start_index = new_position_for_n(array, n_new_elements);
-    T *new_elements_start = get(array, new_elements_start_index);
+    T* new_elements_start = get(array, new_elements_start_index);
     return new_elements_start;
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
-  add_n(Array<T, dynamic_elem_size, static_size>& array, T const *new_elements, u32 n_new_elements)
+  T*
+  add_n(Array<T, dynamic_elem_size, static_size>& array, T const* new_elements, u32 n_new_elements)
   {
-    T *add_position = NULL;
+    T* add_position = NULL;
     if (n_new_elements > 0)
     {
       add_position = add_n(array, n_new_elements);
@@ -404,8 +404,8 @@ namespace Array
   // Adds all the elements from another array with the same element type
   //
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
-  add(Array<T, dynamic_elem_size, static_size>& array, Array<T> const & other_array)
+  T*
+  add(Array<T, dynamic_elem_size, static_size>& array, Array<T> const& other_array)
   {
     return add_n(array, other_array.elements(), other_array.n_elements);
   }
@@ -419,7 +419,7 @@ namespace Array
 
   // Create new element, return pointer
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
+  T*
   add(Array<T, dynamic_elem_size, static_size>& array)
   {
     return add_n(array, 1);
@@ -430,20 +430,20 @@ namespace Array
   T &
   new_element(Array<T, dynamic_elem_size, static_size>& array)
   {
-    T *new_element = add_n(array, 1);
+    T* new_element = add_n(array, 1);
     return (*new_element);
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
+  T*
   add(Array<T, dynamic_elem_size, static_size>& array, T new_element)
   {
     return add_n(array, &new_element, 1);
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
-  T *
-  add(Array<T, dynamic_elem_size, static_size>& array, T *new_element)
+  T*
+  add(Array<T, dynamic_elem_size, static_size>& array, T* new_element)
   {
     return add_n(array, new_element, 1);
   }
@@ -460,8 +460,8 @@ namespace Array
   remove(Array<T, dynamic_elem_size, static_size>& array, u32 index)
   {
     // Must get pointers before decrementing n_elements, so assertion in getter is not triggered
-    T *to_remove = get(array, index);
-    T *to_move = get(array, array.n_elements-1);
+    T* to_remove = get(array, index);
+    T* to_move = get(array, array.n_elements-1);
 
     array.n_elements -= 1;
 
@@ -483,8 +483,8 @@ namespace Array
          index < array.n_elements - 1;
          ++index)
     {
-      T *to_move = get(array, index);
-      T *new_position = get(array, index - remove_n);
+      T* to_move = get(array, index);
+      T* new_position = get(array, index - remove_n);
 
       *new_position = *to_move;
     }

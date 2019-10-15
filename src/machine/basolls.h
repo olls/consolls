@@ -34,9 +34,9 @@ push_instruction(Machine::Machine& machine, MemoryAddress& addr, Instructions::A
 
 template <typename type>
 MemoryAddress
-push_data(Machine::Machine& machine, MemoryAddress& addr, u32 size, type const * data)
+push_data(Machine::Machine& machine, MemoryAddress& addr, u32 size, type const* data)
 {
-  void *const ptr = Machine::get_ptr<void>(machine, addr);
+  void* const ptr = Machine::get_ptr<void>(machine, addr);
   memcpy(ptr, data, size*sizeof(type));
 
   MemoryAddress start = addr;
@@ -107,7 +107,7 @@ push_copy<void>(Machine::Machine& machine, MemoryAddress& addr, MemoryAddress fr
 
 template <typename ArgsType>
 void
-push_copy_subroutine_args(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> const & subroutine, MemoryAddress args_addr)
+push_copy_subroutine_args(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> const& subroutine, MemoryAddress args_addr)
 {
   push_copy<ArgsType>(machine, addr, args_addr, subroutine.args);
 }
@@ -115,7 +115,7 @@ push_copy_subroutine_args(Machine::Machine& machine, MemoryAddress& addr, Subrou
 
 template <typename ArgsType>
 void
-push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> const & subroutine)
+push_subroutine_call(Machine::Machine& machine, MemoryAddress& addr, Subroutine<ArgsType> const& subroutine)
 {
   MemoryAddress return_location = addr + (sizeof(Code::SET_VW) + sizeof(Instructions::Args<Code::SET_VW>) +
                                           sizeof(Code::JUMP_V) + sizeof(Instructions::Args<Code::JUMP_V>));

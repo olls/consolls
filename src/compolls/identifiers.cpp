@@ -11,7 +11,7 @@ namespace Identifiers
 {
 
 ID
-find(Identifiers const & identifiers, Strings::ID string)
+find(Identifiers const& identifiers, Strings::ID string)
 {
   ID result = InvalidID;
 
@@ -19,7 +19,7 @@ find(Identifiers const & identifiers, Strings::ID string)
        index < identifiers.n_elements;
        ++index)
   {
-    Identifier const & identifier = identifiers[index];
+    Identifier const& identifier = identifiers[index];
     if (identifier.string == string)
     {
       result = index;

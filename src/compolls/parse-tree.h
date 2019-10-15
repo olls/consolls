@@ -198,7 +198,7 @@ struct Node
 
 
 bool
-string(String::String const & text, Node *node, StringArray::StringArray& result);
+string(String::String const& text, Node* node, StringArray::StringArray& result);
 
 } // namespace Tree
 

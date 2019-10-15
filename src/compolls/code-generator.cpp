@@ -259,7 +259,7 @@ generate_literal_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope
   //
   // Then we can retrieve the literal address from it's id.
 
-  MemoryAddress *literal_location_ptr = Map::find(func.literals_map, &literal);
+  MemoryAddress* literal_location_ptr = Map::find(func.literals_map, &literal);
   assert(literal_location_ptr != NULL);
   MemoryAddress literal_location = *literal_location_ptr;
 

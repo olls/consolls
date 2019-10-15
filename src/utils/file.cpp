@@ -18,7 +18,7 @@ namespace File
 //
 // trunc_to:  Optional; if specified file is truncated to trunc_to bytes before opening.
 bool
-open(char const * filename, File *result, bool write, bool trunc, size_t trunc_to)
+open(char const* filename, File* result, bool write, bool trunc, size_t trunc_to)
 {
   bool success = true;
 
@@ -75,7 +75,7 @@ open(char const * filename, File *result, bool write, bool trunc, size_t trunc_t
 
     if (success)
     {
-      const char *file_ptr = (const char *)mmap(NULL, result->size, mmap_protection, mmap_flags, result->fd, 0);
+      const char* file_ptr = (const char*)mmap(NULL, result->size, mmap_protection, mmap_flags, result->fd, 0);
       if (file_ptr == MAP_FAILED)
       {
         printf("Failed to map file: \"%s\"\n", filename);
@@ -87,7 +87,7 @@ open(char const * filename, File *result, bool write, bool trunc, size_t trunc_t
 
         if (write)
         {
-          result->write_ptr = (char *)file_ptr;
+          result->write_ptr = (char*)file_ptr;
         }
         else
         {
@@ -114,11 +114,11 @@ open(char const * filename, File *result, bool write, bool trunc, size_t trunc_t
 //
 // trunc_to:  Optional; if specified, the file will be truncated to trunc_to bytes after closing.
 bool
-close(File *file, bool trunc, size_t trunc_to)
+close(File* file, bool trunc, size_t trunc_to)
 {
   bool error = false;
 
-  if (munmap((void *)file->read_ptr, file->size) != 0)
+  if (munmap((void*)file->read_ptr, file->size) != 0)
   {
     printf("Error unmapping file.\n");
     error = true;

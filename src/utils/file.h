@@ -10,7 +10,7 @@ struct File
 {
   size_t size;
 
-  char const * read_ptr;
+  char const* read_ptr;
 
   /// @brief Pointer to writeable file-data, this pointer is only set if `write` is set to true when
   ///          opening the file.
@@ -21,32 +21,32 @@ struct File
 
 
 bool
-open(char const * filename, File* result, bool write, bool trunc, size_t trunc_to);
+open(char const* filename, File* result, bool write, bool trunc, size_t trunc_to);
 
 inline
 bool
-open(char const * filename, File *result, bool write, size_t trunc_to)
+open(char const* filename, File* result, bool write, size_t trunc_to)
 {
   return open(filename, result, write, true, trunc_to);
 }
 
 inline
 bool
-open(char const * filename, File *result, bool write)
+open(char const* filename, File* result, bool write)
 {
   return open(filename, result, write, false, 0);
 }
 
 inline
 bool
-open(char const * filename, File *result, size_t trunc_to)
+open(char const* filename, File* result, size_t trunc_to)
 {
   return open(filename, result, false, true, trunc_to);
 }
 
 inline
 bool
-open(char const * filename, File *result)
+open(char const* filename, File* result)
 {
   return open(filename, result, false, false, 0);
 }

@@ -169,7 +169,7 @@ struct AST
 
 
 bool
-make_ast(String::String const & text, Strings::Table& strings, AST& result, Parser::Tree::Node *const node);
+make_ast(String::String const& text, Strings::Table& strings, AST& result, Parser::Tree::Node* const node);
 
 } // namespace AST
 

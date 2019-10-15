@@ -52,9 +52,9 @@ is_alpha_num_underscore(char c)
 
 // Awful SFINAE for String ctor overloads :(
 struct Dummy {};
-template<typename T> struct IsCharPtr {};
-template<> struct IsCharPtr<const char *> { typedef Dummy* Type; };
-template<> struct IsCharPtr<char *> { typedef Dummy* Type; };
+template <typename T> struct IsCharPtr {};
+template <> struct IsCharPtr<const char*> { typedef Dummy* Type; };
+template <> struct IsCharPtr<char*> { typedef Dummy* Type; };
 
 
 struct String
@@ -87,7 +87,7 @@ struct String
 
 
 String
-format(char const * format...)  __attribute__((format(printf, 1, 2)));
+format(char const* format...)  __attribute__((format(printf, 1, 2)));
 
 
 String
@@ -95,15 +95,15 @@ cat(String const& a, String const& b);
 
 
 bool
-starts_with(String const & string, String const & substring);
+starts_with(String const& string, String const& substring);
 
 
 bool
-equals(String const & a, String const & b);
+equals(String const& a, String const& b);
 
 
 bool
-all(String const & string, bool(*condition)(char));
+all(String const& string, bool(*condition)(char));
 
 
 inline

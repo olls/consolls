@@ -14,7 +14,7 @@ namespace AST
 {
 
 bool
-string(String::String const & text, AST& ast, StringArray::StringArray& result);
+string(String::String const& text, AST& ast, StringArray::StringArray& result);
 
 } // namespace AST
 

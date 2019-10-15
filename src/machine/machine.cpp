@@ -403,9 +403,9 @@ consume_signal_register(Machine& machine, MemoryAddress addr)
 
 
 void
-output_screen_buffer(Machine const & machine, Texture::Texture<Palette::Colour>& texture)
+output_screen_buffer(Machine const& machine, Texture::Texture<Palette::Colour>& texture)
 {
-  u8 const *const sb = &machine.memory.bytes[Reserved::ScreenBuffer];
+  u8 const* const sb = &machine.memory.bytes[Reserved::ScreenBuffer];
 
   u8 const pixel_mask = (1 << machine.memory.pixel_size) - 1;
 

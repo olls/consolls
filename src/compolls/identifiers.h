@@ -45,7 +45,7 @@ add(Identifiers& identifiers, Identifier const& identifier);
 
 
 ID
-find(Identifiers const & identifiers, Strings::ID string);
+find(Identifiers const& identifiers, Strings::ID string);
 
 
 BuiltIn

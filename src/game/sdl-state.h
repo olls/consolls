@@ -17,14 +17,14 @@ namespace SDL_State
 
 struct SDL_State
 {
-  SDL_Window *sdl_window;
-  SDL_Renderer *sdl_renderer;
-  SDL_Texture *sdl_texture;
+  SDL_Window* sdl_window;
+  SDL_Renderer* sdl_renderer;
+  SDL_Texture* sdl_texture;
 };
 
 
 bool
-init(SDL_State& sdl_state, const char * title, s32 initial_width, s32 intial_height);
+init(SDL_State& sdl_state, const char* title, s32 initial_width, s32 intial_height);
 
 
 bool

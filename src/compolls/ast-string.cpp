@@ -55,7 +55,7 @@ node_func(StringBuilder& state, VisitorEvent event)
 
 
 void
-string_string(StringArray::StringArray& result, Strings::Table const & strings, Strings::ID string)
+string_string(StringArray::StringArray& result, Strings::Table const& strings, Strings::ID string)
 {
   result += "string: ";
   result += String::format("%d, \"", string);
@@ -269,7 +269,7 @@ string(StringBuilder& state, VisitorEvent event, void*& user, Identifier* identi
 
 
 bool
-string(String::String const & text, AST& ast, StringArray::StringArray& result)
+string(String::String const& text, AST& ast, StringArray::StringArray& result)
 {
   Visitor<StringBuilder> visitor = {};
   visitor.node_func = node_func;
