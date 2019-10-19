@@ -59,7 +59,12 @@ namespace CodeGenerator
 
 
 void
-debug_print_func(CodeGenerator const& code_generator, FunctionScope const& func_scope, String::String debug_name)
+debug_print_func
+(
+  CodeGenerator const& code_generator,
+  FunctionScope const& func_scope,
+  String::String debug_name
+)
 {
   FunctionInfo const& func_info = func_scope.functions_map[func_scope.function_index].value;
 
@@ -96,11 +101,24 @@ debug_print_func(CodeGenerator const& code_generator, FunctionScope const& func_
 
 
 bool
-generate_expression_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Expression const& expression, MemoryAddress const* location);
+generate_expression_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::Expression const& expression,
+  MemoryAddress const* location
+);
 
 
 bool
-generate_assignment_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Assignment const& assignment)
+generate_assignment_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::Assignment const& assignment
+)
 {
   bool success = true;
 
@@ -124,7 +142,14 @@ generate_assignment_code(CodeGenerator& code_generator, AST::ScopeInfo const& sc
 
 
 bool
-generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::FunctionCall const& function_call, MemoryAddress const* location)
+generate_function_call_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::FunctionCall const& function_call,
+  MemoryAddress const* location
+)
 {
   bool success = true;
 
@@ -203,7 +228,14 @@ generate_function_call_code(CodeGenerator& code_generator, AST::ScopeInfo const&
 
 
 bool
-generate_identifier_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Identifier const& identifier, MemoryAddress const* location)
+generate_identifier_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::Identifier const& identifier,
+  MemoryAddress const* location
+)
 {
   bool success = true;
 
@@ -249,7 +281,14 @@ generate_identifier_code(CodeGenerator& code_generator, AST::ScopeInfo const& sc
 
 
 bool
-generate_literal_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Literal const& literal, MemoryAddress const* location)
+generate_literal_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::Literal const& literal,
+  MemoryAddress const* location
+)
 {
   bool success = true;
 
@@ -302,7 +341,14 @@ generate_literal_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope
 
 
 bool
-generate_expression_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Expression const& expression, MemoryAddress const* location)
+generate_expression_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::Expression const& expression,
+  MemoryAddress const* location
+)
 {
   bool success = true;
 
@@ -329,7 +375,14 @@ generate_expression_code(CodeGenerator& code_generator, AST::ScopeInfo const& sc
 
 
 bool
-generate_statement_code(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Statement const& statement, MemoryAddress const* result_location)
+generate_statement_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::Statement const& statement,
+  MemoryAddress const* result_location
+)
 {
   bool success = true;
 
@@ -353,11 +406,28 @@ generate_statement_code(CodeGenerator& code_generator, AST::ScopeInfo const& sco
 
 
 bool
-generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_scope, FunctionScope& func, String::String debug_name, TypeSystem::ID function_type_id, AST::Body const& body);
+generate_body_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& parent_scope,
+  FunctionScope& func,
+  String::String debug_name,
+  TypeSystem::ID function_type_id,
+  AST::Body const& body
+);
 
 
 bool
-store_literal(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, String::String debug_name, AST::Literal const& literal, MemoryAddress& result_location, u32 function_index)
+store_literal
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  String::String debug_name,
+  AST::Literal const& literal,
+  MemoryAddress& result_location,
+  u32 function_index
+)
 {
   bool success = true;
 
@@ -453,7 +523,13 @@ store_literal(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Functi
 
 
 bool
-store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Expression const& expression)
+store_literals
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::Expression const& expression
+)
 {
   bool success = true;
 
@@ -492,7 +568,13 @@ store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Funct
 
 
 bool
-store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionScope& func, AST::Assignment const& assignment)
+store_literals
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionScope& func,
+  AST::Assignment const& assignment
+)
 {
   bool success = true;
 
@@ -568,7 +650,14 @@ store_literals(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Funct
 
 
 MemoryAddress
-reserve_type(CodeGenerator& code_generator, AST::ScopeInfo const& scope, FunctionInfo* func_info, TypeSystem::ID type_id, u32* result_bytes = NULL)
+reserve_type
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& scope,
+  FunctionInfo* func_info,
+  TypeSystem::ID type_id,
+  u32* result_bytes = NULL
+)
 {
   MemoryAddress result;
   u32 bytes = 0;
@@ -607,7 +696,15 @@ reserve_type(CodeGenerator& code_generator, AST::ScopeInfo const& scope, Functio
 // Declarations re-use the literal values as their storage location, therefore
 // with this implementation we cannot share literal values with multiple uses
 bool
-generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_scope, FunctionScope& func, String::String debug_name, TypeSystem::ID function_type_id, AST::Body const& body)
+generate_body_code
+(
+  CodeGenerator& code_generator,
+  AST::ScopeInfo const& parent_scope,
+  FunctionScope& func,
+  String::String debug_name,
+  TypeSystem::ID function_type_id,
+  AST::Body const& body
+)
 {
   bool success = true;
 
@@ -709,7 +806,13 @@ generate_body_code(CodeGenerator& code_generator, AST::ScopeInfo const& parent_s
 
 
 bool
-generate_code(Machine::Machine* machine, MemoryAddress& addr, AST::AST const& ast, MemoryAddress& code_start_result)
+generate_code
+(
+  Machine::Machine* machine,
+  MemoryAddress& addr,
+  AST::AST const& ast,
+  MemoryAddress& code_start_result
+)
 {
   bool success = true;
 
