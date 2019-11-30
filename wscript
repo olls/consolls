@@ -53,7 +53,7 @@ def configure(conf):
   link_flags += sdl_libs
 
   conf.env.append_value('CXXFLAGS', flags)
-  conf.env.append_value('INCLUDES', ['.', '../../src/'])
+  conf.env.append_value('INCLUDES', ['.', '../../src/', '../../src/libs/'])
   conf.env.append_value('LINKFLAGS', link_flags)
 
   base_env = conf.env.derive()
@@ -82,7 +82,8 @@ def build(bld):
   libraries = [
     'game',
     'machine',
-    'utils'
+    'utils',
+    'libs'
   ]
 
   for library_name in libraries:
@@ -92,7 +93,7 @@ def build(bld):
   # consolls loader program
   bld.program(source = bld.path.ant_glob('src/loader/*.cpp'),
               target = APPNAME,
-              use = ['game', 'machine', 'utils'])
+              use = ['game', 'machine', 'utils', 'libs'])
 
   # compolls program
   bld.program(source = bld.path.ant_glob('src/compolls/*.cpp'),

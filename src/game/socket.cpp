@@ -138,7 +138,7 @@ bool
 write_data(s32 socket_fd, void* data, u32 size)
 {
   bool success = true;
-
+/*
   if (send(client, data, size, MSG_NOSIGNAL) < 0)
   {
     if (errno == EPIPE | errno == EBADF)
@@ -153,7 +153,7 @@ write_data(s32 socket_fd, void* data, u32 size)
     connected = false;
     success &= false;
   }
-
+*/
   return success;
 }
 

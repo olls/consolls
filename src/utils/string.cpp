@@ -3,6 +3,8 @@
 #include "utils/allocate.h"
 #include "utils/assert.h"
 
+#include <stdarg.h>
+
 
 namespace String
 {

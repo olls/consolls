@@ -4,19 +4,21 @@
 
 #include "machine/machine.h"
 
+#include "sdl-state.h"
+
 
 namespace Debugger
 {
 
 void
-init(Options::Args const& args);
+init(SDL_State::SDL_State& sdl_state, Options::Args const& args);
 
 
 void
-destroy(Options::Args const& args);
+destroy(SDL_State::SDL_State& sdl_state, Options::Args const& args);
 
 
 void
-advance(Options::Args const& args, Machine::Machine& machine);
+advance(SDL_State::SDL_State& sdl_state, Options::Args const& args, Machine::Machine& machine);
 
 } // namespace Debugger

@@ -10,12 +10,14 @@
 
 #include "utils/assert.h"
 
+#include "sdl-state.h"
+
 
 namespace Game
 {
 
 bool
-advance(State* const state, SDL_State::SDL_State& sdl_state)
+advance(State* const state, SDL_State::SDL_State& sdl_state, SDL_State::SDL_State& sdl_state_debugger, Options::Args args)
 {
   bool success = true;
   bool advance_machine = !state->stepping;
@@ -88,6 +90,7 @@ advance(State* const state, SDL_State::SDL_State& sdl_state)
       {
         Machine::output_screen_buffer(state->machine, state->texture);
         success &= SDL_State::render(sdl_state, state->texture);
+        Debugger::advance(sdl_state_debugger, args, state->machine);
       }
     }
   }
@@ -118,7 +121,8 @@ run(Options::Args args)
 
   // success &= Basolls::load_os(state.machine);
 
-  Debugger::init(args);
+  SDL_State::SDL_State sdl_state_debugger = {};
+  Debugger::init(sdl_state_debugger, args);
 
   if (success)
   {
@@ -130,9 +134,7 @@ run(Options::Args args)
     bool running = true;
     while (running)
     {
-      Debugger::advance(args, state.machine);
-
-      running &= advance(&state, sdl_state);
+      running &= advance(&state, sdl_state, sdl_state_debugger, args);
 
       Clock::regulate(state.clock);
     }
@@ -143,7 +145,7 @@ run(Options::Args args)
     Texture::destroy(state.texture);
   }
 
-  Debugger::destroy(args);
+  Debugger::destroy(sdl_state_debugger, args);
 
   SDL_State::destroy(sdl_state);
   return success;
