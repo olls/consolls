@@ -43,7 +43,8 @@ def configure(conf):
     '-Wno-nested-anon-types',
     '-Wno-sometimes-uninitialized',
     '-Wno-zero-as-null-pointer-constant',
-    '-Wno-format-pedantic'
+    '-Wno-format-pedantic',
+    '-Wno-unused-variable'
     # '-Wdouble-promotion'
   ]
   flags += sdl_flags
@@ -63,15 +64,21 @@ def configure(conf):
   conf.setenv('debug', env=base_env)
   conf.env.append_value('CXXFLAGS', ['-ggdb', '-O0'])
   conf.env.append_value('DEFINES', ['_DEBUG'])
+  debug_env = conf.env.derive()
 
   conf.setenv('release', env=base_env)
   conf.env.append_value('CXXFLAGS', ['-Ofast'])
   conf.env.append_value('DEFINES', ['NDEBUG'])
-
   release_env = conf.env.derive()
 
   conf.setenv('profile', env=release_env)
   conf.env.append_value('CXXFLAGS', ['-g'])
+  profile_env = conf.env.derive()
+
+  envs = {'debug': debug_env, 'release': release_env, 'profile': profile_env}
+  for name, base_env in envs.items():
+    conf.setenv(name+'_ext', env=base_env)
+    conf.env.append_value('CXXFLAGS', ['-Wno-error', '-Wno-everything'])
 
 
 def build(bld):
@@ -84,13 +91,23 @@ def build(bld):
   libraries = [
     'game',
     'machine',
-    'utils',
+    'utils'
+  ]
+
+  ext = [
     'libs'
   ]
 
   for library_name in libraries:
     lib_type(source = bld.path.ant_glob('src/{}/*.cpp'.format(library_name)),
              target = library_name)
+
+  var = bld.variant
+  bld.variant = var+'_ext'
+  for library_name in ext:
+    lib_type(source = bld.path.ant_glob('src/{}/*.cpp'.format(library_name)),
+             target = library_name)
+  bld.variant = var
 
   # consolls loader program
   bld.program(source = bld.path.ant_glob('src/loader/*.cpp'),

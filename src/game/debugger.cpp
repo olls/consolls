@@ -5,13 +5,17 @@
 #include "machine/disassembler.h"
 
 #include "utils/types.h"
+#include "utils/assert.h"
 
 #include <SDL2/SDL.h>
 #include "sdl-state.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
 #include "imgui.h"
 #include "imgui_sdl.h"
 #include "imgui_memory_editor.h"
+#pragma clang diagnostic pop
 
 
 namespace Debugger
@@ -28,6 +32,7 @@ init(SDL_State::SDL_State& sdl_state, Options::Args const& args)
     sdl_state = {};
 
     bool success = SDL_State::init(sdl_state, APP_NAME, 640, 480);
+    assert(success);
 
     ImGui::CreateContext();
     ImGuiSDL::Initialize(sdl_state.sdl_renderer, 640, 480);
