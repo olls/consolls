@@ -9,6 +9,7 @@
 #define S_LINE S_(__LINE__)
 
 #define assert(cond) \
+  do \
   { \
     if (!(cond)) \
     { \
@@ -17,4 +18,5 @@
       printf(": assert(" #cond ") failed at " __FILE__ ":" S_LINE "\n"); \
       trap(); \
     } \
-  }
+  } \
+  while (0)
