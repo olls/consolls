@@ -90,25 +90,25 @@ namespace Array
     // Convenience operators
 
     T const&
-    operator[](const u32 index) const
+    operator[](u32 const index) const
     {
       return *get(*this, index);
     }
 
     T&
-    operator[](const u32 index)
+    operator[](u32 const index)
     {
       return *get(*this, index);
     }
 
     T const&
-    operator[](const s32 index) const
+    operator[](s32 const index) const
     {
       return *get(*this, (u32)index);
     }
 
     T&
-    operator[](const s32 index)
+    operator[](s32 const index)
     {
       return *get(*this, (u32)index);
     }
@@ -264,7 +264,7 @@ namespace Array
   // No bounds checking!
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T const*
-  get_(Array<T, dynamic_elem_size, static_size> const& array, const u32 index)
+  get_(Array<T, dynamic_elem_size, static_size> const& array, u32 const index)
   {
     // Have to do indexing in bytes to deal with dynamic element size
 #pragma clang diagnostic push
@@ -275,7 +275,7 @@ namespace Array
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T*
-  get_(Array<T, dynamic_elem_size, static_size>& array, const u32 index)
+  get_(Array<T, dynamic_elem_size, static_size>& array, u32 const index)
   {
     // Have to do indexing in bytes to deal with dynamic element size
 #pragma clang diagnostic push
@@ -286,7 +286,7 @@ namespace Array
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T const*
-  get(Array<T, dynamic_elem_size, static_size> const& array, const u32 index)
+  get(Array<T, dynamic_elem_size, static_size> const& array, u32 const index)
   {
     ARRAY_ASSERT(index < array.n_elements);
     ARRAY_ASSERT(array.element_size != 0);
@@ -296,7 +296,7 @@ namespace Array
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T*
-  get(Array<T, dynamic_elem_size, static_size>& array, const u32 index)
+  get(Array<T, dynamic_elem_size, static_size>& array, u32 const index)
   {
     ARRAY_ASSERT(index < array.n_elements);
     ARRAY_ASSERT(array.element_size != 0);
@@ -306,14 +306,14 @@ namespace Array
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T const*
-  get(Array<T, dynamic_elem_size, static_size> const& array, const s32 index)
+  get(Array<T, dynamic_elem_size, static_size> const& array, s32 const index)
   {
     return get(array, (u32)index);
   }
 
   template<typename T, bool dynamic_elem_size, u32 static_size>
   T*
-  get(Array<T, dynamic_elem_size, static_size>& array, const s32 index)
+  get(Array<T, dynamic_elem_size, static_size>& array, s32 const index)
   {
     return get(array, (u32)index);
   }
