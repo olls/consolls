@@ -17,7 +17,7 @@ namespace Game
 {
 
 bool
-advance(State* const state, SDL_State::SDL_State& sdl_state, SDL_State::SDL_State& sdl_state_debugger, Options::Args args)
+advance(State* const state, SDL_State::SDL_State& sdl_state, Options::Args args)
 {
   bool success = true;
   bool advance_machine = !state->stepping;
@@ -90,7 +90,6 @@ advance(State* const state, SDL_State::SDL_State& sdl_state, SDL_State::SDL_Stat
       {
         Machine::output_screen_buffer(state->machine, state->texture);
         success &= SDL_State::render(sdl_state, state->texture);
-        Debugger::advance(sdl_state_debugger, args, state->machine);
       }
     }
   }
@@ -123,6 +122,8 @@ run(Options::Args args)
 
   SDL_State::SDL_State sdl_state_debugger = {};
   Debugger::init(sdl_state_debugger, args);
+  Timer::Timer debugger_update = {};
+  Timer::init(debugger_update, (u32)(1000000.0f/60.0f));
 
   if (success)
   {
@@ -134,7 +135,12 @@ run(Options::Args args)
     bool running = true;
     while (running)
     {
-      running &= advance(&state, sdl_state, sdl_state_debugger, args);
+      running &= advance(&state, sdl_state, args);
+
+      if (Timer::check(debugger_update))
+      {
+        Debugger::advance(sdl_state_debugger, args, state.machine);
+      }
 
       Clock::regulate(state.clock);
     }
