@@ -22,8 +22,11 @@ ID
 add(Table& strings, String::String string);
 
 
-String::String&
+String::String const&
 get(Table const& strings, ID id);
+
+String::String&
+get(Table& strings, ID id);
 
 
 void

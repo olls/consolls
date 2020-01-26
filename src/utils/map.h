@@ -22,8 +22,26 @@ using Map = Array::Array<Pair<Key, Value>>;
 
 
 template <typename Key, typename Value>
-Value*
+Value const*
 find(Map<Key, Value> const& map, Key key)
+{
+  using PairT = Pair<Key, Value>;
+
+  Value const* result = NULL;
+
+  Array::FindFirstFunc<PairT> find_func = [](PairT const& pair, void* user){ return pair.key == *(Key*)user; };
+  s32 index = Array::find_first(map, find_func, &key);
+  if (index != -1)
+  {
+    result = &(Array::get(map, index)->value);
+  }
+
+  return result;
+}
+
+template <typename Key, typename Value>
+Value*
+find(Map<Key, Value>& map, Key key)
 {
   using PairT = Pair<Key, Value>;
 
