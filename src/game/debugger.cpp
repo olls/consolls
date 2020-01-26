@@ -97,7 +97,7 @@ advance(SDL_State::SDL_State& sdl_state, Options::Args const& args, Machine::Mac
     }
 
     int mouseX, mouseY;
-    const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
+    u32 const buttons = SDL_GetMouseState(&mouseX, &mouseY);
 
     // Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
 
