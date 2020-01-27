@@ -43,3 +43,8 @@ build/
 callgrind*
 .floo*
 ._sync_*
+.sync_*
+*.ini
+patch
+*.patch
+unused/
