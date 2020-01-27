@@ -7,13 +7,6 @@
 
 #include "sdl-state.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
-#include "imgui.h"
-#include "imgui_sdl.h"
-#include "imgui_memory_editor.h"
-#pragma clang diagnostic pop
-
 #include <SDL2/SDL.h>
 
 
@@ -24,38 +17,40 @@ using Machine::MemoryAddress;
 
 
 void
-init(SDL_State::SDL_State& sdl_state, Options::Args const& args)
+init(Debugger& debugger, Options::Args const& args)
 {
   if (args.debugger)
   {
-    sdl_state = {};
+    debugger.sdl_state = {};
 
-    bool success = SDL_State::init(sdl_state, APP_NAME, 640, 480);
+    bool success = SDL_State::init(debugger.sdl_state, APP_NAME, 640, 480);
     assert(success);
 
     ImGui::CreateContext();
-    ImGuiSDL::Initialize(sdl_state.sdl_renderer, 640, 480);
+    ImGuiSDL::Initialize(debugger.sdl_state.sdl_renderer, 640, 480);
 
-    SDL_Texture* texture = SDL_CreateTexture(sdl_state.sdl_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
+    SDL_Texture* texture = SDL_CreateTexture(debugger.sdl_state.sdl_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
     {
-      SDL_SetRenderTarget(sdl_state.sdl_renderer, texture);
-      SDL_SetRenderDrawColor(sdl_state.sdl_renderer, 255, 0, 255, 255);
-      SDL_RenderClear(sdl_state.sdl_renderer);
-      SDL_SetRenderTarget(sdl_state.sdl_renderer, nullptr);
+      SDL_SetRenderTarget(debugger.sdl_state.sdl_renderer, texture);
+      SDL_SetRenderDrawColor(debugger.sdl_state.sdl_renderer, 255, 0, 255, 255);
+      SDL_RenderClear(debugger.sdl_state.sdl_renderer);
+      SDL_SetRenderTarget(debugger.sdl_state.sdl_renderer, nullptr);
     }
+
+    Timer::init(debugger.timer, (u32)(1000000.0f/60.0f));
   }
 }
 
 
 void
-destroy(SDL_State::SDL_State& sdl_state, Options::Args const& args)
+destroy(Debugger& debugger, Options::Args const& args)
 {
   if (args.debugger)
   {
     ImGuiSDL::Deinitialize();
 
-    SDL_DestroyRenderer(sdl_state.sdl_renderer);
-    SDL_DestroyWindow(sdl_state.sdl_window);
+    SDL_DestroyRenderer(debugger.sdl_state.sdl_renderer);
+    SDL_DestroyWindow(debugger.sdl_state.sdl_window);
 
     ImGui::DestroyContext();
   }
@@ -63,9 +58,9 @@ destroy(SDL_State::SDL_State& sdl_state, Options::Args const& args)
 
 
 void
-advance(SDL_State::SDL_State& sdl_state, Options::Args const& args, Machine::Machine& machine)
+advance(Debugger& debugger, Options::Args const& args, Machine::Machine& machine)
 {
-  if (args.debugger)
+  if (args.debugger && Timer::check(debugger.timer))
   {
     MemoryAddress ni = Machine::get<MemoryAddress>(machine, Machine::Reserved::NI);
     // Disassembler::disassemble_instruction(machine, ni);
@@ -94,8 +89,6 @@ advance(SDL_State::SDL_State& sdl_state, Options::Args const& args, Machine::Mac
     int mouseX, mouseY;
     u32 const buttons = SDL_GetMouseState(&mouseX, &mouseY);
 
-    // Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
-
     io.DeltaTime = 1.0f / 60.0f;
     io.MousePos = ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
     io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
@@ -105,16 +98,15 @@ advance(SDL_State::SDL_State& sdl_state, Options::Args const& args, Machine::Mac
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
 
-    SDL_SetRenderDrawColor(sdl_state.sdl_renderer, 114, 144, 154, 255);
-    SDL_RenderClear(sdl_state.sdl_renderer);
+    SDL_SetRenderDrawColor(debugger.sdl_state.sdl_renderer, 114, 144, 154, 255);
+    SDL_RenderClear(debugger.sdl_state.sdl_renderer);
 
-    static MemoryEditor mem_edit;
-    mem_edit.DrawWindow("Memory Editor", machine.memory.bytes, machine.memory.size);
+    debugger.mem_edit.DrawWindow("Memory Editor", machine.memory.bytes, machine.memory.size);
 
     ImGui::Render();
     ImGuiSDL::Render(ImGui::GetDrawData());
 
-    SDL_RenderPresent(sdl_state.sdl_renderer);
+    SDL_RenderPresent(debugger.sdl_state.sdl_renderer);
   }
 }
 

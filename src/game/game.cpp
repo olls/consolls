@@ -120,10 +120,8 @@ run(Options::Args args)
 
   // success &= Basolls::load_os(state.machine);
 
-  SDL_State::SDL_State sdl_state_debugger = {};
-  Debugger::init(sdl_state_debugger, args);
-  Timer::Timer debugger_update = {};
-  Timer::init(debugger_update, (u32)(1000000.0f/60.0f));
+  Debugger::Debugger debugger = {};
+  Debugger::init(debugger, args);
 
   if (success)
   {
@@ -137,10 +135,7 @@ run(Options::Args args)
     {
       running &= advance(&state, sdl_state, args);
 
-      if (Timer::check(debugger_update))
-      {
-        Debugger::advance(sdl_state_debugger, args, state.machine);
-      }
+      Debugger::advance(debugger, args, state.machine);
 
       Clock::regulate(state.clock);
     }
@@ -151,7 +146,7 @@ run(Options::Args args)
     Texture::destroy(state.texture);
   }
 
-  Debugger::destroy(sdl_state_debugger, args);
+  Debugger::destroy(debugger, args);
 
   SDL_State::destroy(sdl_state);
   return success;
