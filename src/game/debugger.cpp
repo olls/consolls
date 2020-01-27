@@ -1,13 +1,10 @@
 #include "debugger.h"
 
-#include "socket.h"
-
 #include "machine/disassembler.h"
 
 #include "utils/types.h"
 #include "utils/assert.h"
 
-#include <SDL2/SDL.h>
 #include "sdl-state.h"
 
 #pragma clang diagnostic push
@@ -16,6 +13,8 @@
 #include "imgui_sdl.h"
 #include "imgui_memory_editor.h"
 #pragma clang diagnostic pop
+
+#include <SDL2/SDL.h>
 
 
 namespace Debugger
@@ -44,8 +43,6 @@ init(SDL_State::SDL_State& sdl_state, Options::Args const& args)
       SDL_RenderClear(sdl_state.sdl_renderer);
       SDL_SetRenderTarget(sdl_state.sdl_renderer, nullptr);
     }
-
-    Socket::init(args.client);
   }
 }
 
@@ -61,8 +58,6 @@ destroy(SDL_State::SDL_State& sdl_state, Options::Args const& args)
     SDL_DestroyWindow(sdl_state.sdl_window);
 
     ImGui::DestroyContext();
-
-    Socket::destroy();
   }
 }
 
@@ -120,8 +115,6 @@ advance(SDL_State::SDL_State& sdl_state, Options::Args const& args, Machine::Mac
     ImGuiSDL::Render(ImGui::GetDrawData());
 
     SDL_RenderPresent(sdl_state.sdl_renderer);
-
-    Socket::advance(args.client, machine);
   }
 }
 
