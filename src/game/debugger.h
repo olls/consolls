@@ -4,11 +4,14 @@
 
 #include "machine/machine.h"
 
+#include "utils/assert.h"
+
 #include "sdl-state.h"
 #include "timer.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Weverything"
+#define IM_ASSERT assert
 #include "imgui.h"
 #include "imgui_sdl.h"
 #include "imgui_memory_editor.h"
