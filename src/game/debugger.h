@@ -34,7 +34,7 @@ void
 destroy(Debugger& debugger, Options::Args const& args);
 
 
-void
+bool
 advance(Debugger& debugger, Options::Args const& args, Machine::Machine& machine);
 
 } // namespace Debugger

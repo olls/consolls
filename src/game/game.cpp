@@ -17,10 +17,14 @@ namespace Game
 {
 
 bool
-advance(State* const state, SDL_State::SDL_State& sdl_state, Options::Args args)
+advance(State* const state, SDL_State::SDL_State& sdl_state, Options::Args args, bool step)
 {
   bool success = true;
-  bool advance_machine = !state->stepping;
+  bool advance_machine = true;
+  if (state->stepping && !step)
+  {
+    advance_machine = false;
+  }
 
   FrameID::update(state->frame_id);
 
@@ -50,15 +54,6 @@ advance(State* const state, SDL_State::SDL_State& sdl_state, Options::Args args)
         advance_machine = true;
       }
     }
-  }
-
-  if (state->stepping && (state->frame_id == 1 || advance_machine))
-  {
-    // Display the next instruction
-
-    Machine::MemoryAddress ni = Machine::get<Machine::MemoryAddress>(state->machine, Machine::Reserved::NI);
-    Disassembler::disassemble_instruction(state->machine, ni);
-    // Disassembler::disassemble(state->machine, Machine::Reserved::UserStart, Machine::Reserved::UserEnd);
   }
 
   if (advance_machine)
@@ -92,6 +87,15 @@ advance(State* const state, SDL_State::SDL_State& sdl_state, Options::Args args)
         success &= SDL_State::render(sdl_state, state->texture);
       }
     }
+  }
+
+  if (state->stepping && (state->frame_id == 1 || advance_machine))
+  {
+    // Display the next instruction
+
+    Machine::MemoryAddress ni = Machine::get<Machine::MemoryAddress>(state->machine, Machine::Reserved::NI);
+    Disassembler::disassemble_instruction(state->machine, ni);
+    Disassembler::disassemble(state->machine, Machine::Reserved::UserStart, Machine::Reserved::UserEnd);
   }
 
   return success;
@@ -130,13 +134,15 @@ run(Options::Args args)
 
     state.frame_id = 0;
 
+    bool step = false;
     bool running = true;
     while (running)
     {
-      running &= advance(&state, sdl_state, args);
+      running &= advance(&state, sdl_state, args, step);
 
-      Debugger::advance(debugger, args, state.machine);
+      step = Debugger::advance(debugger, args, state.machine);
 
+      // Main loop runs at the cycle rate of the machine
       Clock::regulate(state.clock);
     }
   }

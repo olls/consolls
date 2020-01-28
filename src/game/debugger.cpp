@@ -57,9 +57,11 @@ destroy(Debugger& debugger, Options::Args const& args)
 }
 
 
-void
+bool
 advance(Debugger& debugger, Options::Args const& args, Machine::Machine& machine)
 {
+  bool step = false;
+
   if (args.debugger && Timer::check(debugger.timer))
   {
     MemoryAddress ni = Machine::get<MemoryAddress>(machine, Machine::Reserved::NI);
@@ -103,11 +105,19 @@ advance(Debugger& debugger, Options::Args const& args, Machine::Machine& machine
 
     debugger.mem_edit.DrawWindow("Memory Editor", machine.memory.bytes, machine.memory.size);
 
+    if (ImGui::Begin("Stepper"))
+    {
+      step = ImGui::Button("Step");
+    }
+    ImGui::End();
+
     ImGui::Render();
     ImGuiSDL::Render(ImGui::GetDrawData());
 
     SDL_RenderPresent(debugger.sdl_state.sdl_renderer);
   }
+
+  return step;
 }
 
 } // namespace Debugger
