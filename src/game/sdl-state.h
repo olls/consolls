@@ -15,6 +15,14 @@ struct SDL_Texture;
 namespace SDL_State
 {
 
+bool
+make_texture(SDL_Renderer* sdl_renderer, Game::TextureType const& texture, SDL_Texture*& sdl_texture_result);
+
+
+bool
+update_texture(SDL_Texture* sdl_texture, Game::TextureType const& texture);
+
+
 struct SDL_State
 {
   SDL_Window* sdl_window;

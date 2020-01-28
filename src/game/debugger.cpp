@@ -17,25 +17,18 @@ using Machine::MemoryAddress;
 
 
 void
-init(Debugger& debugger, Options::Args const& args)
+init(Debugger& debugger, SDL_Renderer* renderer, Options::Args const& args)
 {
   if (args.debugger)
   {
-    debugger.sdl_state = {};
-
-    bool success = SDL_State::init(debugger.sdl_state, APP_NAME, 640, 480);
-    assert(success);
-
     ImGui::CreateContext();
-    ImGuiSDL::Initialize(debugger.sdl_state.sdl_renderer, 640, 480);
+    ImGuiSDL::Initialize(renderer, 640, 480);
 
-    SDL_Texture* texture = SDL_CreateTexture(debugger.sdl_state.sdl_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
-    {
-      SDL_SetRenderTarget(debugger.sdl_state.sdl_renderer, texture);
-      SDL_SetRenderDrawColor(debugger.sdl_state.sdl_renderer, 255, 0, 255, 255);
-      SDL_RenderClear(debugger.sdl_state.sdl_renderer);
-      SDL_SetRenderTarget(debugger.sdl_state.sdl_renderer, nullptr);
-    }
+    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
+    SDL_SetRenderTarget(renderer, texture);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderTarget(renderer, nullptr);
 
     Timer::init(debugger.timer, (u32)(1000000.0f/60.0f));
   }
@@ -48,17 +41,13 @@ destroy(Debugger& debugger, Options::Args const& args)
   if (args.debugger)
   {
     ImGuiSDL::Deinitialize();
-
-    SDL_DestroyRenderer(debugger.sdl_state.sdl_renderer);
-    SDL_DestroyWindow(debugger.sdl_state.sdl_window);
-
     ImGui::DestroyContext();
   }
 }
 
 
 bool
-advance(Debugger& debugger, Options::Args const& args, Machine::Machine& machine)
+advance(Debugger& debugger, SDL_Renderer* renderer, Options::Args const& args, Machine::Machine& machine, SDL_Texture* machine_texture, bool& stepping)
 {
   bool step = false;
 
@@ -100,21 +89,27 @@ advance(Debugger& debugger, Options::Args const& args, Machine::Machine& machine
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
 
-    SDL_SetRenderDrawColor(debugger.sdl_state.sdl_renderer, 114, 144, 154, 255);
-    SDL_RenderClear(debugger.sdl_state.sdl_renderer);
+    SDL_SetRenderDrawColor(renderer, 114, 144, 154, 255);
+    SDL_RenderClear(renderer);
 
     debugger.mem_edit.DrawWindow("Memory Editor", machine.memory.bytes, machine.memory.size);
 
     if (ImGui::Begin("Stepper"))
     {
-      step = ImGui::Button("Step");
+      ImGui::Checkbox("Stepping", &stepping);
+      if (stepping)
+      {
+        step = ImGui::Button("Step");
+      }
+      float const dim = ImGui::GetWindowContentRegionWidth();
+      ImGui::Image(machine_texture, ImVec2(dim, dim));
     }
     ImGui::End();
 
     ImGui::Render();
     ImGuiSDL::Render(ImGui::GetDrawData());
 
-    SDL_RenderPresent(debugger.sdl_state.sdl_renderer);
+    SDL_RenderPresent(renderer);
   }
 
   return step;

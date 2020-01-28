@@ -23,14 +23,13 @@ namespace Debugger
 
 struct Debugger
 {
-	SDL_State::SDL_State sdl_state;
   Timer::Timer timer;
-	MemoryEditor mem_edit;
+  MemoryEditor mem_edit;
 };
 
 
 void
-init(Debugger& debugger, Options::Args const& args);
+init(Debugger& debugger, SDL_Renderer* renderer, Options::Args const& args);
 
 
 void
@@ -38,6 +37,6 @@ destroy(Debugger& debugger, Options::Args const& args);
 
 
 bool
-advance(Debugger& debugger, Options::Args const& args, Machine::Machine& machine);
+advance(Debugger& debugger, SDL_Renderer* renderer, Options::Args const& args, Machine::Machine& machine, SDL_Texture* machine_texture, bool& stepping);
 
 } // namespace Debugger

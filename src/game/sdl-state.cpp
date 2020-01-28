@@ -10,6 +10,39 @@ namespace SDL_State
 {
 
 bool
+make_texture(SDL_Renderer* sdl_renderer, Game::TextureType const& texture, SDL_Texture*& sdl_texture_result)
+{
+  bool success = true;
+
+  // TODO: Will need to do more work here to support different formats.
+  u32 const pixel_format = SDL_PIXELFORMAT_RGBX8888;
+  assert(sizeof(Game::TextureType::Pixel) == SDL_BYTESPERPIXEL(pixel_format));
+
+  if (sdl_texture_result != NULL)
+  {
+    SDL_DestroyTexture(sdl_texture_result);
+    sdl_texture_result = NULL;
+  }
+
+  sdl_texture_result = SDL_CreateTexture(sdl_renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, texture.width, texture.height);
+  if (sdl_texture_result == NULL)
+  {
+    printf("Failed to create SDL_Texture: %s\n", SDL_GetError());
+    success &= false;
+  }
+
+  return success;
+}
+
+
+bool
+update_texture(SDL_Texture* sdl_texture, Game::TextureType const& texture)
+{
+  return 0 == SDL_UpdateTexture(sdl_texture, NULL, texture.pixels, texture.width * (s32)sizeof(Game::TextureType::Pixel));
+}
+
+
+bool
 init(SDL_State& sdl_state, char const* title, s32 initial_width, s32 initial_height)
 {
   bool success = true;

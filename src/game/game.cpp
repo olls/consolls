@@ -68,7 +68,7 @@ advance(State* const state, SDL_State::SDL_State& sdl_state, Options::Args args,
         texture &= Texture::allocate<Palette::Colour>(state->texture, state->machine.memory.sb_width, state->machine.memory.sb_height);
         if (texture)
         {
-          texture &= SDL_State::set_render_texture(sdl_state, state->texture);
+          texture &= SDL_State::make_texture(sdl_state.sdl_renderer, state->texture, sdl_state.sdl_texture);
           if (!texture)
           {
             Texture::destroy(state->texture);
@@ -84,7 +84,7 @@ advance(State* const state, SDL_State::SDL_State& sdl_state, Options::Args args,
       else
       {
         Machine::output_screen_buffer(state->machine, state->texture);
-        success &= SDL_State::render(sdl_state, state->texture);
+        success &= SDL_State::update_texture(sdl_state.sdl_texture, state->texture);
       }
     }
   }
@@ -125,12 +125,12 @@ run(Options::Args args)
   // success &= Basolls::load_os(state.machine);
 
   Debugger::Debugger debugger = {};
-  Debugger::init(debugger, args);
+  Debugger::init(debugger, sdl_state.sdl_renderer, args);
 
   if (success)
   {
     Input::init(state.input);
-    Timer::init(state.input_update, (u32)(1000000.0f*.2f));
+    Timer::init(state.input_update, (u32)(1000000.0f*.01f));
 
     state.frame_id = 0;
 
@@ -140,7 +140,7 @@ run(Options::Args args)
     {
       running &= advance(&state, sdl_state, args, step);
 
-      step = Debugger::advance(debugger, args, state.machine);
+      step = Debugger::advance(debugger, sdl_state.sdl_renderer, args, state.machine, sdl_state.sdl_texture, state.stepping);
 
       // Main loop runs at the cycle rate of the machine
       Clock::regulate(state.clock);
