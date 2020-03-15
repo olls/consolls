@@ -8,6 +8,7 @@
 
 // Forward declares from <SDL2/SDL.h>
 using SDL_Keycode = s32;
+union SDL_Event;
 
 
 enum class Key
@@ -48,8 +49,6 @@ struct KeyState
 
 struct Input
 {
-  bool quit;
-
   EnumArray::EnumArray<Key, KeyState> keys;
 };
 
@@ -84,8 +83,7 @@ down(Input const& input, FrameID::FrameID frame_id)
   return result;
 }
 
-
 void
-update(Input& input, FrameID::FrameID frame_id);
+update_key_state(KeyState& key, SDL_Event const* key_event, FrameID::FrameID frame_id);
 
 } // namespace Input

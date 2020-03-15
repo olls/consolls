@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include "sdl-state.h"
+#include "sdl-events.h"
 #include "debugger.h"
 
 #include "machine/machine-serialisation.h"
@@ -9,8 +10,6 @@
 #include "machine/instructions.h"
 
 #include "utils/assert.h"
-
-#include "sdl-state.h"
 
 
 namespace Game
@@ -31,9 +30,7 @@ advance(State* const state, SDL_State::SDL_State& sdl_state, Options::Args args,
   if (Timer::check(state->input_update) ||
       (advance_machine && Machine::consume_signal_register(state->machine, Machine::Reserved::PollInput)))
   {
-    Input::update(state->input, state->frame_id);
-
-    if (state->input.quit)
+    if (SDL_Events::advance(state->input, state->frame_id))
     {
       success = false;
     }

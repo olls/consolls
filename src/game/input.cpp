@@ -103,44 +103,17 @@ init(Input& input)
 
 
 void
-update(KeyState& key, SDL_Event const& key_event, FrameID::FrameID frame_id)
+update_key_state(KeyState& key, SDL_Event const* key_event, FrameID::FrameID frame_id)
 {
-  if (key_event.key.keysym.sym == key.sdl_key_code)
+  if (key_event->key.keysym.sym == key.sdl_key_code)
   {
-    if (key_event.type == SDL_KEYDOWN)
+    if (key_event->type == SDL_KEYDOWN)
     {
       key.down_at = frame_id;
     }
-    if (key_event.type == SDL_KEYUP)
+    if (key_event->type == SDL_KEYUP)
     {
       key.up_at = frame_id;
-    }
-  }
-}
-
-
-void
-update(Input& input, FrameID::FrameID frame_id)
-{
-  SDL_Event event;
-  while(SDL_PollEvent(&event))
-  {
-    switch (event.type)
-    {
-      case (SDL_QUIT):
-      {
-        input.quit = true;
-      } break;
-      case (SDL_KEYDOWN):
-      case (SDL_KEYUP):
-      {
-        for (Key key_index = Key::START;
-             key_index < Key::COUNT;
-             ++key_index)
-        {
-          update(input.keys[key_index], event, frame_id);
-        }
-      } break;
     }
   }
 }
