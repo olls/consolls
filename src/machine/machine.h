@@ -88,23 +88,42 @@ struct Machine
 
 
 template <typename element_type>
-inline element_type* const
+inline element_type*
+get_ptr(Machine& machine, MemoryAddress addr)
+{
+  assert(addr < machine.memory.size);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
+  return (element_type*)(machine.memory.bytes + addr);
+#pragma clang diagnostic pop
+}
+
+template <typename element_type>
+inline element_type const*
 get_ptr(Machine const& machine, MemoryAddress addr)
 {
   assert(addr < machine.memory.size);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-align"
-  return (element_type* const)(machine.memory.bytes + addr);
+  return (element_type const*)(machine.memory.bytes + addr);
 #pragma clang diagnostic pop
 }
 
 
 template <typename element_type>
-inline element_type &
-get(Machine const& machine, MemoryAddress addr)
+inline element_type&
+get(Machine& machine, MemoryAddress addr)
 {
   return *get_ptr<element_type>(machine, addr);
+}
+
+template <typename element_type>
+inline element_type const&
+get(Machine const& machine, MemoryAddress addr)
+{
+  return *get_ptr<element_type const>(machine, addr);
 }
 
 
@@ -149,10 +168,17 @@ advance_addr<void>(MemoryAddress& addr)
 
 
 template <typename element_type>
-inline element_type &
-advance_addr(Machine const& machine, MemoryAddress& addr)
+inline element_type&
+advance_addr(Machine& machine, MemoryAddress& addr)
 {
   return *get_ptr<element_type>(machine, advance_addr<element_type>(addr));
+}
+
+template <typename element_type>
+inline element_type const&
+advance_addr(Machine const& machine, MemoryAddress& addr)
+{
+  return *get_ptr<element_type const>(machine, advance_addr<element_type const>(addr));
 }
 
 

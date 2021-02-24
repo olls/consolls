@@ -514,8 +514,8 @@ literal(Parser& parser, Tree::Node** result)
 
   Tree::Node node = { .type = Tree::Node::Literal, .text_start = current_text_position(parser) };
 
-  bool matches = ((terminal<SymbolType::Number>(parser, &node.literal.number) ? (node.literal.type = Tree::LiteralNode::Type::Number), true : false) ||
-                  (function(parser, &node.literal.function) ? (node.literal.type = Tree::LiteralNode::Type::Function), true : false));
+  bool matches = ((terminal<SymbolType::Number>(parser, &node.literal.number) ? (void)(node.literal.type = Tree::LiteralNode::Type::Number), true : false) ||
+                  (function(parser, &node.literal.function) ? (void)(node.literal.type = Tree::LiteralNode::Type::Function), true : false));
 
   node.text_end = parser.last_symbol_end_position;
 
@@ -577,9 +577,9 @@ expression(Parser& parser, Tree::Node** result)
 
   Tree::Node node = { .type = Tree::Node::Expression, .text_start = current_text_position(parser) };
 
-  bool matches = ((literal(parser, &node.expression.literal) ? (node.expression.type = Tree::ExpressionNode::Type::Literal), true : false) ||
-                  (function_call(parser, &node.expression.function_call) ? (node.expression.type = Tree::ExpressionNode::Type::FunctionCall), true : false) ||
-                  (terminal<SymbolType::Identifier>(parser, &node.expression.identifier) ? (node.expression.type = Tree::ExpressionNode::Type::Identifier), true : false));
+  bool matches = ((literal(parser, &node.expression.literal) ? (void)(node.expression.type = Tree::ExpressionNode::Type::Literal), true : false) ||
+                  (function_call(parser, &node.expression.function_call) ? (void)(node.expression.type = Tree::ExpressionNode::Type::FunctionCall), true : false) ||
+                  (terminal<SymbolType::Identifier>(parser, &node.expression.identifier) ? (void)(node.expression.type = Tree::ExpressionNode::Type::Identifier), true : false));
 
   node.text_end = parser.last_symbol_end_position;
 
@@ -791,8 +791,8 @@ statement(Parser& parser, Tree::Node** result)
 
   Tree::Node node = { .type = Tree::Node::Statement, .text_start = current_text_position(parser) };
 
-  bool matches = ((assignment(parser, &node.statement.assignment) ? (node.statement.type = Tree::StatementNode::Type::Assignment), true : false) ||
-                  (expression(parser, &node.statement.expression) ? (node.statement.type = Tree::StatementNode::Type::Expression), true : false));
+  bool matches = ((assignment(parser, &node.statement.assignment) ? (void)(node.statement.type = Tree::StatementNode::Type::Assignment), true : false) ||
+                  (expression(parser, &node.statement.expression) ? (void)(node.statement.type = Tree::StatementNode::Type::Expression), true : false));
 
   node.text_end = parser.last_symbol_end_position;
 

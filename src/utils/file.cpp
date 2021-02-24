@@ -75,7 +75,7 @@ open(char const* filename, File* result, bool write, bool trunc, size_t trunc_to
 
     if (success)
     {
-      const char* file_ptr = (const char*)mmap(NULL, result->size, mmap_protection, mmap_flags, result->fd, 0);
+      char* file_ptr = (char*)mmap(NULL, result->size, mmap_protection, mmap_flags, result->fd, 0);
       if (file_ptr == MAP_FAILED)
       {
         printf("Failed to map file: \"%s\"\n", filename);
@@ -87,7 +87,7 @@ open(char const* filename, File* result, bool write, bool trunc, size_t trunc_to
 
         if (write)
         {
-          result->write_ptr = (char*)file_ptr;
+          result->write_ptr = file_ptr;
         }
         else
         {

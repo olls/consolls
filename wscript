@@ -41,7 +41,9 @@ def configure(conf):
     '-Wno-covered-switch-default',
     '-Wno-padded',
     '-Wno-nested-anon-types',
-    '-Wno-sometimes-uninitialized'
+    '-Wno-sometimes-uninitialized',
+    '-Wno-zero-as-null-pointer-constant',
+    '-Wno-format-pedantic'
     # '-Wdouble-promotion'
   ]
   flags += sdl_flags
