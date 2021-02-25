@@ -22,6 +22,7 @@ def configure(conf):
     '--std=c++17',
     '-Wc++1z-extensions',
     '-Werror',
+    '-pedantic',
     '-Weverything',
     '-fcolor-diagnostics',
     '-fno-exceptions',
@@ -31,6 +32,7 @@ def configure(conf):
     '-Wpointer-arith',
     '-Wformat-nonliteral',
     '-Winit-self',
+    '-Wdouble-promotion',
 
     '-Wno-c++98-compat',
     '-Wno-unused-parameter',
@@ -44,7 +46,6 @@ def configure(conf):
     '-Wno-sometimes-uninitialized',
     '-Wno-zero-as-null-pointer-constant',
     '-Wno-format-pedantic'
-    # '-Wdouble-promotion'
   ]
   flags += sdl_flags
 
@@ -55,7 +56,7 @@ def configure(conf):
   link_flags += sdl_libs
 
   conf.env.append_value('CXXFLAGS', flags)
-  conf.env.append_value('INCLUDES', ['.', '../../src/'])
+  conf.env.append_value('INCLUDES', ['.', './src/'])
   conf.env.append_value('LINKFLAGS', link_flags)
 
   base_env = conf.env.derive()
